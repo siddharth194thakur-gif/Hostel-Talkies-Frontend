@@ -126,6 +126,7 @@ export const RegisterPage: React.FC = () => {
     setIsLoadingHostels(true);
     setHostelsError('');
     try {
+      console.info('[RegisterPage] Fetching hostels from:', api.defaults.baseURL + '/hostels/');
       const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
       const data = res.data as any;
       const list: Hostel[] = Array.isArray(data)
@@ -135,7 +136,7 @@ export const RegisterPage: React.FC = () => {
         : [];
       setHostels(list);
     } catch (err: any) {
-      console.error('Failed to load hostels from API', err);
+      console.error('[RegisterPage] Hostel fetch failed:', err?.config?.url, err?.message, err?.response?.status);
       const msg = err?.response?.data?.detail || err?.message || 'Unable to load hostels';
       setHostelsError(`${msg}. Please check your connection or click Retry.`);
       setHostels([]);

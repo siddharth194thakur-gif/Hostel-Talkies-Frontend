@@ -3,6 +3,12 @@ import axios from 'axios';
 const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').trim();
 export const API_BASE_URL = rawApiUrl.replace(/\/+$/, '').replace(/\/api\/?$/, '');
 
+// ── Debug: visible in browser console ──────────────────────────────────────
+console.info('[HostelTalkies] VITE_API_URL (raw):', import.meta.env.VITE_API_URL);
+console.info('[HostelTalkies] API_BASE_URL (resolved):', API_BASE_URL);
+console.info('[HostelTalkies] Axios baseURL:', `${API_BASE_URL}/api`);
+// ───────────────────────────────────────────────────────────────────────────
+
 export const getMediaUrl = (url: string | null | undefined): string | undefined => {
   if (!url) return undefined;
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('data:')) {

@@ -1,4 +1,7 @@
 {
+  "env": {
+    "VITE_API_URL": "https://hostel-talkies-backend-1.onrender.com"
+  },
   "rewrites": [
     {
       "source": "/(.*)",
