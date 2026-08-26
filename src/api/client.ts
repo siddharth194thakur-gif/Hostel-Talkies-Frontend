@@ -19,7 +19,7 @@ export const api = axios.create({
   },
 });
 
-// Request interceptor: attach JWT access token if present
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -28,7 +28,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle 401 token refresh or account blocked 403
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
