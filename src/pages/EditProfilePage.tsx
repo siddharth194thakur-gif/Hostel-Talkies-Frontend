@@ -49,26 +49,31 @@ export const EditProfilePage: React.FC = () => {
 
   // 1. Fetch hostels
   const [isLoadingHostels, setIsLoadingHostels] = useState(false);
+  const [hostelsError, setHostelsError] = useState('');
+
+  const fetchHostels = async () => {
+    setIsLoadingHostels(true);
+    setHostelsError('');
+    try {
+      const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
+      const data = res.data as any;
+      const list: Hostel[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.results)
+        ? data.results
+        : [];
+      setHostels(list);
+    } catch (err: any) {
+      console.error('Failed to load hostels in EditProfile', err);
+      const msg = err?.response?.data?.detail || err?.message || 'Unable to load hostels';
+      setHostelsError(`${msg}. Please click Retry.`);
+      setHostels([]);
+    } finally {
+      setIsLoadingHostels(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHostels = async () => {
-      setIsLoadingHostels(true);
-      try {
-        const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
-        const data = res.data as any;
-        const list: Hostel[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.results)
-          ? data.results
-          : [];
-        setHostels(list);
-      } catch (err) {
-        console.error('Failed to load hostels in EditProfile', err);
-        setHostels([]);
-      } finally {
-        setIsLoadingHostels(false);
-      }
-    };
     fetchHostels();
   }, []);
 
@@ -442,7 +447,20 @@ export const EditProfilePage: React.FC = () => {
           <span className="font-bold text-slate-800 block text-sm">Hostel Assignment</span>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Hostel *</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block font-semibold text-slate-700">Hostel *</label>
+              {(hostelsError || (hostels.length === 0 && !isLoadingHostels)) && (
+                <button
+                  type="button"
+                  onClick={() => fetchHostels()}
+                  disabled={isLoadingHostels}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:text-brand-700 disabled:opacity-50 transition active:scale-95"
+                >
+                  <RefreshCw className={`w-3 h-3 ${isLoadingHostels ? 'animate-spin' : ''}`} />
+                  <span>{isLoadingHostels ? 'Retrying...' : 'Retry Loading'}</span>
+                </button>
+              )}
+            </div>
             <select
               required
               value={selectedHostel}
@@ -454,7 +472,7 @@ export const EditProfilePage: React.FC = () => {
                 {isLoadingHostels
                   ? 'Loading available hostels...'
                   : hostels.length === 0 && !isLoadingHostels
-                  ? '-- No Hostels Found --'
+                  ? '-- No Hostels Found (Click Retry) --'
                   : '-- Choose Hostel --'}
               </option>
               {hostels.map((h) => (
@@ -463,6 +481,21 @@ export const EditProfilePage: React.FC = () => {
                 </option>
               ))}
             </select>
+            {hostelsError && (
+              <div className="flex items-center justify-between mt-1.5 p-2 bg-rose-50 border border-rose-100 rounded-xl">
+                <p className="text-[11px] text-rose-600 font-medium leading-tight">
+                  {hostelsError}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => fetchHostels()}
+                  disabled={isLoadingHostels}
+                  className="px-2 py-1 bg-white text-rose-700 text-[10px] font-bold rounded-lg border border-rose-200 shadow-2xs hover:bg-rose-100 transition shrink-0 ml-2"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
