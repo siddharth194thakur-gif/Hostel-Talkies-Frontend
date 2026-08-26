@@ -6,13 +6,24 @@ import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 import { BackButton } from '../components/BackButton';
 import { GenderIcon } from '../components/GenderIcon';
 
+interface SearchResultsResponse {
+  query: string;
+  people: any[];
+  posts: Array<{ id: number; title: string; post_type: string; price: string | null; created_at: string }>;
+  notices: Array<{ id: number; title: string; priority: string; publish_date: string }>;
+  events: Array<{ id: number; title: string; event_date: string; location: string }>;
+  services: Array<{ id: number; name: string; category: string; location: string }>;
+  study_resources: Array<{ id: number; title: string; resource_type: string; course_name: string }>;
+}
+
 export const SearchResultsPage: React.FC = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get('q') || '';
 
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<SearchResultsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     const executeSearch = async () => {
@@ -59,10 +70,10 @@ export const SearchResultsPage: React.FC = () => {
 
       {isLoading ? (
         <LoadingSkeleton count={3} />
-      ) : totalResults > 0 ? (
+      ) : results && totalResults > 0 ? (
         <div className="space-y-6">
           {/* People & Student Profiles */}
-          {results?.people?.length > 0 && (
+          {results.people && results.people.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Users className="w-4 h-4 text-brand-600" />
@@ -121,14 +132,14 @@ export const SearchResultsPage: React.FC = () => {
           )}
 
           {/* Posts & Marketplace */}
-          {results?.posts?.length > 0 && (
+          {results.posts && results.posts.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <ShoppingBag className="w-4 h-4 text-brand-600" />
                 <h3 className="font-bold text-slate-900 text-sm">Posts & Marketplace ({results.posts.length})</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {results.posts.map((p: any) => (
+                {results.posts.map((p) => (
                   <Link
                     key={p.id}
                     to={`/posts/${p.id}`}
@@ -146,14 +157,14 @@ export const SearchResultsPage: React.FC = () => {
           )}
 
           {/* Notices */}
-          {results?.notices?.length > 0 && (
+          {results.notices && results.notices.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <BellRing className="w-4 h-4 text-amber-600" />
                 <h3 className="font-bold text-slate-900 text-sm">Official Notices ({results.notices.length})</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {results.notices.map((n: any) => (
+                {results.notices.map((n) => (
                   <Link
                     key={n.id}
                     to="/notices"
@@ -170,14 +181,14 @@ export const SearchResultsPage: React.FC = () => {
           )}
 
           {/* Study Resources */}
-          {results?.study_resources?.length > 0 && (
+          {results.study_resources && results.study_resources.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <GraduationCap className="w-4 h-4 text-emerald-600" />
                 <h3 className="font-bold text-slate-900 text-sm">Study Resources ({results.study_resources.length})</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {results.study_resources.map((s: any) => (
+                {results.study_resources.map((s) => (
                   <Link
                     key={s.id}
                     to="/study"
@@ -195,14 +206,14 @@ export const SearchResultsPage: React.FC = () => {
           )}
 
           {/* Events */}
-          {results?.events?.length > 0 && (
+          {results.events && results.events.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Calendar className="w-4 h-4 text-purple-600" />
                 <h3 className="font-bold text-slate-900 text-sm">Events ({results.events.length})</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {results.events.map((e: any) => (
+                {results.events.map((e) => (
                   <Link
                     key={e.id}
                     to="/events"
@@ -217,14 +228,14 @@ export const SearchResultsPage: React.FC = () => {
           )}
 
           {/* Services */}
-          {results?.services?.length > 0 && (
+          {results.services && results.services.length > 0 && (
             <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Wrench className="w-4 h-4 text-cyan-600" />
                 <h3 className="font-bold text-slate-900 text-sm">Services ({results.services.length})</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {results.services.map((srv: any) => (
+                {results.services.map((srv) => (
                   <Link
                     key={srv.id}
                     to="/services"
@@ -242,6 +253,7 @@ export const SearchResultsPage: React.FC = () => {
           )}
         </div>
       ) : (
+
         <EmptyState
           title="No results found"
           message={`We couldn't find any matches for "${query}". Try searching for keywords like cycle, calculator, notes, or laundry.`}

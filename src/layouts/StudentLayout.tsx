@@ -23,7 +23,7 @@ export const StudentLayout: React.FC = () => {
     );
   }
 
-  if (!isAuthenticated && !user) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 

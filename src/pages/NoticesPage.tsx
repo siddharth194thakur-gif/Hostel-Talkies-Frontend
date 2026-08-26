@@ -28,8 +28,11 @@ export const NoticesPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchNotices();
-  }, [selectedPriority]);
+    const timer = setTimeout(() => {
+      fetchNotices();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedPriority, searchQuery]);
 
   return (
     <div className="space-y-6">

@@ -267,6 +267,33 @@ export const MessagesPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Periodic polling for new messages in active conversation
+  useEffect(() => {
+    if (!activeConversation?.id) return;
+    const currentConvId = activeConversation.id;
+
+    const pollInterval = setInterval(async () => {
+      if (document.hidden) return;
+      try {
+        const res = await api.get<Conversation>(`/messages/${currentConvId}/`);
+        const newMsgs = res.data?.messages;
+        if (newMsgs && Array.isArray(newMsgs)) {
+          setMessages((prev) => {
+            if (prev.length !== newMsgs.length) {
+              return newMsgs;
+            }
+            return prev;
+          });
+        }
+      } catch (e) {
+        // silent catch
+      }
+    }, 4000);
+
+    return () => clearInterval(pollInterval);
+  }, [activeConversation?.id]);
+
+
   // Scroll to message on reply click with momentary highlight flash
   const scrollToMessage = (messageId: number) => {
     const element = document.getElementById(`message-item-${messageId}`);
