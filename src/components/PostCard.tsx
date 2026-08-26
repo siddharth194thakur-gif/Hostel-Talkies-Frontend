@@ -16,7 +16,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { Post } from '../types';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { ReportModal } from './ReportModal';
 import { ConfirmationDialog } from './ConfirmationDialog';
@@ -138,7 +138,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-full bg-brand-50 text-brand-700 font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 border border-brand-100">
               {post.author_detail?.profile?.avatar ? (
-                <img src={post.author_detail.profile.avatar} alt="Author" className="w-full h-full object-cover" />
+                <img
+                  src={getMediaUrl(post.author_detail.profile.avatar)}
+                  alt="Author"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
               ) : (
                 <span>{post.author_detail?.full_name?.[0] || post.author_detail?.username?.[0] || 'U'}</span>
               )}

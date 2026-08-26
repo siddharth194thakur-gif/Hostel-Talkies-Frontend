@@ -9,12 +9,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Post, PublicUser } from '../types';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { PostCard } from '../components/PostCard';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 import { BackButton } from '../components/BackButton';
 import { GenderIcon } from '../components/GenderIcon';
 import { ReportModal } from '../components/ReportModal';
+import { CreditsModal } from '../components/CreditsModal';
 
 export const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -41,6 +42,9 @@ export const ProfilePage: React.FC = () => {
 
   // Logout confirmation modal
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Credits & Support modal
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   // Blocked Accounts (Own Profile Only - Private)
   const [blockedUsers, setBlockedUsers] = useState<PublicUser[]>([]);
@@ -202,7 +206,14 @@ export const ProfilePage: React.FC = () => {
             <div className="shrink-0">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold text-2xl flex items-center justify-center shadow-md overflow-hidden border-2 border-white">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <img
+                    src={getMediaUrl(avatarUrl)}
+                    alt={displayName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
                 ) : (
                   <span>{initialLetter}</span>
                 )}
@@ -770,6 +781,27 @@ export const ProfilePage: React.FC = () => {
                 <span>Log Out</span>
               </button>
             </div>
+
+            {/* Credits & Support Minimal Card */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+              <div className="space-y-0.5">
+                <p className="text-[11px] text-slate-400 font-medium leading-tight">
+                  © 2026 HostelTalkies. All Rights Reserved.
+                </p>
+                <p className="text-xs text-slate-700 font-medium leading-tight">
+                  Designed &amp; Developed by <strong className="text-slate-900 font-semibold">Siddharth Singh</strong>
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCreditsModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-brand-200 transition active:scale-95 shadow-2xs shrink-0"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+                <span>Credits &amp; Support</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -806,7 +838,14 @@ export const ProfilePage: React.FC = () => {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0 overflow-hidden">
                       {bu.profile?.avatar ? (
-                        <img src={bu.profile.avatar} alt={bu.full_name} className="w-full h-full object-cover" />
+                        <img
+                          src={getMediaUrl(bu.profile.avatar)}
+                          alt={bu.full_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
                       ) : (
                         <span>{bu.first_name?.charAt(0) || 'U'}</span>
                       )}
@@ -938,6 +977,12 @@ export const ProfilePage: React.FC = () => {
           onClose={() => setShowReportModal(false)}
         />
       )}
+
+      {/* Credits & Support Modal */}
+      <CreditsModal
+        isOpen={showCreditsModal}
+        onClose={() => setShowCreditsModal(false)}
+      />
     </div>
   );
 };

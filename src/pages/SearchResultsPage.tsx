@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Search, ShoppingBag, BellRing, Calendar, Wrench, GraduationCap, Users, ArrowRight, Building } from 'lucide-react';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 import { BackButton } from '../components/BackButton';
 import { GenderIcon } from '../components/GenderIcon';
@@ -80,9 +80,12 @@ export const SearchResultsPage: React.FC = () => {
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shrink-0 overflow-hidden border border-slate-200 shadow-xs">
                         {(person.profile?.avatar || person.profile_picture) ? (
                           <img
-                            src={(person.profile?.avatar || person.profile_picture)!}
+                            src={getMediaUrl((person.profile?.avatar || person.profile_picture)!)}
                             alt={person.full_name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
                           />
                         ) : (
                           <span>{person.first_name?.charAt(0) || person.full_name?.charAt(0) || 'U'}</span>

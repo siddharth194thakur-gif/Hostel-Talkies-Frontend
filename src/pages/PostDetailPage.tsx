@@ -19,7 +19,7 @@ import {
   Clock,
   Eye,
 } from 'lucide-react';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { Post, Comment } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { ReportModal } from '../components/ReportModal';
@@ -315,9 +315,16 @@ export const PostDetailPage: React.FC = () => {
         {/* Author Details Box */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-full bg-brand-100 text-brand-700 font-bold text-base flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-full bg-brand-100 text-brand-700 font-bold text-base flex items-center justify-center shrink-0 overflow-hidden">
               {post.author_detail?.profile?.avatar ? (
-                <img src={post.author_detail.profile.avatar} alt="Author" className="w-full h-full object-cover rounded-full" />
+                <img
+                  src={getMediaUrl(post.author_detail.profile.avatar)}
+                  alt="Author"
+                  className="w-full h-full object-cover rounded-full"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
               ) : (
                 <span>{post.author_detail?.full_name?.[0] || 'U'}</span>
               )}

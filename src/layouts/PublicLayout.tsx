@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
-import { Heart } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { API_BASE_URL } from '../api/client';
+import { CreditsModal } from '../components/CreditsModal';
 
 export const PublicLayout: React.FC = () => {
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar showSearch={false} />
@@ -53,24 +57,41 @@ export const PublicLayout: React.FC = () => {
               <ul className="space-y-2 text-xs text-slate-600">
                 <li><Link to="/login" className="hover:text-brand-600">Student Login</Link></li>
                 <li><Link to="/register" className="hover:text-brand-600">Create Student Account</Link></li>
-                <li><a href="http://localhost:8000/admin/" target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Admin Portal ↗</a></li>
+                <li><a href={`${API_BASE_URL}/admin/`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Admin Portal ↗</a></li>
               </ul>
             </div>
           </div>
 
 
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-            <div>
-              © {new Date().getFullYear()} HostelTalkies. Built for hostel students.
+            <div className="space-y-0.5 text-center sm:text-left">
+              <div>
+                © 2026 HostelTalkies. All Rights Reserved.
+              </div>
+              <div className="text-slate-600">
+                Designed &amp; Developed by <strong className="text-slate-800 font-semibold">Siddharth Singh</strong>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <span>Made with</span>
-              <Heart className="w-3.5 h-3.5 text-rose-500 fill-current inline" />
-              <span>for hostel life.</span>
+
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowCreditsModal(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-600 text-xs font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-95 shadow-2xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+                <span>Credits &amp; Support</span>
+              </button>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Credits & Support Modal */}
+      <CreditsModal
+        isOpen={showCreditsModal}
+        onClose={() => setShowCreditsModal(false)}
+      />
     </div>
   );
 };

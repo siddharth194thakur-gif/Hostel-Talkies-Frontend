@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { GenderIcon } from './GenderIcon';
 
 interface NavbarProps {
@@ -122,9 +122,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
                   <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0 overflow-hidden border border-slate-200 shadow-2xs">
                     {(person.profile?.avatar || person.profile_picture) ? (
                       <img
-                        src={(person.profile?.avatar || person.profile_picture)!}
+                        src={getMediaUrl((person.profile?.avatar || person.profile_picture)!)}
                         alt={person.full_name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
                       />
                     ) : (
                       <span>{person.first_name?.charAt(0) || person.full_name?.charAt(0) || 'U'}</span>

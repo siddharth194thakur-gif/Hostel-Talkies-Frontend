@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -14,9 +14,12 @@ import {
   User,
   PlusCircle,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../api/client';
+import { CreditsModal } from './CreditsModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,6 +29,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { unreadMessagesCount } = useNotifications();
   const { user } = useAuth();
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -122,26 +126,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* Footer / Community Tag */}
-        <div className="pt-4 border-t border-slate-100 space-y-3">
+        {/* Footer / Credits & Support */}
+        <div className="pt-3.5 border-t border-slate-150 space-y-2 shrink-0">
           {(user?.is_staff || user?.is_hostel_admin) && (
             <a
-              href="http://localhost:8000/admin/"
+              href={`${API_BASE_URL}/admin/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2.5 px-3.5 py-2 bg-amber-50 text-amber-900 text-xs font-semibold rounded-xl hover:bg-amber-100 transition border border-amber-100/70"
+              className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-900 text-[11px] font-semibold rounded-xl hover:bg-amber-100 transition border border-amber-100/70"
             >
-              <ShieldAlert className="w-4 h-4 text-amber-600" />
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
               <span>Django Admin Portal ↗</span>
             </a>
           )}
 
-          <div className="text-[10px] text-slate-400 text-center font-medium">
-            HostelTalkies • 2026<br />
-            <span className="text-slate-400/80">"Your Hostel. Your People. Your Talkies."</span>
+          <div className="space-y-1 text-left">
+            <p className="text-[10px] text-slate-400 font-medium leading-tight">
+              © 2026 HostelTalkies. All Rights Reserved.
+            </p>
+            <p className="text-[11px] text-slate-600 font-medium leading-tight">
+              Designed &amp; Developed by <strong className="text-slate-800 font-semibold">Siddharth Singh</strong>
+            </p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowCreditsModal(true)}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-600 text-[11px] font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-98 shadow-2xs"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+            <span>Credits &amp; Support</span>
+          </button>
         </div>
       </aside>
+
+      {/* Credits & Support Modal */}
+      <CreditsModal
+        isOpen={showCreditsModal}
+        onClose={() => setShowCreditsModal(false)}
+      />
     </>
   );
 };

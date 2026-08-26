@@ -5,7 +5,7 @@ import {
   Upload, GraduationCap, Camera, Trash2, X, RefreshCw, AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { Hostel, Block, Room } from '../types';
 import { BackButton } from '../components/BackButton';
 
@@ -246,7 +246,14 @@ export const EditProfilePage: React.FC = () => {
                 {avatarFile ? (
                   <img src={URL.createObjectURL(avatarFile)} alt="Preview" className="w-full h-full object-cover" />
                 ) : !removeAvatar && user?.profile?.avatar ? (
-                  <img src={user.profile.avatar} alt="Current" className="w-full h-full object-cover" />
+                  <img
+                    src={getMediaUrl(user.profile.avatar)}
+                    alt="Current"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
                 ) : (
                   <span>{initialLetter}</span>
                 )}

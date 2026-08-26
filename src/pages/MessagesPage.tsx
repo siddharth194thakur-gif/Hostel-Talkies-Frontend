@@ -8,7 +8,7 @@ import {
   Palette, Flag, Info, ArrowUp, ArrowDown, Ban,
   CornerUpLeft, Copy, Video, FileText
 } from 'lucide-react';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import {
   Conversation, Message, PublicUser, MessageReactionItem,
   UserChatPreference
@@ -888,20 +888,26 @@ export const MessagesPage: React.FC = () => {
                       {conv.is_group ? (
                         conv.group_avatar ? (
                           <img
-                            src={conv.group_avatar}
+                            src={getMediaUrl(conv.group_avatar)}
                             alt={conv.group_name}
                             className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shadow-xs"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
                           />
                         ) : (
                           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                             {conv.group_name?.slice(0, 2).toUpperCase() || 'GP'}
                           </div>
                         )
-                      ) : conv.other_user?.profile_picture ? (
+                      ) : (conv.other_user?.profile?.avatar || conv.other_user?.profile_picture) ? (
                         <img
-                          src={conv.other_user.profile_picture}
+                          src={getMediaUrl(conv.other_user.profile?.avatar || conv.other_user.profile_picture)}
                           alt={conv.other_user.full_name}
                           className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shadow-xs"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
                         />
                       ) : (
                         <div className="w-11 h-11 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-xs">
@@ -1043,20 +1049,26 @@ export const MessagesPage: React.FC = () => {
                   {activeConversation.is_group ? (
                     activeConversation.group_avatar ? (
                       <img
-                        src={activeConversation.group_avatar}
+                        src={getMediaUrl(activeConversation.group_avatar)}
                         alt={activeConversation.group_name}
                         className="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-xs group-hover:ring-2 group-hover:ring-brand-500/40 transition"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-xs group-hover:ring-2 group-hover:ring-brand-500/40 transition">
                         {activeConversation.group_name?.slice(0, 2).toUpperCase() || 'GP'}
                       </div>
                     )
-                  ) : activeConversation.other_user?.profile_picture ? (
+                  ) : (activeConversation.other_user?.profile?.avatar || activeConversation.other_user?.profile_picture) ? (
                     <img
-                      src={activeConversation.other_user.profile_picture}
+                      src={getMediaUrl(activeConversation.other_user.profile?.avatar || activeConversation.other_user.profile_picture)}
                       alt={activeConversation.other_user.full_name}
                       className="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-xs group-hover:ring-2 group-hover:ring-brand-500/40 transition"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-xs group-hover:ring-2 group-hover:ring-brand-500/40 transition">
@@ -2137,8 +2149,19 @@ export const MessagesPage: React.FC = () => {
                     return (
                       <div key={p.id} className="p-2 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2.5 truncate">
-                          <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[10px]">
-                            {p.first_name?.charAt(0) || 'U'}
+                          <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[10px] overflow-hidden shrink-0">
+                            {(p.profile?.avatar || p.profile_picture) ? (
+                              <img
+                                src={getMediaUrl(p.profile?.avatar || p.profile_picture)}
+                                alt={p.full_name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <span>{p.first_name?.charAt(0) || 'U'}</span>
+                            )}
                           </div>
                           <div className="truncate">
                             <span className="font-semibold text-slate-800 truncate block">{p.full_name}</span>
