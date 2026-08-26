@@ -26,8 +26,10 @@ export const ExplorePage: React.FC = () => {
           api.get<{ results: Category[] } | Category[]>('/posts/categories/'),
           api.get<{ results: Hostel[] } | Hostel[]>('/hostels/'),
         ]);
-        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results || []);
-        setHostels(Array.isArray(hostelRes.data) ? hostelRes.data : hostelRes.data.results || []);
+        const catData = catRes.data as any;
+        const hostelData = hostelRes.data as any;
+        setCategories(Array.isArray(catData) ? catData : (Array.isArray(catData?.results) ? catData.results : []));
+        setHostels(Array.isArray(hostelData) ? hostelData : (Array.isArray(hostelData?.results) ? hostelData.results : []));
       } catch (err) {
         console.error(err);
       }

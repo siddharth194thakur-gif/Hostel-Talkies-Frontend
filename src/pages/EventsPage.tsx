@@ -16,7 +16,13 @@ export const EventsPage: React.FC = () => {
     const fetchHostels = async () => {
       try {
         const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
-        setHostels(Array.isArray(res.data) ? res.data : res.data.results || []);
+        const data = res.data as any;
+        const list: Hostel[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
+        setHostels(list);
       } catch (err) {
         console.error(err);
       }

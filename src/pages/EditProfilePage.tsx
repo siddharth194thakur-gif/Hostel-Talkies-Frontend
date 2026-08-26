@@ -48,13 +48,25 @@ export const EditProfilePage: React.FC = () => {
   const [error, setError] = useState('');
 
   // 1. Fetch hostels
+  const [isLoadingHostels, setIsLoadingHostels] = useState(false);
+
   useEffect(() => {
     const fetchHostels = async () => {
+      setIsLoadingHostels(true);
       try {
         const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
-        setHostels(Array.isArray(res.data) ? res.data : res.data.results || []);
+        const data = res.data as any;
+        const list: Hostel[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
+        setHostels(list);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load hostels in EditProfile', err);
+        setHostels([]);
+      } finally {
+        setIsLoadingHostels(false);
       }
     };
     fetchHostels();
@@ -70,9 +82,16 @@ export const EditProfilePage: React.FC = () => {
     const fetchBlocks = async () => {
       try {
         const res = await api.get<{ results: Block[] } | Block[]>(`/hostels/${selectedHostel}/blocks/`);
-        setBlocks(Array.isArray(res.data) ? res.data : res.data.results || []);
+        const data = res.data as any;
+        const list: Block[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
+        setBlocks(list);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load blocks in EditProfile', err);
+        setBlocks([]);
       }
     };
     fetchBlocks();
@@ -88,9 +107,16 @@ export const EditProfilePage: React.FC = () => {
     const fetchRooms = async () => {
       try {
         const res = await api.get<{ results: Room[] } | Room[]>(`/hostels/blocks/${selectedBlock}/rooms/`);
-        setRooms(Array.isArray(res.data) ? res.data : res.data.results || []);
+        const data = res.data as any;
+        const list: Room[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
+        setRooms(list);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load rooms in EditProfile', err);
+        setRooms([]);
       }
     };
     fetchRooms();
@@ -421,12 +447,19 @@ export const EditProfilePage: React.FC = () => {
               required
               value={selectedHostel}
               onChange={(e) => setSelectedHostel(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 outline-none text-xs"
+              disabled={isLoadingHostels}
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 outline-none text-xs disabled:opacity-60 disabled:bg-slate-50"
             >
-              <option value="">-- Choose Hostel --</option>
+              <option value="">
+                {isLoadingHostels
+                  ? 'Loading available hostels...'
+                  : hostels.length === 0 && !isLoadingHostels
+                  ? '-- No Hostels Found --'
+                  : '-- Choose Hostel --'}
+              </option>
               {hostels.map((h) => (
                 <option key={h.id} value={h.id}>
-                  {h.name}
+                  {h.name} {h.gender ? `(${h.gender})` : ''}
                 </option>
               ))}
             </select>

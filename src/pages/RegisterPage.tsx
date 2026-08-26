@@ -120,15 +120,25 @@ export const RegisterPage: React.FC = () => {
   }, [programme]);
 
   // 1. Fetch available Hostels dynamically from database on mount
+  const [hostelsError, setHostelsError] = useState('');
+
   useEffect(() => {
     const fetchHostels = async () => {
       setIsLoadingHostels(true);
+      setHostelsError('');
       try {
         const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
-        const list = Array.isArray(res.data) ? res.data : res.data.results || [];
+        const data = res.data as any;
+        const list: Hostel[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
         setHostels(list);
       } catch (err) {
-        console.error('Failed to load hostels', err);
+        console.error('Failed to load hostels from API', err);
+        setHostelsError('Unable to load hostels. Please check your connection or try again.');
+        setHostels([]);
       } finally {
         setIsLoadingHostels(false);
       }
@@ -149,10 +159,16 @@ export const RegisterPage: React.FC = () => {
       setIsLoadingBlocks(true);
       try {
         const res = await api.get<{ results: Block[] } | Block[]>(`/hostels/${selectedHostel}/blocks/`);
-        const list = Array.isArray(res.data) ? res.data : res.data.results || [];
+        const data = res.data as any;
+        const list: Block[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
         setBlocks(list);
       } catch (err) {
         console.error('Failed to load blocks', err);
+        setBlocks([]);
       } finally {
         setIsLoadingBlocks(false);
       }
@@ -171,10 +187,16 @@ export const RegisterPage: React.FC = () => {
       setIsLoadingRooms(true);
       try {
         const res = await api.get<{ results: Room[] } | Room[]>(`/hostels/blocks/${selectedBlock}/rooms/`);
-        const list = Array.isArray(res.data) ? res.data : res.data.results || [];
+        const data = res.data as any;
+        const list: Room[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+          ? data.results
+          : [];
         setRooms(list);
       } catch (err) {
         console.error('Failed to load rooms', err);
+        setRooms([]);
       } finally {
         setIsLoadingRooms(false);
       }
@@ -382,15 +404,26 @@ export const RegisterPage: React.FC = () => {
                     value={selectedHostel}
                     onChange={(e) => setSelectedHostel(e.target.value)}
                     disabled={isLoadingHostels}
-                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-60 disabled:bg-slate-50"
                   >
-                    <option value="">-- Choose Your Hostel --</option>
+                    <option value="">
+                      {isLoadingHostels
+                        ? 'Loading available hostels...'
+                        : hostels.length === 0 && !isLoadingHostels
+                        ? '-- No Hostels Found --'
+                        : '-- Choose Your Hostel --'}
+                    </option>
                     {hostels.map((h) => (
                       <option key={h.id} value={h.id}>
                         {h.name} {h.gender ? `(${h.gender})` : ''}
                       </option>
                     ))}
                   </select>
+                  {hostelsError && (
+                    <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                      {hostelsError}
+                    </p>
+                  )}
                 </div>
 
                 {/* 7 & 8. Block & Room Select (OPTIONAL) */}
