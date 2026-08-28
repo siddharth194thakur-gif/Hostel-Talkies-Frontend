@@ -1,14 +1,22 @@
 import axios from 'axios';
 
-const defaultApiUrl =
-  typeof window !== 'undefined' &&
-  window.location.hostname !== 'localhost' &&
-  window.location.hostname !== '127.0.0.1'
-    ? 'https://hostel-talkies-backend-1.onrender.com'
-    : 'http://localhost:8000';
+const getActiveApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    let clean = envUrl.trim().replace(/\/+$/, '').replace(/\/api\/?$/, '');
+    // Fix stale Render service name if missing -1
+    if (clean === 'https://hostel-talkies-backend.onrender.com') {
+      return 'https://hostel-talkies-backend-1.onrender.com';
+    }
+    return clean;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://hostel-talkies-backend-1.onrender.com';
+  }
+  return 'http://localhost:8000';
+};
 
-const rawApiUrl = (import.meta.env.VITE_API_URL || defaultApiUrl).trim();
-export const API_BASE_URL = rawApiUrl.replace(/\/+$/, '').replace(/\/api\/?$/, '');
+export const API_BASE_URL = getActiveApiUrl();
 
 // ── Debug: visible in browser console ──────────────────────────────────────
 console.info('[HostelTalkies] VITE_API_URL (raw):', import.meta.env.VITE_API_URL);
