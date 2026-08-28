@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000').trim();
+const defaultApiUrl =
+  typeof window !== 'undefined' &&
+  window.location.hostname !== 'localhost' &&
+  window.location.hostname !== '127.0.0.1'
+    ? 'https://hostel-talkies-backend-1.onrender.com'
+    : 'http://localhost:8000';
+
+const rawApiUrl = (import.meta.env.VITE_API_URL || defaultApiUrl).trim();
 export const API_BASE_URL = rawApiUrl.replace(/\/+$/, '').replace(/\/api\/?$/, '');
 
 // ── Debug: visible in browser console ──────────────────────────────────────
