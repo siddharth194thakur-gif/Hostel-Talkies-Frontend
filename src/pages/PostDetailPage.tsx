@@ -141,6 +141,10 @@ export const PostDetailPage: React.FC = () => {
         return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100">Roommate</span>;
       case 'study':
         return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">Study Talk</span>;
+      case 'general':
+        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">General Talkies</span>;
+      case 'others':
+        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-100">{post.category_name || 'Others'}</span>;
       default:
         return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200">Community</span>;
     }

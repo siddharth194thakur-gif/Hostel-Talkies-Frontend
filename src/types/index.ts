@@ -125,7 +125,8 @@ export type PostType =
   | 'study'
   | 'help'
   | 'service'
-  | 'general';
+  | 'general'
+  | 'others';
 
 export interface PostImage {
   id: number;

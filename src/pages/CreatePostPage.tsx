@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Users,
   Sparkles,
+  MoreHorizontal,
 } from 'lucide-react';
 import api from '../api/client';
 import { Category, PostType } from '../types';
@@ -29,6 +30,7 @@ export const CreatePostPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('good');
   const [locationField, setLocationField] = useState('');
@@ -68,16 +70,38 @@ export const CreatePostPage: React.FC = () => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const isOthersSelected = postType === 'others' || categoryId === 'others';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
+    // Validation for custom category when "Others" is selected
+    if (isOthersSelected) {
+      const trimmedCategory = customCategory.trim();
+      if (!trimmedCategory) {
+        setError('Please enter your category name in "Create Your Category" before publishing.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (trimmedCategory.length > 50) {
+        setError('Category name cannot exceed 50 characters.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append('post_type', postType);
-    formData.append('title', title);
-    formData.append('description', description);
-    if (categoryId) formData.append('category', categoryId);
+    formData.append('title', title.trim());
+    formData.append('description', description.trim());
+
+    if (isOthersSelected) {
+      formData.append('custom_category', customCategory.trim());
+    } else if (categoryId && categoryId !== 'others') {
+      formData.append('category', categoryId);
+    }
     
     if (postType === 'buy_sell' && price) {
       formData.append('price', price);
@@ -86,7 +110,7 @@ export const CreatePostPage: React.FC = () => {
     }
 
     if (condition) formData.append('condition', condition);
-    if (locationField) formData.append('location', locationField);
+    if (locationField.trim()) formData.append('location', locationField.trim());
     if (eventDate) formData.append('event_date', eventDate);
 
     images.forEach((img) => {
@@ -114,6 +138,7 @@ export const CreatePostPage: React.FC = () => {
     { type: 'found', label: 'Found Item', icon: CheckCircle2 },
     { type: 'roommate', label: 'Roommate Requirement', icon: Users },
     { type: 'general', label: 'General Talkies', icon: Sparkles },
+    { type: 'others', label: 'Others', icon: MoreHorizontal },
   ];
 
   return (
@@ -137,7 +162,7 @@ export const CreatePostPage: React.FC = () => {
       {/* Select Post Type - Elegant Selectable Cards */}
       <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-subtle space-y-3">
         <label className="block font-bold text-slate-900 text-xs sm:text-sm">What would you like to post?</label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-2.5">
           {postTypesList.map((pt) => {
             const Icon = pt.icon;
             const isSelected = postType === pt.type;
@@ -145,8 +170,13 @@ export const CreatePostPage: React.FC = () => {
               <button
                 key={pt.type}
                 type="button"
-                onClick={() => setPostType(pt.type)}
-                className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between gap-2.5 transition-all duration-200 ${
+                onClick={() => {
+                  setPostType(pt.type);
+                  if (pt.type !== 'others' && categoryId === 'others') {
+                    setCategoryId('');
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between gap-2.5 transition-all duration-200 cursor-pointer ${
                   isSelected
                     ? 'border-brand-600 bg-brand-50/70 text-brand-900 shadow-subtle font-bold'
                     : 'border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50/70 hover:border-slate-300 font-medium'
@@ -158,6 +188,35 @@ export const CreatePostPage: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Custom Category Input (Visible only when "Others" is selected) */}
+        {isOthersSelected && (
+          <div className="pt-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="p-4 bg-gradient-to-r from-purple-50/80 to-indigo-50/40 rounded-2xl border border-purple-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Create Your Category *</span>
+                </label>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  e.g. Food, Mess, Electronics, Gaming, Notes, Sports
+                </span>
+              </div>
+              <input
+                type="text"
+                required
+                maxLength={50}
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="Enter your category name..."
+                className="w-full px-4 py-2.5 bg-white border border-purple-200/90 rounded-xl text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-semibold placeholder:font-normal placeholder:text-slate-400 shadow-2xs"
+              />
+              <p className="text-[10px] text-slate-500 font-medium">
+                This custom category will be displayed on your post across the community feed.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Form Details */}
@@ -177,28 +236,40 @@ export const CreatePostPage: React.FC = () => {
                 ? 'e.g. Lost Blue Boat Rockerz 450 in Central Library'
                 : postType === 'giveaway'
                 ? 'e.g. Wooden Study Desk available for free pick-up'
+                : postType === 'others'
+                ? 'e.g. Gaming Tournament / Hostel Mess Discussion / Custom Request'
                 : 'e.g. Roommate needed for Aryabhata Block A1'
             }
             className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium placeholder:text-slate-400"
           />
         </div>
 
-        {/* Category & Price / Condition */}
+        {/* Category & Price / Location */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block font-semibold text-slate-700 mb-1.5">Category</label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs"
-            >
-              <option value="">-- Choose Category --</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <label className="block font-semibold text-slate-700 mb-1.5">
+              Category {isOthersSelected ? '(Custom Selected)' : ''}
+            </label>
+            {postType === 'others' ? (
+              <div className="w-full px-3.5 py-2.5 bg-purple-50/70 border border-purple-200 rounded-xl text-purple-900 font-bold text-xs flex items-center justify-between">
+                <span>{customCategory.trim() || 'Custom Category (Enter Above)'}</span>
+                <span className="text-[10px] text-purple-600 uppercase font-semibold">Others</span>
+              </div>
+            ) : (
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+              >
+                <option value="">-- Choose Category --</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+                <option value="others">+ Others (Custom Category)</option>
+              </select>
+            )}
           </div>
 
           {postType === 'buy_sell' ? (
