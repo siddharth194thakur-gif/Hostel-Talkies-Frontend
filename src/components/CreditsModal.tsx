@@ -55,7 +55,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({ isOpen, onClose }) =
                 Hostel<span className="text-brand-600">Talkies</span>
               </h3>
               <p className="text-xs font-semibold text-slate-500">
-                Credits & Support
+                Supported By
               </p>
             </div>
           </div>

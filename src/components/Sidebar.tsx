@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-white border-r border-slate-200/80 transition-transform duration-200 ease-in-out lg:translate-x-0 overflow-y-auto flex flex-col justify-between p-4 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 transition-transform duration-200 ease-in-out lg:translate-x-0 overflow-y-auto flex flex-col justify-between p-4 pb-8 lg:pb-4 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -126,8 +126,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* Footer / Credits & Support */}
-        <div className="pt-3.5 border-t border-slate-150 space-y-2 shrink-0">
+        {/* Footer / Supported By */}
+        <div className="pt-3.5 border-t border-slate-150 space-y-2 shrink-0 mt-4">
           {(user?.is_staff || user?.is_hostel_admin) && (
             <a
               href={`${API_BASE_URL}/admin/`}
@@ -140,11 +140,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </a>
           )}
 
-          <div className="space-y-1 text-left">
-            <p className="text-[10px] text-slate-400 font-medium leading-tight">
+          <div className="space-y-0.5 text-left">
+            <p className="text-[10px] text-slate-400 font-medium leading-normal break-words">
               © 2026 HostelTalkies. All Rights Reserved.
             </p>
-            <p className="text-[11px] text-slate-600 font-medium leading-tight">
+            <p className="text-[11px] text-slate-600 font-medium leading-normal break-words">
               Designed &amp; Developed by <strong className="text-slate-800 font-semibold">Siddharth Singh</strong>
             </p>
           </div>
@@ -152,15 +152,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={() => setShowCreditsModal(true)}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-600 text-[11px] font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-98 shadow-2xs"
+            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-98 shadow-2xs cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-            <span>Credits &amp; Support</span>
+            <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+            <span>Supported By</span>
           </button>
         </div>
       </aside>
 
-      {/* Credits & Support Modal */}
+      {/* Supported By Modal */}
       <CreditsModal
         isOpen={showCreditsModal}
         onClose={() => setShowCreditsModal(false)}

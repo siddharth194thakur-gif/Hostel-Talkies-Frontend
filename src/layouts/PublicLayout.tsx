@@ -77,17 +77,17 @@ export const PublicLayout: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCreditsModal(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-600 text-xs font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-95 shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold rounded-xl border border-slate-200/80 hover:border-brand-200 transition active:scale-95 shadow-2xs cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-                <span>Credits &amp; Support</span>
+                <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                <span>Supported By</span>
               </button>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Credits & Support Modal */}
+      {/* Supported By Modal */}
       <CreditsModal
         isOpen={showCreditsModal}
         onClose={() => setShowCreditsModal(false)}

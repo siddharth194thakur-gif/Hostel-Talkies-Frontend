@@ -43,7 +43,7 @@ export const ProfilePage: React.FC = () => {
   // Logout confirmation modal
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Credits & Support modal
+  // Supported By modal
   const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   // Blocked Accounts (Own Profile Only - Private)
@@ -782,7 +782,7 @@ export const ProfilePage: React.FC = () => {
               </button>
             </div>
 
-            {/* Credits & Support Minimal Card */}
+            {/* Supported By Minimal Card */}
             <div className="p-4 bg-white rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
               <div className="space-y-0.5">
                 <p className="text-[11px] text-slate-400 font-medium leading-tight">
@@ -796,10 +796,10 @@ export const ProfilePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCreditsModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-brand-200 transition active:scale-95 shadow-2xs shrink-0"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-brand-200 transition active:scale-95 shadow-2xs shrink-0 cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-                <span>Credits &amp; Support</span>
+                <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                <span>Supported By</span>
               </button>
             </div>
           </div>
@@ -978,7 +978,7 @@ export const ProfilePage: React.FC = () => {
         />
       )}
 
-      {/* Credits & Support Modal */}
+      {/* Supported By Modal */}
       <CreditsModal
         isOpen={showCreditsModal}
         onClose={() => setShowCreditsModal(false)}
