@@ -826,7 +826,16 @@ export const MessagesPage: React.FC = () => {
         {/* Top Header & Tabs */}
         <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 space-y-2.5 shrink-0">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/home')}
+                className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/60 transition cursor-pointer"
+                title="Back to Home"
+                aria-label="Back to Home"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <h2 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">Messages</h2>
             </div>
 

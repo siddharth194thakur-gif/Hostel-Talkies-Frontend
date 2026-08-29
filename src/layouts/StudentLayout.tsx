@@ -54,22 +54,26 @@ export const StudentLayout: React.FC = () => {
 
   return (
     <div className={`flex flex-col bg-slate-50 ${isMessagesPage ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      {/* On mobile in messages page, hide global navbar so chat is 100% full screen */}
+      <div className={isMessagesPage ? 'hidden lg:block' : 'block'}>
+        <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      </div>
 
       <div className={`flex-1 flex w-full mx-auto ${isMessagesPage ? 'min-h-0 overflow-hidden max-w-full lg:max-w-7xl' : 'max-w-7xl'}`}>
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className={`flex-1 min-w-0 ${
           isMessagesPage
-            ? 'lg:pl-64 p-0 md:p-4 lg:p-6 pb-16 md:pb-4 lg:pb-6 flex flex-col overflow-hidden h-full'
+            ? 'lg:pl-64 p-0 md:p-4 lg:p-6 pb-0 flex flex-col overflow-hidden h-full'
             : 'lg:pl-64 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8'
         }`}>
           <Outlet />
         </main>
       </div>
 
-      {/* Mobile & Tablet Instagram-Style Bottom Navigation */}
-      <BottomNav />
+      {/* Mobile & Tablet Bottom Navigation - Hidden when inside Chat/Messages page for full screen experience */}
+      {!isMessagesPage && <BottomNav />}
     </div>
   );
 };
+
