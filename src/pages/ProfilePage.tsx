@@ -198,13 +198,17 @@ export const ProfilePage: React.FC = () => {
         )}
       </div>
 
-      {/* Profile Header Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm relative overflow-hidden space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-          <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
-            {/* Avatar */}
-            <div className="shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold text-2xl flex items-center justify-center shadow-md overflow-hidden border-2 border-white">
+      {/* 4K Ultra-Luxury Executive Resident Passport Banner */}
+      <div className="rounded-[36px] bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white p-6 sm:p-9 banner-3d border border-indigo-500/30 relative overflow-hidden space-y-6 animate-fade-in">
+        {/* Ambient 4K Spatial Glow Lights */}
+        <div className="absolute -right-10 -top-10 w-64 h-64 bg-brand-500/25 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-48 bottom-0 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transform-3d">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 min-w-0 translate-z-20">
+            {/* 4K High-Definition Avatar with Iridescent Ring & Verification Badge */}
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white font-black text-3xl flex items-center justify-center shadow-2xl overflow-hidden border-2 border-white/40 ring-4 ring-purple-500/30 ring-offset-4 ring-offset-slate-950">
                 {avatarUrl ? (
                   <img
                     src={getMediaUrl(avatarUrl)}
@@ -218,43 +222,50 @@ export const ProfilePage: React.FC = () => {
                   <span>{initialLetter}</span>
                 )}
               </div>
+
+              {/* Verified Shield Badge on Avatar */}
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-xl border-2 border-slate-950 flex items-center justify-center shadow-lg" title="Verified Campus Resident">
+                <ShieldCheck className="w-4 h-4 text-white stroke-[2.5]" />
+              </div>
             </div>
 
-            {/* Profile Info */}
-            <div className="space-y-1.5 min-w-0">
+            {/* Resident Information */}
+            <div className="space-y-2 min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/25 text-brand-300 rounded-full border border-brand-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                  <span>RESIDENT PASSPORT</span>
+                </span>
+                <span className="text-[10px] font-extrabold text-white/90 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+                  ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
+                </span>
+              </div>
+
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight truncate">
+                <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight truncate translate-z-30 drop-shadow-md">
                   {displayName}
                 </h1>
                 <GenderIcon gender={gender} badge showLabel />
               </div>
 
               {usernameHandle && (
-                <p className="text-xs font-semibold text-brand-600">@{usernameHandle}</p>
+                <p className="text-xs font-bold text-brand-300 flex items-center gap-1">
+                  <span>@{usernameHandle}</span>
+                </p>
               )}
 
-              {/* Academic & Hostel Info */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs text-slate-600 font-medium">
+              {/* Academic & Room Credentials */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-200 font-medium">
                 {programme && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-brand-50 text-brand-700 rounded-full font-semibold">
-                    <GraduationCap className="w-3 h-3 text-brand-500" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
+                    <GraduationCap className="w-3.5 h-3.5 text-brand-300" />
                     <span>{programme}{branch ? ` • ${branch}` : ''}</span>
                   </span>
                 )}
                 {hostelName && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded-full">
-                    <Building className="w-3 h-3 text-indigo-500" />
-                    <span>{hostelName}</span>
-                  </span>
-                )}
-                {blockName && (
-                  <span className="px-2.5 py-0.5 bg-slate-100 text-slate-700 rounded-full">
-                    {blockName}
-                  </span>
-                )}
-                {roomNumber && (
-                  <span className="px-2.5 py-0.5 bg-slate-100 text-slate-700 rounded-full font-mono">
-                    Room {roomNumber}
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
+                    <Building className="w-3.5 h-3.5 text-indigo-300" />
+                    <span>{hostelName}{blockName ? ` • Block ${blockName}` : ''}{roomNumber ? ` • Rm ${roomNumber}` : ''}</span>
                   </span>
                 )}
               </div>
@@ -262,32 +273,31 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Action Area */}
-          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center w-full md:w-auto justify-end translate-z-40">
             {isOwnProfile ? (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
                 <Link
                   to="/profile/edit"
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-black rounded-2xl btn-3d-brand cursor-pointer"
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
+                  <Edit3 className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Edit Profile</span>
                 </Link>
                 <button
                   type="button"
                   onClick={() => setShowLogoutModal(true)}
-                  className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                  className="p-2.5 text-slate-300 hover:text-rose-400 hover:bg-white/10 rounded-2xl border border-white/15 backdrop-blur-md transition cursor-pointer"
                   title="Log out"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <>
-                {/* Message Button for other user */}
+              <div className="flex items-center gap-2">
                 {isBlocked ? (
                   <button
                     disabled
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 text-slate-400 text-xs font-semibold rounded-xl cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-800 text-slate-400 text-xs font-semibold rounded-2xl cursor-not-allowed border border-slate-700"
                   >
                     <Ban className="w-3.5 h-3.5" />
                     <span>Blocked</span>
@@ -296,10 +306,10 @@ export const ProfilePage: React.FC = () => {
                   <button
                     onClick={handleStartChat}
                     disabled={isStartingChat}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-black rounded-2xl btn-3d-brand cursor-pointer disabled:opacity-50"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>{isStartingChat ? 'Opening...' : 'Message'}</span>
+                    <MessageSquare className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>{isStartingChat ? 'Opening...' : 'Send Message'}</span>
                   </button>
                 )}
 
@@ -307,7 +317,7 @@ export const ProfilePage: React.FC = () => {
                 <div className="relative">
                   <button
                     onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                    className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
+                    className="p-2.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-2xl border border-white/15 backdrop-blur-md transition cursor-pointer"
                     title="Profile Options"
                   >
                     <MoreVertical className="w-4 h-4" />
@@ -315,14 +325,13 @@ export const ProfilePage: React.FC = () => {
 
                   {showOptionsMenu && (
                     <div
-                      className="absolute right-0 top-10 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/90 p-1.5 z-30 space-y-1 animate-in zoom-in-95 duration-100"
+                      className="absolute right-0 top-12 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/90 p-1.5 z-30 space-y-1 animate-in zoom-in-95 duration-100 text-slate-900"
                       onClick={() => setShowOptionsMenu(false)}
                     >
-                      {/* Block / Unblock option */}
                       {isBlocked ? (
                         <button
                           onClick={handleUnblockUser}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 rounded-xl flex items-center gap-2.5 transition"
+                          className="w-full text-left px-3 py-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50 rounded-xl flex items-center gap-2.5 transition"
                         >
                           <Check className="w-4 h-4 text-emerald-500" />
                           <span>Unblock User</span>
@@ -330,17 +339,16 @@ export const ProfilePage: React.FC = () => {
                       ) : (
                         <button
                           onClick={() => setShowBlockConfirmModal(true)}
-                          className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl flex items-center gap-2.5 transition"
+                          className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl flex items-center gap-2.5 transition"
                         >
                           <Ban className="w-4 h-4 text-rose-500" />
                           <span>Block User</span>
                         </button>
                       )}
 
-                      {/* Report Option */}
                       <button
                         onClick={() => setShowReportModal(true)}
-                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-2.5 transition"
+                        className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-2.5 transition"
                       >
                         <Flag className="w-4 h-4 text-slate-400" />
                         <span>Report Profile</span>
@@ -348,53 +356,53 @@ export const ProfilePage: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Bio */}
+        {/* Bio Statement */}
         {bio ? (
-          <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100/80">
-            {bio}
-          </p>
+          <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-xs text-slate-200 leading-relaxed translate-z-20">
+            <p className="font-normal italic">"{bio}"</p>
+          </div>
         ) : isOwnProfile ? (
-          <div className="p-3.5 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200 text-xs text-slate-500">
-            <span>No bio added yet. You can introduce yourself to hostel mates using the Edit Profile button above.</span>
+          <div className="p-3.5 bg-white/5 backdrop-blur-sm rounded-2xl border border-dashed border-white/15 text-xs text-slate-400 translate-z-20">
+            <span>No bio added yet. Introduce yourself to hostel mates using the <strong>Edit Profile</strong> button.</span>
           </div>
         ) : null}
 
-        {/* Stats Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-center">
-          <div className="p-3 bg-slate-50/70 rounded-2xl">
-            <span className="block text-base font-bold text-slate-900">{userPosts.length}</span>
-            <span className="text-[11px] text-slate-500 font-medium">My Posts</span>
+        {/* 4K Spatial HUD Metrics Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/10 text-center translate-z-30">
+          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-xl font-black text-white">{userPosts.length}</span>
+            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Posts &amp; Deals</span>
           </div>
 
-          <div className="p-3 bg-slate-50/70 rounded-2xl">
-            <span className="block text-base font-bold text-slate-900">
+          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-xl font-black text-brand-300">
               {new Date(joinedDate || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
             </span>
-            <span className="text-[11px] text-slate-500 font-medium">Member Since</span>
+            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Resident Since</span>
           </div>
 
-          <div className="p-3 bg-slate-50/70 rounded-2xl">
-            <span className="block text-base font-bold text-emerald-600">Active</span>
-            <span className="text-[11px] text-slate-500 font-medium">Hostel Resident</span>
+          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-xl font-black text-emerald-300">Verified</span>
+            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Campus Standing</span>
           </div>
 
           {isOwnProfile ? (
             <button
               onClick={() => setActiveTab('blocked')}
-              className="p-3 bg-slate-50/70 hover:bg-slate-100 rounded-2xl transition text-center"
+              className="p-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl border border-white/10 transition text-center cursor-pointer"
             >
-              <span className="block text-base font-bold text-slate-800">{blockedUsers.length}</span>
-              <span className="text-[11px] text-slate-500 font-medium">Blocked Users</span>
+              <span className="block text-xl font-black text-white">{blockedUsers.length}</span>
+              <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Privacy Controls</span>
             </button>
           ) : (
-            <div className="p-3 bg-slate-50/70 rounded-2xl">
-              <span className="block text-base font-bold text-slate-800">{hostelName || 'Hostel'}</span>
-              <span className="text-[11px] text-slate-500 font-medium">Resident</span>
+            <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+              <span className="block text-xl font-black text-purple-300">{hostelName ? 'Resident' : 'Member'}</span>
+              <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Hostel Status</span>
             </div>
           )}
         </div>
@@ -448,53 +456,53 @@ export const ProfilePage: React.FC = () => {
         <div className="space-y-5">
           {/* Quick Shortcuts Cards (Own Profile only) */}
           {isOwnProfile && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <Link
                 to="/saved"
-                className="p-4 bg-white hover:bg-slate-50/80 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between group transition"
+                className="p-4 bg-white rounded-2xl border border-slate-200/80 card-3d-luxury flex items-center justify-between group transition cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <Bookmark className="w-4 h-4" />
+                  <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Bookmark className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-slate-800">Saved Posts</h4>
+                    <h4 className="font-bold text-xs text-slate-800 group-hover:text-brand-600 transition-colors">Saved Posts</h4>
                     <p className="text-[11px] text-slate-500">Bookmarked items</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
               </Link>
 
               <Link
                 to="/study"
-                className="p-4 bg-white hover:bg-slate-50/80 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between group transition"
+                className="p-4 bg-white rounded-2xl border border-slate-200/80 card-3d-luxury flex items-center justify-between group transition cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <BookOpen className="w-4 h-4" />
+                  <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-2xs group-hover:scale-105 transition-transform">
+                    <BookOpen className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-slate-800">Study Repository</h4>
-                    <p className="text-[11px] text-slate-500">Notes & PYQs</p>
+                    <h4 className="font-bold text-xs text-slate-800 group-hover:text-brand-600 transition-colors">Study Repository</h4>
+                    <p className="text-[11px] text-slate-500">Notes &amp; PYQs</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
               </Link>
 
               <Link
                 to="/create-post"
-                className="p-4 bg-white hover:bg-slate-50/80 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between group transition"
+                className="p-4 bg-white rounded-2xl border border-slate-200/80 card-3d-luxury flex items-center justify-between group transition cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-100 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Sparkles className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-slate-800">Create Post</h4>
+                    <h4 className="font-bold text-xs text-slate-800 group-hover:text-brand-600 transition-colors">Create Post</h4>
                     <p className="text-[11px] text-slate-500">List an item or ask</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           )}
