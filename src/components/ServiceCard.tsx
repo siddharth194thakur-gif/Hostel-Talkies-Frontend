@@ -83,7 +83,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   };
 
   return (
-    <article className="bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 flex flex-col justify-between space-y-4 group animate-fade-in-up">
+    <article className="bg-white rounded-3xl border border-slate-200/80 card-3d-luxury p-5 sm:p-6 flex flex-col justify-between space-y-4 group animate-fade-in-up">
       <div className="space-y-3.5">
         {/* Header: Icon + Category Badge */}
         <div className="flex items-start justify-between gap-3">

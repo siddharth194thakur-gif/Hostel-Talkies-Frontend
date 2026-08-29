@@ -55,15 +55,15 @@ export const LostFoundPage: React.FC = () => {
 
   return (
     <div className="space-y-6 text-xs">
-      {/* Luxury Lost & Found Hero Hub Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+      {/* 3D Lost & Found Recovery Hero Hub */}
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-rose-950/60 to-slate-900 text-white overflow-hidden banner-3d border border-slate-800 animate-fade-in">
         <div className="absolute -right-12 -top-12 w-52 h-52 bg-rose-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-36 bottom-0 w-40 h-40 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 transform-3d">
+          <div className="space-y-2.5 max-w-xl translate-z-20">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 rounded-full border border-rose-400/30 backdrop-blur-xs flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 rounded-full border border-rose-400/30 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
                 <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
                 <span>Campus Recovery Hub</span>
               </span>
@@ -73,24 +73,24 @@ export const LostFoundPage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-md">
               Lost &amp; Found Central
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed translate-z-20">
               Report missing ID cards, keys, earphone cases, calculators, or help fellow hostelers quickly recover their misplaced belongings.
             </p>
 
-            <div className="pt-1.5 flex flex-wrap gap-2.5">
+            <div className="pt-1.5 flex flex-wrap gap-2.5 translate-z-40">
               <Link
                 to="/create-post?type=lost"
-                className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs rounded-2xl shadow-lg shadow-rose-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs rounded-2xl btn-3d-rose flex items-center gap-2 cursor-pointer"
               >
                 <AlertCircle className="w-4 h-4" />
                 <span>🚨 Report Lost Item</span>
               </Link>
               <Link
                 to="/create-post?type=found"
-                className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs rounded-2xl btn-3d-emerald flex items-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>✅ Report Found Item</span>

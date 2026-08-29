@@ -81,15 +81,15 @@ export const MarketplacePage: React.FC = () => {
 
   return (
     <div className="space-y-6 text-xs">
-      {/* Luxury Marketplace Hero Hub */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+      {/* Luxury Marketplace 3D Hero Hub */}
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden banner-3d border border-slate-800 animate-fade-in">
         <div className="absolute -right-12 -top-12 w-52 h-52 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-36 bottom-0 w-40 h-40 bg-brand-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 transform-3d">
+          <div className="space-y-2.5 max-w-xl translate-z-20">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/30 backdrop-blur-xs flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/30 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
                 <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Campus Marketplace • Peer Trade</span>
               </span>
@@ -99,16 +99,16 @@ export const MarketplacePage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-md">
               Hostel Marketplace &amp; Deals
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed translate-z-20">
               Buy, sell, giveaway, and barter pre-loved hostel essentials, electronics, coolers, study tables, bicycles, and books within your hostel community.
             </p>
           </div>
 
           {/* Quick Stats & Post CTA */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto translate-z-40">
             <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
               <span className="block text-xl font-black text-white">{posts.length}</span>
               <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
@@ -123,7 +123,7 @@ export const MarketplacePage: React.FC = () => {
             </div>
             <Link
               to="/create-post?type=buy_sell"
-              className="px-4 py-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              className="px-4 py-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-bold rounded-2xl btn-3d-brand flex items-center gap-2 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>+ Post an Item</span>

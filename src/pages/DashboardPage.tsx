@@ -83,14 +83,14 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 text-xs pb-8">
-      {/* Distinct Digital Resident ID & Command Center Hero - Purple & Indigo Theme */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-700 text-white overflow-hidden shadow-2xl border border-white/10 animate-fade-in">
-        <div className="absolute -right-16 -top-16 w-64 h-64 bg-purple-400/25 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
-        <div className="absolute right-40 bottom-0 w-48 h-48 bg-brand-400/25 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+      {/* Personal Command Center 3D Hero Banner */}
+      <div className="relative p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-700 text-white overflow-hidden banner-3d border border-brand-400/30 animate-fade-in">
+        <div className="absolute -right-8 -top-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-36 bottom-0 w-36 h-36 bg-purple-400/20 rounded-full blur-xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          {/* Left: Resident Profile Card Meta */}
-          <div className="space-y-2 min-w-0">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 transform-3d">
+          {/* Left: Dynamic Time Greeting & Verified Credentials */}
+          <div className="space-y-2 max-w-xl translate-z-20">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white border border-white/25 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
@@ -101,7 +101,7 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate translate-z-30 drop-shadow-md">
               {getGreeting()}, {user?.first_name || user?.username}! ✨
             </h1>
 
@@ -116,7 +116,7 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Right: Quick Command Actions */}
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto translate-z-40">
             <Link
               to="/create-post"
               className="px-4 py-2.5 bg-white hover:bg-slate-50 text-brand-700 font-black text-xs rounded-2xl shadow-xl shadow-brand-900/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border border-white/80"
@@ -144,7 +144,7 @@ export const DashboardPage: React.FC = () => {
 
       {/* Personal Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 card-3d-luxury group animate-fade-in-up">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">My Active Posts</span>
             <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -155,7 +155,7 @@ export const DashboardPage: React.FC = () => {
           <span className="block text-[10px] text-brand-600 font-bold mt-1">Live in marketplace</span>
         </div>
 
-        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 card-3d-luxury group animate-fade-in-up">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hostel Circulars</span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -166,7 +166,7 @@ export const DashboardPage: React.FC = () => {
           <span className="block text-[10px] text-amber-600 font-bold mt-1">Authority broadcasts</span>
         </div>
 
-        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 card-3d-luxury group animate-fade-in-up">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Campus Events</span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">

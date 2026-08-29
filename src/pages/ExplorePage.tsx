@@ -109,15 +109,15 @@ export const ExplorePage: React.FC = () => {
 
   return (
     <div className="space-y-6 text-xs">
-      {/* Luxury Explore Discovery Hero Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+      {/* 3D Explore Discovery Hero Banner */}
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden banner-3d border border-slate-800 animate-fade-in">
         <div className="absolute -right-12 -top-12 w-56 h-56 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-36 bottom-0 w-44 h-44 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 transform-3d">
+          <div className="space-y-2.5 max-w-xl translate-z-20">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
                 <Compass className="w-3.5 h-3.5 text-brand-400" />
                 <span>Universal Campus Feed</span>
               </span>
@@ -126,16 +126,16 @@ export const ExplorePage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-md">
               Explore Campus Feed
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed translate-z-20">
               Discover marketplace deals, roommate searches, free giveaways, book exchanges, and hostel discussions across all student residences.
             </p>
           </div>
 
           {/* Quick Real-time Discovery Counters */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto translate-z-40">
             <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
               <span className="block text-xl font-black text-white">{posts.length}</span>
               <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">

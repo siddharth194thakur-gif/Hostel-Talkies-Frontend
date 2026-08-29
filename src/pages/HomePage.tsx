@@ -120,15 +120,15 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto pb-6">
-      {/* 1. Executive Welcome Hero Banner */}
-      <section className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+      {/* 1. Executive Welcome 3D Hero Banner */}
+      <section className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden banner-3d border border-slate-800 animate-fade-in">
         <div className="absolute -right-12 -top-12 w-56 h-56 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-36 bottom-0 w-44 h-44 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5">
+          <div className="space-y-3 max-w-2xl transform-3d">
+            <div className="flex flex-wrap items-center gap-2 translate-z-20">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
                 <Sparkles className="w-3.5 h-3.5 text-brand-400" />
                 <span>Resident Gateway</span>
               </span>
@@ -142,24 +142,24 @@ export const HomePage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-md">
               {getGreeting()}, {user?.first_name || user?.username}! 👋
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed translate-z-20">
               Your centralized campus gateway. Explore live marketplace deals, official hostel circulars, study notes &amp; PYQs, and connect with roommates.
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-2.5">
+            <div className="pt-2 flex flex-wrap gap-2.5 translate-z-40">
               <Link
                 to="/create-post"
-                className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl btn-3d-brand flex items-center gap-2 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>+ Create Post</span>
               </Link>
               <Link
                 to="/marketplace"
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer shadow-xs"
               >
                 <ShoppingBag className="w-4 h-4 text-brand-300" />
                 <span>Browse Deals</span>
@@ -241,7 +241,7 @@ export const HomePage: React.FC = () => {
               <Link
                 key={item.to}
                 to={item.to}
-                className="bg-white p-4 rounded-3xl border border-slate-200/80 hover:border-brand-300/80 shadow-subtle hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col items-start gap-2.5 group cursor-pointer active:scale-[0.98] animate-fade-in-up"
+                className="bg-white p-4 rounded-3xl border border-slate-200/80 card-3d-luxury flex flex-col items-start gap-2.5 group cursor-pointer active:scale-[0.98] animate-fade-in-up"
               >
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border shadow-2xs ${item.bgLight} group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className="w-5 h-5" />

@@ -58,15 +58,15 @@ export const ServicesPage: React.FC = () => {
 
   return (
     <div className="space-y-6 text-xs">
-      {/* Luxury Services Directory Hero Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+      {/* 3D Services Directory Hero Banner */}
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden banner-3d border border-slate-800 animate-fade-in">
         <div className="absolute -right-12 -top-12 w-52 h-52 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-36 bottom-0 w-40 h-40 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 transform-3d">
+          <div className="space-y-2.5 max-w-xl translate-z-20">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30 backdrop-blur-xs flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-400/30 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
                 <Wrench className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Hostel Utilities &amp; Vendors</span>
               </span>
@@ -76,16 +76,16 @@ export const ServicesPage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-md">
               Hostel Services Directory
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed translate-z-20">
               Official contact numbers and operating timings for campus laundry, xerox printing, electricians, plumbers, barbers, and housekeeping vendors.
             </p>
           </div>
 
           {/* Quick Stats Pill Cards */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto translate-z-40">
             <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[90px]">
               <span className="block text-xl font-black text-white">{services.length}</span>
               <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
