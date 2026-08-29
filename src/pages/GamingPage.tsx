@@ -232,7 +232,7 @@ export const GamingPage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2.5 translate-z-20">
               <span className="px-3.5 py-1 text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-orange-500/30 to-amber-500/30 text-orange-300 rounded-full border border-orange-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                 <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
-                <span>3D FREE FIRE ARENA</span>
+                <span>FREE FIRE MAX ARENA</span>
               </span>
               <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-purple-200 rounded-full border border-white/15 backdrop-blur-md flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-amber-400" />
@@ -241,14 +241,14 @@ export const GamingPage: React.FC = () => {
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-              Hostel Esports 3D Arena 🎮
+              Hostel Esports &amp; Gaming Arena 🎮
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-xl translate-z-20">
-              Interactive 3D rankings for campus Free Fire gamers. Sync your live BR rank, KD ratio &amp; Booyahs by UID to claim the #1 Gold Trophy on the 3D podium!
+              Live rankings for campus Free Fire gamers. Sync your live BR rank, KD ratio &amp; Booyahs by UID to claim the #1 Gold Trophy on the champions podium!
             </p>
 
-            {/* 3D Tactile Buttons */}
+            {/* Tactile Buttons */}
             <div className="pt-2 flex flex-wrap gap-3.5 translate-z-40">
               <button
                 type="button"
@@ -260,7 +260,7 @@ export const GamingPage: React.FC = () => {
                 className="px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center gap-2 cursor-pointer border border-yellow-300/40"
               >
                 <Gamepad2 className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                <span>{myProfile ? '⚡ Update My 3D Stats' : '🎮 Register Free Fire UID'}</span>
+                <span>{myProfile ? '⚡ Update My Gaming Stats' : '🎮 Register Free Fire UID'}</span>
               </button>
 
               {myProfile && (
@@ -271,7 +271,7 @@ export const GamingPage: React.FC = () => {
                   className="px-4 py-3 bg-purple-900/60 hover:bg-purple-800/80 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/30 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-cyan-300 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>Sync 3D Stats</span>
+                  <span>Sync Stats</span>
                 </button>
               )}
 
@@ -316,7 +316,7 @@ export const GamingPage: React.FC = () => {
           <div className="flex items-center gap-2 px-1">
             <Trophy className="w-4 h-4 text-amber-500" />
             <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
-              3D Champions Podium • Top 3 Pro Players
+              Champions Podium • Top 3 Pro Players
             </h2>
           </div>
 
@@ -460,7 +460,7 @@ export const GamingPage: React.FC = () => {
             }`}
           >
             <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span>Full 3D Leaderboard</span>
+            <span>Leaderboard</span>
           </button>
 
           <button
@@ -532,7 +532,7 @@ export const GamingPage: React.FC = () => {
                       <th className="py-3.5 px-4">Rank Tier</th>
                       <th className="py-3.5 px-4">K/D Ratio</th>
                       <th className="py-3.5 px-4">Booyahs</th>
-                      <th className="py-3.5 px-4 text-right">3D Points</th>
+                      <th className="py-3.5 px-4 text-right">Points</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
@@ -723,7 +723,7 @@ export const GamingPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Gamepad2 className="w-5 h-5 text-orange-500" />
-                <h3 className="text-base font-black text-slate-900">Free Fire 3D Profile Setup</h3>
+                <h3 className="text-base font-black text-slate-900">Free Fire Profile Setup</h3>
               </div>
               <button
                 type="button"
@@ -862,7 +862,7 @@ export const GamingPage: React.FC = () => {
                   disabled={isSubmitting}
                   className="w-full py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-2xl shadow-md transition active:scale-98 cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving 3D Profile...' : 'Save & Claim 3D Podium Rank 🏆'}
+                  {isSubmitting ? 'Saving Profile...' : 'Save & Claim Podium Rank 🏆'}
                 </button>
               </div>
             </form>
