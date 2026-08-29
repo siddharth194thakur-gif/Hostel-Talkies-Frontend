@@ -425,3 +425,54 @@ export interface Tournament {
   created_at: string;
 }
 
+export interface ReportItem {
+  id: number;
+  reporter: number;
+  reporter_email?: string;
+  report_type: 'post' | 'user' | 'comment';
+  target_id: string;
+  reason: 'spam' | 'fake_listing' | 'scam' | 'harassment' | 'inappropriate_content' | 'other';
+  details: string;
+  status: 'pending' | 'reviewing' | 'resolved' | 'dismissed';
+  admin_notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FeedbackItem {
+  id: number;
+  user: number | null;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'pending' | 'reviewing' | 'resolved';
+  created_at: string;
+}
+
+export interface AdminActionLogItem {
+  id: number;
+  admin: number | null;
+  admin_email?: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  notes: string;
+  timestamp: string;
+}
+
+export interface AdminDashboardData {
+  stats: {
+    total_students: number;
+    total_posts: number;
+    pending_reports: number;
+    total_reports: number;
+    pending_feedback: number;
+    total_hostels: number;
+    total_gamers: number;
+  };
+  recent_students: User[];
+  recent_logs: AdminActionLogItem[];
+}
+
+

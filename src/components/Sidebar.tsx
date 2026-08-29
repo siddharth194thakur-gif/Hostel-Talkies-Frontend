@@ -45,6 +45,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/messages', label: 'Messages', icon: MessageSquare, badge: unreadMessagesCount },
     { to: '/saved', label: 'Saved Posts', icon: Bookmark },
     { to: '/profile', label: 'My Profile', icon: User },
+    ...(user?.is_staff || user?.is_hostel_admin || user?.is_superuser
+      ? [{ to: '/admin', label: 'Admin Hub 🛡️', icon: ShieldAlert }]
+      : []),
   ];
 
   return (

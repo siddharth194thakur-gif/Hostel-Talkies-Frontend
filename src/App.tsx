@@ -34,6 +34,7 @@ import { CreatePostPage } from './pages/CreatePostPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 import { SearchResultsPage } from './pages/SearchResultsPage';
 import { GamingPage } from './pages/GamingPage';
+import { AdminPage } from './pages/AdminPage';
 
 export const App: React.FC = () => {
   return (
@@ -73,6 +74,7 @@ export const App: React.FC = () => {
             <Route path="/create-post" element={<CreatePostPage />} />
             <Route path="/posts/:id" element={<PostDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Route>
 
           {/* Catch-all route */}
