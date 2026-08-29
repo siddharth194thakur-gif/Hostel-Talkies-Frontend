@@ -6,7 +6,7 @@ import {
   LogOut, UserPlus, Image as ImageIcon, Crown,
   Paperclip, Smile, Eye, FileDown, UploadCloud, ChevronDown,
   Palette, Flag, Info, ArrowUp, ArrowDown, Ban,
-  CornerUpLeft, Copy, Video, FileText
+  CornerUpLeft, Copy, Video, FileText, Sparkles, MessageSquare
 } from 'lucide-react';
 import api, { getMediaUrl } from '../api/client';
 import {
@@ -1810,11 +1810,54 @@ export const MessagesPage: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="hidden md:flex flex-1 items-center justify-center p-8 text-center bg-slate-50/50">
-          <EmptyState
-            title="Your Messages & Groups"
-            message="Select a direct chat or private group from the left panel to begin messaging."
-          />
+        <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-slate-50/80 via-indigo-50/20 to-slate-50 relative overflow-hidden">
+          <div className="absolute w-96 h-96 bg-brand-400/10 rounded-full blur-3xl pointer-events-none -top-20 -right-20" />
+          <div className="absolute w-80 h-80 bg-purple-400/10 rounded-full blur-3xl pointer-events-none -bottom-20 -left-20" />
+
+          <div className="relative z-10 max-w-md space-y-6 flex flex-col items-center">
+            {/* Animated Emblem */}
+            <div className="relative">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-xl shadow-brand-500/25 border-2 border-white">
+                <Send className="w-9 h-9 translate-x-0.5 -translate-y-0.5" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold border-2 border-white shadow-xs">
+                ✓
+              </span>
+            </div>
+
+            <div className="space-y-2 text-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-[11px] font-bold border border-brand-200/80">
+                <Sparkles className="w-3.5 h-3.5 text-brand-600" />
+                <span>HostelTalkies Direct Messenger</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Your Campus Conversations
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                Select a direct chat or hostel group from the left panel to discuss marketplace listings, study materials, or connect with roommates.
+              </p>
+            </div>
+
+            {/* Feature Highlights Matrix */}
+            <div className="grid grid-cols-2 gap-2.5 w-full text-left pt-2">
+              <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🔒 Privacy</span>
+                <span className="text-xs font-bold text-slate-800 block">Hostel Verified</span>
+              </div>
+              <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">⚡ Delivery</span>
+                <span className="text-xs font-bold text-slate-800 block">Instant Live Chat</span>
+              </div>
+              <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">📎 Sharing</span>
+                <span className="text-xs font-bold text-slate-800 block">Notes, PYQs &amp; Media</span>
+              </div>
+              <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🎨 Themes</span>
+                <span className="text-xs font-bold text-slate-800 block">Custom Wallpapers</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
