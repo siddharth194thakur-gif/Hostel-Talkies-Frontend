@@ -204,6 +204,7 @@ export interface Notice {
   attachment: string | null;
   is_active: boolean;
   created_by_name: string;
+  created_by_role?: string;
   created_at: string;
 }
 
