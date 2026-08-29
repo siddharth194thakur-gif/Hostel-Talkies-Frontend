@@ -102,49 +102,90 @@ export const HomePage: React.FC = () => {
     },
   ];
 
+  // Time of day greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto pb-6">
-      {/* 1. Welcome Hero Banner */}
-      <section className="bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-700 rounded-3xl p-6 sm:p-8 text-white shadow-card relative overflow-hidden">
-        <div className="relative z-10 space-y-3.5 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-brand-50 text-[11px] font-semibold border border-white/15">
-            <Building className="w-3.5 h-3.5 text-brand-200" />
-            <span>
-              {user?.profile?.hostel_detail?.name || 'Hostel Community'}
-              {user?.profile?.block_detail ? ` • ${user.profile.block_detail.name}` : ''}
-              {user?.profile?.room_detail ? ` • Room ${user.profile.room_detail.room_number}` : ''}
-            </span>
+      {/* 1. Executive Welcome Hero Banner */}
+      <section className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+        <div className="absolute -right-12 -top-12 w-56 h-56 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-36 bottom-0 w-44 h-44 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                <span>Resident Gateway</span>
+              </span>
+              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-slate-300 rounded-full border border-white/10 flex items-center gap-1.5">
+                <Building className="w-3.5 h-3.5 text-brand-300" />
+                <span>
+                  {user?.profile?.hostel_detail?.name || 'Hostel Community Member'}
+                  {user?.profile?.block_detail ? ` • ${user.profile.block_detail.name}` : ''}
+                  {user?.profile?.room_detail ? ` • Rm ${user.profile.room_detail.room_number}` : ''}
+                </span>
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+              {getGreeting()}, {user?.first_name || user?.username}! 👋
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+              Your centralized campus gateway. Explore live marketplace deals, official hostel circulars, study notes &amp; PYQs, and connect with roommates.
+            </p>
+
+            <div className="pt-2 flex flex-wrap gap-2.5">
+              <Link
+                to="/create-post"
+                className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>+ Create Post</span>
+              </Link>
+              <Link
+                to="/marketplace"
+                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4 text-brand-300" />
+                <span>Browse Deals</span>
+              </Link>
+              <Link
+                to="/study"
+                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-emerald-300" />
+                <span>Study Vault</span>
+              </Link>
+            </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Welcome to HostelTalkies, {user?.first_name || user?.username}! 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-brand-100/90 leading-relaxed font-normal">
-            Your centralized campus hub for marketplace listings, hostel updates, study notes, events, and resident chats.
-          </p>
-
-          <div className="pt-2 flex flex-wrap gap-2.5">
-            <Link
-              to="/create-post"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-brand-700 hover:bg-slate-50 font-bold text-xs rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Create Post</span>
-            </Link>
-            <Link
-              to="/marketplace"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition cursor-pointer"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Browse Marketplace</span>
-            </Link>
-            <Link
-              to="/study"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition cursor-pointer"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Study Notes</span>
-            </Link>
+          {/* Quick Realtime Stats Pill Cards */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-auto">
+            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
+              <span className="block text-xl font-black text-white">{posts.length}</span>
+              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+                Deals
+              </span>
+            </div>
+            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
+              <span className="block text-xl font-black text-amber-300">{notices.length}</span>
+              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+                Notices
+              </span>
+            </div>
+            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
+              <span className="block text-xl font-black text-emerald-300">{studyResources.length}</span>
+              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+                Vault
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -192,10 +233,10 @@ export const HomePage: React.FC = () => {
               <Link
                 key={item.to}
                 to={item.to}
-                className="bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-300/80 shadow-subtle hover:shadow-card transition-all duration-200 flex flex-col items-start gap-2.5 group cursor-pointer active:scale-[0.98]"
+                className="bg-white p-4 rounded-3xl border border-slate-200/80 hover:border-brand-300/80 shadow-subtle hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col items-start gap-2.5 group cursor-pointer active:scale-[0.98] animate-fade-in-up"
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-2xs ${item.bgLight} group-hover:scale-105 transition-transform`}>
-                  <Icon className="w-4 h-4" />
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border shadow-2xs ${item.bgLight} group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-xs text-slate-900 group-hover:text-brand-600 transition-colors">
