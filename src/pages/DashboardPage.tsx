@@ -83,20 +83,20 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 text-xs pb-8">
-      {/* Distinct Digital Resident ID & Command Center Hero */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white overflow-hidden shadow-2xl border border-slate-800 animate-fade-in">
-        <div className="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
-        <div className="absolute right-40 bottom-0 w-48 h-48 bg-brand-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+      {/* Distinct Digital Resident ID & Command Center Hero - Vibrant Royal Teal & Emerald Aqua Theme */}
+      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-800 via-emerald-700 to-cyan-800 text-white overflow-hidden shadow-2xl border border-teal-500/30 animate-fade-in">
+        <div className="absolute -right-16 -top-16 w-64 h-64 bg-cyan-400/25 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-40 bottom-0 w-48 h-48 bg-emerald-300/25 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Left: Resident Profile Card Meta */}
           <div className="space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-emerald-100 border border-white/25 backdrop-blur-xs flex items-center gap-1.5 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-200" />
                 <span>Verified Resident</span>
               </span>
-              <span className="text-[10px] font-bold text-slate-400">
+              <span className="text-[10px] font-bold text-emerald-100/90 bg-black/15 px-2.5 py-0.5 rounded-full border border-white/10">
                 ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
               </span>
             </div>
@@ -105,10 +105,10 @@ export const DashboardPage: React.FC = () => {
               {getGreeting()}, {user?.first_name || user?.username}! ✨
             </h1>
 
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-medium">
-              <span className="inline-flex items-center gap-1.5 text-slate-200">
-                <Building className="w-3.5 h-3.5 text-brand-400" />
-                <strong>{user?.profile?.hostel_detail?.name || 'Campus Hostel'}</strong>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-100 font-medium">
+              <span className="inline-flex items-center gap-1.5 text-white font-bold bg-white/10 px-2.5 py-1 rounded-xl border border-white/15">
+                <Building className="w-3.5 h-3.5 text-cyan-200" />
+                <span>{user?.profile?.hostel_detail?.name || 'Campus Hostel'}</span>
               </span>
               {user?.profile?.block_detail && <span>• Block {user.profile.block_detail.name}</span>}
               {user?.profile?.room_detail && <span>• Rm {user.profile.room_detail.room_number}</span>}
@@ -119,24 +119,24 @@ export const DashboardPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
             <Link
               to="/create-post"
-              className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-500/25 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 bg-white hover:bg-emerald-50 text-teal-900 font-black text-xs rounded-2xl shadow-xl shadow-teal-950/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border border-white/80"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
               <span>+ Post Listing</span>
             </Link>
             <Link
               to="/profile/edit"
-              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 bg-teal-950/30 hover:bg-teal-950/50 text-white font-bold text-xs rounded-2xl border border-white/20 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
             >
-              <User className="w-4 h-4 text-slate-300" />
+              <User className="w-4 h-4 text-cyan-200" />
               <span>My Profile</span>
             </Link>
             <Link
               to="/saved"
-              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2.5 bg-teal-950/30 hover:bg-teal-950/50 text-white font-bold text-xs rounded-2xl border border-white/20 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
               title="Saved Items"
             >
-              <Bookmark className="w-4 h-4 text-brand-300" />
+              <Bookmark className="w-4 h-4 text-cyan-200" />
             </Link>
           </div>
         </div>
