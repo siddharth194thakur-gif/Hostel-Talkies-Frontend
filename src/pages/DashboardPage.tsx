@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Building,
   PlusCircle,
@@ -13,36 +13,53 @@ import {
   ArrowRight,
   Sparkles,
   AlertCircle,
+  ShieldCheck,
+  User,
+  Phone,
+  Clock,
+  Utensils,
+  Zap,
+  CheckCircle2,
+  FileText,
+  Heart,
+  MessageSquare,
+  Activity,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Post, Notice, Event, HostelService } from '../types';
-import api from '../api/client';
+import api, { getMediaUrl } from '../api/client';
 import { PostCard } from '../components/PostCard';
-import { NoticeCard } from '../components/NoticeCard';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const navigate = useNavigate();
+
+  const [myPosts, setMyPosts] = useState<Post[]>([]);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [services, setServices] = useState<HostelService[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'my_posts' | 'services'>('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      const [postsRes, noticesRes, eventsRes, servicesRes] = await Promise.all([
-        api.get<{ results: Post[] } | Post[]>('/posts/?page_size=6'),
+      const [allPostsRes, myPostsRes, noticesRes, eventsRes, servicesRes] = await Promise.all([
+        api.get<{ results: Post[] } | Post[]>('/posts/?page_size=4'),
+        user?.id ? api.get<{ results: Post[] } | Post[]>(`/posts/?author=${user.id}`) : Promise.resolve({ data: [] }),
         api.get<{ results: Notice[] } | Notice[]>('/notices/'),
         api.get<{ results: Event[] } | Event[]>('/events/?upcoming=true'),
         api.get<{ results: HostelService[] } | HostelService[]>('/services/'),
       ]);
 
-      setPosts(Array.isArray(postsRes.data) ? postsRes.data : postsRes.data.results || []);
-      setNotices(Array.isArray(noticesRes.data) ? noticesRes.data : noticesRes.data.results || []);
-      setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : eventsRes.data.results || []);
-      setServices(Array.isArray(servicesRes.data) ? servicesRes.data : servicesRes.data.results || []);
+      setAllPosts(Array.isArray(allPostsRes.data) ? allPostsRes.data : (allPostsRes.data as any)?.results || []);
+      setMyPosts(Array.isArray(myPostsRes.data) ? myPostsRes.data : (myPostsRes.data as any)?.results || []);
+      setNotices(Array.isArray(noticesRes.data) ? noticesRes.data : (noticesRes.data as any)?.results || []);
+      setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : (eventsRes.data as any)?.results || []);
+      setServices(Array.isArray(servicesRes.data) ? servicesRes.data : (servicesRes.data as any)?.results || []);
     } catch (err) {
       console.error('Failed to load dashboard data', err);
     } finally {
@@ -52,7 +69,7 @@ export const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [user?.id]);
 
   const urgentNotice = notices.find((n) => n.priority === 'urgent');
 
@@ -65,223 +82,358 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Executive Resident Gateway Hero Banner */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
-        <div className="absolute -right-12 -top-12 w-56 h-56 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
-        <div className="absolute right-36 bottom-0 w-44 h-44 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+    <div className="space-y-6 sm:space-y-8 text-xs pb-8">
+      {/* Distinct Digital Resident ID & Command Center Hero */}
+      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white overflow-hidden shadow-2xl border border-slate-800 animate-fade-in">
+        <div className="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-40 bottom-0 w-48 h-48 bg-brand-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 backdrop-blur-xs flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                <span>Resident Gateway</span>
-              </span>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-slate-300 rounded-full border border-white/10 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-brand-300" />
-                <span>
-                  {user?.profile?.hostel_detail?.name || 'Hostel Community Member'}
-                  {user?.profile?.block_detail ? ` • ${user.profile.block_detail.name}` : ''}
-                  {user?.profile?.room_detail ? ` • Rm ${user.profile.room_detail.room_number}` : ''}
-                </span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {/* Left: Resident Profile Card Meta */}
+          <div className="flex items-start sm:items-center gap-4">
+            <div className="relative shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-brand-600 to-purple-600 p-1 shadow-lg shadow-brand-500/25 border-2 border-white/20">
+                <div className="w-full h-full rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center text-xl sm:text-2xl font-black text-white">
+                  {user?.profile?.avatar ? (
+                    <img
+                      src={getMediaUrl(user.profile.avatar)}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{user?.first_name?.[0] || user?.username?.[0] || 'S'}</span>
+                  )}
+                </div>
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
+                ✓
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              {getGreeting()}, {user?.first_name || user?.username}! 👋
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
-              Your centralized campus gateway. Discover today's marketplace deals, official hostel broadcasts, academic PYQs, and connect with roommates.
-            </p>
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  <span>Verified Resident</span>
+                </span>
+                <span className="text-[10px] font-bold text-slate-400">
+                  ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
+                </span>
+              </div>
 
-            <div className="pt-2 flex flex-wrap gap-2.5">
-              <Link
-                to="/create-post"
-                className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>+ Create Post</span>
-              </Link>
-              <Link
-                to="/marketplace"
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
-              >
-                <ShoppingBag className="w-4 h-4 text-brand-300" />
-                <span>Browse Deals</span>
-              </Link>
-              <Link
-                to="/study"
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
-              >
-                <GraduationCap className="w-4 h-4 text-emerald-300" />
-                <span>Study Vault</span>
-              </Link>
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
+                {getGreeting()}, {user?.first_name || user?.username}! ✨
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-medium">
+                <span className="inline-flex items-center gap-1.5 text-slate-200">
+                  <Building className="w-3.5 h-3.5 text-brand-400" />
+                  <strong>{user?.profile?.hostel_detail?.name || 'Campus Hostel'}</strong>
+                </span>
+                {user?.profile?.block_detail && <span>• Block {user.profile.block_detail.name}</span>}
+                {user?.profile?.room_detail && <span>• Rm {user.profile.room_detail.room_number}</span>}
+              </div>
             </div>
           </div>
 
-          {/* Quick Realtime Stats Pill Cards */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-auto">
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-white">{posts.length}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
-                Deals
-              </span>
-            </div>
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-amber-300">{notices.length}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
-                Notices
-              </span>
-            </div>
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-emerald-300">{events.length}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
-                Events
-              </span>
-            </div>
+          {/* Right: Quick Command Actions */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
+            <Link
+              to="/create-post"
+              className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-500/25 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>+ Post Listing</span>
+            </Link>
+            <Link
+              to="/profile/edit"
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <User className="w-4 h-4 text-slate-300" />
+              <span>My Profile</span>
+            </Link>
+            <Link
+              to="/saved"
+              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              title="Saved Items"
+            >
+              <Bookmark className="w-4 h-4 text-brand-300" />
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Urgent Notice Alert Banner if any */}
+      {/* Personal Metrics Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">My Active Posts</span>
+            <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+          </div>
+          <span className="text-2xl font-black text-slate-900">{myPosts.length}</span>
+          <span className="block text-[10px] text-brand-600 font-bold mt-1">Live in marketplace</span>
+        </div>
+
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hostel Circulars</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <BellRing className="w-4 h-4" />
+            </div>
+          </div>
+          <span className="text-2xl font-black text-slate-900">{notices.length}</span>
+          <span className="block text-[10px] text-amber-600 font-bold mt-1">Authority broadcasts</span>
+        </div>
+
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Campus Events</span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Calendar className="w-4 h-4" />
+            </div>
+          </div>
+          <span className="text-2xl font-black text-slate-900">{events.length}</span>
+          <span className="block text-[10px] text-purple-600 font-bold mt-1">Tournaments &amp; fests</span>
+        </div>
+
+        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hostel Services</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Wrench className="w-4 h-4" />
+            </div>
+          </div>
+          <span className="text-2xl font-black text-slate-900">{services.length || 6}</span>
+          <span className="block text-[10px] text-emerald-600 font-bold mt-1">Repairs &amp; laundry active</span>
+        </div>
+      </div>
+
+      {/* Urgent Broadcast Alert Banner if any */}
       {urgentNotice && (
-        <div className="p-4 rounded-2xl bg-red-50/80 border border-red-200/80 flex items-start justify-between gap-3 animate-fade-in-up shadow-subtle">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-red-100 text-red-700 rounded-xl shrink-0 mt-0.5 animate-pulse">
-              <AlertCircle className="w-4 h-4" />
+        <div className="p-4 sm:p-5 rounded-3xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-subtle animate-fade-in-up">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 bg-rose-600 text-white rounded-2xl shrink-0 animate-pulse">
+              <AlertCircle className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-wider font-extrabold bg-red-600 text-white px-2 py-0.5 rounded-md">Urgent Notice</span>
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">{urgentNotice.title}</h3>
+                <span className="text-[9px] uppercase tracking-widest font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">
+                  URGENT CIRCULAR
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-xs sm:text-sm">{urgentNotice.title}</h3>
               </div>
               <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">{urgentNotice.content}</p>
             </div>
           </div>
-          <Link to="/notices" className="text-xs font-bold text-red-700 hover:underline shrink-0 pt-1">
-            View Notice →
+          <Link
+            to="/notices"
+            className="text-xs font-black text-rose-600 hover:text-rose-700 underline shrink-0 cursor-pointer"
+          >
+            Read Full Notice →
           </Link>
         </div>
       )}
 
-      {/* Quick Category Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        {[
-          { to: '/marketplace', title: 'Marketplace', desc: 'Buy, Sell, Free', icon: ShoppingBag, color: 'text-brand-600 bg-brand-50' },
-          { to: '/lost-found', title: 'Lost & Found', desc: 'Report & Recover', icon: Search, color: 'text-rose-600 bg-rose-50' },
-          { to: '/study', title: 'Study Vault', desc: 'PYQs & Notes', icon: GraduationCap, color: 'text-emerald-600 bg-emerald-50' },
-          { to: '/services', title: 'Hostel Services', desc: 'Laundry & Repairs', icon: Wrench, color: 'text-amber-600 bg-amber-50' },
-        ].map((item, i) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={i}
-              to={item.to}
-              className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up"
-            >
-              <div className={`w-10 h-10 rounded-2xl ${item.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-xs sm:text-sm group-hover:text-brand-600 transition-colors">{item.title}</h3>
-              <p className="text-[11px] text-slate-400 mt-0.5 font-medium">{item.desc}</p>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Latest Feed & Right Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
-        {/* Main 2 cols: Latest Posts */}
+      {/* Main Dashboard Layout: Left Command Center + Right Campus Desk */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Left 2 Cols: My Activity & Manage Section */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between pb-1">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Latest Community Posts</h2>
-              <p className="text-xs text-slate-400 font-medium">Fresh items and discussions from fellow hostelers</p>
+          {/* Dashboard Mode Selector Tabs */}
+          <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab('overview')}
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === 'overview'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                }`}
+              >
+                Community Deals
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('my_posts')}
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === 'my_posts'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                }`}
+              >
+                My Listings ({myPosts.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('services')}
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === 'services'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                }`}
+              >
+                Hostel Helpdesk
+              </button>
             </div>
-            <Link to="/home" className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 hover:underline">
-              <span>View all</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+
+            <Link to="/marketplace" className="text-[11px] font-bold text-brand-600 hover:underline">
+              View All →
             </Link>
           </div>
 
-          {isLoading ? (
-            <LoadingSkeleton count={4} />
-          ) : posts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} onPostUpdated={fetchDashboardData} />
-              ))}
+          {/* Tab 1: Overview Community Deals */}
+          {activeTab === 'overview' && (
+            isLoading ? (
+              <LoadingSkeleton count={4} />
+            ) : allPosts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {allPosts.map((post) => (
+                  <PostCard key={post.id} post={post} onPostUpdated={fetchDashboardData} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="No marketplace listings"
+                message="Be the first to share an item with your hostel mates!"
+                actionText="Create Post"
+                onAction={() => navigate('/create-post')}
+              />
+            )
+          )}
+
+          {/* Tab 2: My Personal Listings */}
+          {activeTab === 'my_posts' && (
+            myPosts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {myPosts.map((post) => (
+                  <PostCard key={post.id} post={post} onPostUpdated={fetchDashboardData} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="You haven't posted any items yet"
+                message="Sell your unused electronics, coolers, or cycle easily to students in your hostel."
+                actionText="+ Post Your First Item"
+                onAction={() => navigate('/create-post?type=buy_sell')}
+              />
+            )
+          )}
+
+          {/* Tab 3: Hostel Helpdesk & Services Quick Request */}
+          {activeTab === 'services' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {[
+                { name: 'Hostel Electrician', desc: 'Fan, tube light, power socket repairs', icon: Zap, status: 'Available' },
+                { name: 'Plumber & Water Supply', desc: 'Tap leakage, washroom pipeline repair', icon: Wrench, status: 'Available' },
+                { name: 'Hostel Wi-Fi & LAN Desk', desc: 'Room network connection issues', icon: Activity, status: 'Active 24/7' },
+                { name: 'Hostel Laundry Service', desc: 'Daily pickup and washing', icon: Layers, status: 'Open 8 AM - 8 PM' },
+              ].map((serv, idx) => {
+                const Icon = serv.icon;
+                return (
+                  <div key={idx} className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-2 hover:border-slate-300 transition animate-fade-in-up">
+                    <div className="flex items-center justify-between">
+                      <div className="w-9 h-9 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
+                        {serv.status}
+                      </span>
+                    </div>
+                    <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm">{serv.name}</h4>
+                    <p className="text-[11px] text-slate-500">{serv.desc}</p>
+                    <Link
+                      to="/services"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:text-brand-700 pt-1"
+                    >
+                      <span>Request Assistance →</span>
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
-          ) : (
-            <EmptyState
-              title="No posts yet"
-              message="Be the first to post something in your hostel community!"
-              actionText="Create Post"
-              onAction={() => window.location.href = '/create-post'}
-            />
           )}
         </div>
 
-        {/* Right 1 col: Official Notices & Events */}
+        {/* Right 1 Col: Hostel Admin Desk & Meal Timings Widget */}
         <div className="space-y-6">
-          {/* Recent Notices */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-subtle space-y-4">
+          {/* Hostel Authority & Caretaker Desk Card */}
+          <div className="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <BellRing className="w-4 h-4 text-brand-600" />
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Hostel Notices</h3>
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">Hostel Desk Info</h3>
               </div>
-              <Link to="/notices" className="text-xs text-brand-600 hover:underline font-semibold">
-                All
-              </Link>
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                Active
+              </span>
             </div>
 
-            <div className="space-y-3 divide-y divide-slate-100/70">
-              {notices.slice(0, 3).map((notice) => (
-                <div key={notice.id} className="pt-2.5 first:pt-0 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      notice.priority === 'urgent'
-                        ? 'bg-red-50 text-red-600 border border-red-100'
-                        : notice.priority === 'important'
-                        ? 'bg-brand-50 text-brand-700 border border-brand-100'
-                        : 'bg-slate-50 text-slate-600 border border-slate-200'
-                    }`}>
-                      {notice.priority}
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(notice.publish_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </span>
-                  </div>
-                  <h4 className="font-semibold text-slate-800 text-xs line-clamp-1">{notice.title}</h4>
-                  <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{notice.content}</p>
-                </div>
-              ))}
+            <div className="space-y-2.5 text-xs text-slate-600">
+              <div className="p-3 bg-slate-50 rounded-2xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Chief Warden Desk</span>
+                <p className="font-extrabold text-slate-900">Dr. Rajesh Verma</p>
+                <p className="text-[11px] text-slate-500">Admin Block • 10:00 AM - 5:00 PM</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Hostel Caretaker</span>
+                <p className="font-extrabold text-slate-900">Mr. Ramesh Kumar</p>
+                <p className="text-[11px] text-slate-500">Ground Floor Caretaker Room</p>
+              </div>
             </div>
           </div>
 
-          {/* Upcoming Events */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-subtle space-y-4">
+          {/* Daily Mess Timings Widget */}
+          <div className="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-brand-600" />
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Upcoming Events</h3>
+                <Utensils className="w-4 h-4 text-amber-600" />
+                <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">Mess Schedule</h3>
               </div>
-              <Link to="/events" className="text-xs text-brand-600 hover:underline font-semibold">
-                All
+              <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                Daily
+              </span>
+            </div>
+
+            <div className="space-y-2 text-[11px] font-medium text-slate-600">
+              <div className="flex items-center justify-between p-2 bg-slate-50 rounded-xl">
+                <span>🥞 Breakfast</span>
+                <strong className="text-slate-800">07:30 AM - 09:30 AM</strong>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-slate-50 rounded-xl">
+                <span>🍛 Lunch</span>
+                <strong className="text-slate-800">12:30 PM - 02:30 PM</strong>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-slate-50 rounded-xl">
+                <span>☕ Evening Snacks</span>
+                <strong className="text-slate-800">05:00 PM - 06:00 PM</strong>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-slate-50 rounded-xl">
+                <span>🍲 Dinner</span>
+                <strong className="text-slate-800">08:00 PM - 10:00 PM</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Notices Feed */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <BellRing className="w-4 h-4 text-brand-600" />
+                <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">Notice Bulletin</h3>
+              </div>
+              <Link to="/notices" className="text-[11px] font-bold text-brand-600 hover:underline">
+                All →
               </Link>
             </div>
 
             <div className="space-y-2.5">
-              {events.slice(0, 2).map((event) => (
-                <div key={event.id} className="p-3.5 bg-slate-50/70 rounded-2xl space-y-1.5 border border-slate-150">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-brand-700">{event.event_date}</span>
-                    <span className="text-[10px] text-slate-400 truncate max-w-[120px] font-medium">{event.location}</span>
-                  </div>
-                  <h4 className="font-bold text-slate-900 text-xs">{event.title}</h4>
-                  <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{event.description}</p>
+              {notices.slice(0, 3).map((n) => (
+                <div key={n.id} className="p-2.5 rounded-2xl bg-slate-50 hover:bg-brand-50/50 transition">
+                  <h4 className="font-bold text-xs text-slate-900 line-clamp-1">{n.title}</h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">{n.content}</p>
                 </div>
               ))}
             </div>
@@ -291,3 +443,4 @@ export const DashboardPage: React.FC = () => {
     </div>
   );
 };
+
