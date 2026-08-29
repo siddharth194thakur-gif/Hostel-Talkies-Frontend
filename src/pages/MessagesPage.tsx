@@ -1506,83 +1506,109 @@ export const MessagesPage: React.FC = () => {
 
                     {/* Popover Action Menu */}
                     {showMenu && (
-                      <div
-                        className={`absolute z-30 top-full mt-1 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 min-w-[190px] max-w-[calc(100vw-3rem)] animate-in zoom-in-95 duration-100 ${
-                          isMe ? 'right-0' : 'left-0'
-                        }`}
-                      >
-                        {/* Quick Reaction Bar */}
-                        <div className="flex items-center justify-around p-1 border-b border-slate-100 mb-1 text-base">
-                          {QUICK_REACTION_EMOJIS.map((emoji) => (
-                            <button
-                              key={emoji}
-                              type="button"
-                              onClick={() => handleReaction(msg.id, emoji)}
-                              className="p-1 hover:bg-slate-100 rounded-lg transition active:scale-125"
-                            >
-                              {emoji}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Reply Action */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReplyingTo(msg);
+                      <>
+                        {/* Fullscreen Backdrop to dismiss menu on tap anywhere */}
+                        <div
+                          className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[0.5px] animate-in fade-in duration-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setActiveMessageMenuId(null);
-                            messageInputRef.current?.focus();
                           }}
-                          className="w-full text-left px-3 py-1.5 rounded-xl text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium transition"
-                        >
-                          <CornerUpLeft className="w-3.5 h-3.5 text-slate-400" />
-                          <span>Reply</span>
-                        </button>
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            setActiveMessageMenuId(null);
+                          }}
+                        />
 
-                        {/* Copy Action */}
-                        {msg.content && !msg.is_deleted_everyone && (
+                        <div
+                          className={`absolute z-50 top-full mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 p-1.5 min-w-[200px] max-w-[calc(100vw-3rem)] animate-in zoom-in-95 duration-100 ${
+                            isMe ? 'right-0' : 'left-0'
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
+                        >
+                          {/* Quick Reaction Bar */}
+                          <div className="flex items-center justify-around p-1 border-b border-slate-100 mb-1 text-base">
+                            {QUICK_REACTION_EMOJIS.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReaction(msg.id, emoji);
+                                }}
+                                className="p-1.5 hover:bg-slate-100 rounded-xl transition active:scale-125 cursor-pointer text-lg"
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Reply Action */}
                           <button
                             type="button"
-                            onClick={() => handleCopyMessage(msg.content, msg.id)}
-                            className="w-full text-left px-3 py-1.5 rounded-xl text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium transition"
-                          >
-                            <Copy className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{copiedFeedbackId === msg.id ? 'Copied! ✓' : 'Copy Text'}</span>
-                          </button>
-                        )}
-
-                        {/* Delete Action (opens confirmation) */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveMessageMenuId(null);
-                            setMessageToDelete(msg);
-                          }}
-                          className="w-full text-left px-3 py-1.5 rounded-xl text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-                          <span>Delete...</span>
-                        </button>
-
-                        {/* Report Action (for messages sent by other user) */}
-                        {!isMe && !msg.is_deleted_everyone && (
-                          <button
-                            type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReplyingTo(msg);
                               setActiveMessageMenuId(null);
-                              setReportingTarget({
-                                type: 'user',
-                                id: msg.sender.toString(),
-                                title: msg.sender_detail?.full_name || 'Resident',
-                              });
+                              messageInputRef.current?.focus();
                             }}
-                            className="w-full text-left px-3 py-1.5 rounded-xl text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2 font-medium transition"
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-semibold transition cursor-pointer"
                           >
-                            <Flag className="w-3.5 h-3.5 text-slate-400" />
-                            <span>Report</span>
+                            <CornerUpLeft className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Reply</span>
                           </button>
-                        )}
-                      </div>
+
+                          {/* Copy Action */}
+                          {msg.content && !msg.is_deleted_everyone && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyMessage(msg.content, msg.id);
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-semibold transition cursor-pointer"
+                            >
+                              <Copy className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{copiedFeedbackId === msg.id ? 'Copied! ✓' : 'Copy Text'}</span>
+                            </button>
+                          )}
+
+                          {/* Delete Action (opens confirmation) */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMessageMenuId(null);
+                              setMessageToDelete(msg);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-xl text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold transition cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                            <span>Delete...</span>
+                          </button>
+
+                          {/* Report Action (for messages sent by other user) */}
+                          {!isMe && !msg.is_deleted_everyone && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMessageMenuId(null);
+                                setReportingTarget({
+                                  type: 'user',
+                                  id: msg.sender.toString(),
+                                  title: msg.sender_detail?.full_name || 'Resident',
+                                });
+                              }}
+                              className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-600 hover:bg-slate-50 flex items-center gap-2 font-semibold transition cursor-pointer"
+                            >
+                              <Flag className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Report</span>
+                            </button>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                 );
