@@ -137,9 +137,9 @@ export const StudyResourcesPage: React.FC = () => {
   return (
     <div className="space-y-6 text-xs">
       {/* Luxury Academic Vault Hero Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800">
-        <div className="absolute -right-12 -top-12 w-52 h-52 bg-brand-500/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-36 bottom-0 w-40 h-40 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+        <div className="absolute -right-12 -top-12 w-52 h-52 bg-brand-500/25 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-36 bottom-0 w-40 h-40 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2.5 max-w-xl">

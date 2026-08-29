@@ -67,9 +67,9 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
 
   return (
     <article
-      className={`relative rounded-3xl border transition-all duration-200 p-5 sm:p-6 space-y-4 bg-white overflow-hidden ${
+      className={`relative rounded-3xl border transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 space-y-4 bg-white overflow-hidden animate-fade-in-up ${
         isUrgent
-          ? 'border-rose-300/80 shadow-md shadow-rose-100/50 hover:shadow-lg'
+          ? 'border-rose-300/80 shadow-md shadow-rose-100/50 hover:shadow-xl'
           : isImportant
           ? 'border-brand-200/80 shadow-subtle hover:shadow-card-hover hover:border-brand-300'
           : 'border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300'

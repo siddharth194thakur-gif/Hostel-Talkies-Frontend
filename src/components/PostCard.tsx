@@ -135,7 +135,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
   };
 
   return (
-    <article className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-shadow duration-200 overflow-hidden flex flex-col justify-between group">
+    <article className="bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between group animate-fade-in-up">
       <div>
         {/* Header: Author info & Hostel details */}
         <div className="p-4 flex items-start justify-between gap-3 border-b border-slate-100/70">

@@ -67,9 +67,9 @@ export const NoticesPage: React.FC = () => {
   return (
     <div className="space-y-6 text-xs">
       {/* Official Executive Hero Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800">
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-32 bottom-0 w-36 h-36 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
+        <div className="absolute -right-10 -top-10 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
+        <div className="absolute right-32 bottom-0 w-36 h-36 bg-purple-500/15 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
