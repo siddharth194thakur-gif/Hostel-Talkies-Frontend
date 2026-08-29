@@ -15,6 +15,7 @@ import {
   PlusCircle,
   ShieldAlert,
   Sparkles,
+  Gamepad2,
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/marketplace', label: 'Marketplace', icon: ShoppingBag },
     { to: '/lost-found', label: 'Lost & Found', icon: Search },
     { to: '/services', label: 'Hostel Services', icon: Wrench },
+    { to: '/gaming', label: 'Gaming Arena 🎮', icon: Gamepad2 },
     { to: '/study', label: 'Study Resources', icon: GraduationCap },
     { to: '/events', label: 'Events', icon: Calendar },
     { to: '/explore', label: 'Explore Feed', icon: Compass },

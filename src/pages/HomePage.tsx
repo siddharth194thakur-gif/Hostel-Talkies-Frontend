@@ -15,6 +15,7 @@ import {
   Flame,
   Clock,
   BookOpen,
+  Gamepad2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Post, Notice, Event, StudyResource } from '../types';
@@ -85,6 +86,13 @@ export const HomePage: React.FC = () => {
       desc: 'Maintenance & repairs',
       icon: Wrench,
       bgLight: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    },
+    {
+      to: '/gaming',
+      title: 'Gaming Arena 🎮',
+      desc: 'Free Fire Rank & Custom',
+      icon: Gamepad2,
+      bgLight: 'bg-orange-50 text-orange-600 border-orange-100',
     },
     {
       to: '/events',

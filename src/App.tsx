@@ -33,6 +33,7 @@ import { EditProfilePage } from './pages/EditProfilePage';
 import { CreatePostPage } from './pages/CreatePostPage';
 import { PostDetailPage } from './pages/PostDetailPage';
 import { SearchResultsPage } from './pages/SearchResultsPage';
+import { GamingPage } from './pages/GamingPage';
 
 export const App: React.FC = () => {
   return (
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
             <Route path="/marketplace" element={<MarketplacePage />} />
             <Route path="/lost-found" element={<LostFoundPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/gaming" element={<GamingPage />} />
             <Route path="/study" element={<StudyResourcesPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/notices" element={<NoticesPage />} />

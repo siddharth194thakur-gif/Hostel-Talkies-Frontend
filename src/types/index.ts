@@ -370,3 +370,58 @@ export interface SiteSetting {
   contact_email: string;
   maintenance_mode: boolean;
 }
+
+export interface GamingUserMeta {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  avatar: string | null;
+  hostel_name: string;
+  room_info: string;
+}
+
+export interface GamingProfile {
+  id: number;
+  user: number;
+  user_details?: GamingUserMeta;
+  game_type: 'free_fire' | 'bgmi';
+  uid: string;
+  in_game_name: string;
+  level: number;
+  likes: number;
+  br_rank: string;
+  br_rank_points: number;
+  cs_rank: string;
+  kd_ratio: number;
+  total_booyahs: number;
+  headshot_rate: number;
+  score: number;
+  avatar_url?: string | null;
+  region: string;
+  proof_screenshot?: string | null;
+  is_verified: boolean;
+  rank_position?: number;
+  last_synced_at: string;
+  created_at: string;
+}
+
+export interface Tournament {
+  id: number;
+  title: string;
+  game_type: string;
+  match_type: 'squad_br' | 'clash_squad' | 'solo_br' | 'duo_br';
+  banner?: string | null;
+  description: string;
+  room_id: string;
+  room_password?: string;
+  start_time: string;
+  prize_pool: string;
+  entry_fee: string;
+  status: 'upcoming' | 'live' | 'completed';
+  max_teams: number;
+  created_by?: number;
+  created_by_name?: string;
+  created_at: string;
+}
+
