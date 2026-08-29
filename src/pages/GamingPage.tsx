@@ -23,11 +23,17 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
+  Target,
+  Crosshair,
+  Shield,
+  Layers,
+  Box,
 } from 'lucide-react';
 import api, { getMediaUrl } from '../api/client';
 import { GamingProfile, Tournament, Hostel } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
+import { Card3D } from '../components/Card3D';
 
 export const GamingPage: React.FC = () => {
   const { user } = useAuth();
@@ -37,7 +43,7 @@ export const GamingPage: React.FC = () => {
   const [hostels, setHostels] = useState<Hostel[]>([]);
   const [myProfile, setMyProfile] = useState<GamingProfile | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'tournaments' | 'my_stats'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'tournaments'>('leaderboard');
   const [selectedHostel, setSelectedHostel] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -140,7 +146,7 @@ export const GamingPage: React.FC = () => {
           br_rank: res.data.br_rank || prev.br_rank,
           br_rank_points: res.data.br_rank_points || prev.br_rank_points,
         }));
-        setModalSuccess('Profile details auto-fetched from Free Fire server! 🔥');
+        setModalSuccess('Profile auto-fetched from Free Fire gateway! 🔥');
       } else {
         setModalError(res.data?.error || 'Could not lookup UID. Please check your UID.');
       }
@@ -205,33 +211,45 @@ export const GamingPage: React.FC = () => {
   const remainingPlayers = leaderboard.slice(3);
 
   return (
-    <div className="space-y-6 text-xs pb-10">
-      {/* 1. Esports Festival Luxury Hero Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden shadow-2xl border border-purple-900/60 animate-fade-in">
-        <div className="absolute -right-12 -top-12 w-64 h-64 bg-orange-500/20 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
-        <div className="absolute right-40 bottom-0 w-48 h-48 bg-purple-500/25 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
+    <div className="space-y-8 text-xs pb-16 perspective-1000 relative">
+      {/* 3D Floating Ambient Spatial Orbs in Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-20 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] animate-float-3d" />
+        <div className="absolute top-80 -left-20 w-80 h-80 bg-orange-500/10 rounded-full blur-[100px] animate-ambient-float" />
+        <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-[80px] animate-glow-pulse" />
+      </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 rounded-full border border-orange-500/30 backdrop-blur-xs flex items-center gap-1.5">
+      {/* 1. 3D Neo-Esports Arena Hero Showcase Banner */}
+      <div className="relative p-6 sm:p-10 rounded-[36px] bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),0_0_25px_rgba(168,85,247,0.3)] border border-purple-500/30 transform-3d animate-fade-in z-10">
+        {/* 3D Cyber-Grid Horizon Floor */}
+        <div className="absolute inset-x-0 bottom-0 h-40 cyber-grid-3d opacity-25 pointer-events-none" />
+
+        {/* 3D Floating Polygonal Prism Badge */}
+        <div className="absolute -right-8 -top-8 w-40 h-40 bg-gradient-to-br from-orange-500/30 via-purple-500/20 to-cyan-500/30 rounded-3xl blur-xl animate-spin-3d pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-4 max-w-2xl transform-3d">
+            <div className="flex flex-wrap items-center gap-2.5 translate-z-20">
+              <span className="px-3.5 py-1 text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-orange-500/30 to-amber-500/30 text-orange-300 rounded-full border border-orange-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                 <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
-                <span>Free Fire MAX Arena</span>
+                <span>3D FREE FIRE ARENA</span>
               </span>
-              <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-purple-200 rounded-full border border-white/10 flex items-center gap-1">
-                <Trophy className="w-3 h-3 text-amber-400" />
-                <span>Hostel Leaderboard</span>
+              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-purple-200 rounded-full border border-white/15 backdrop-blur-md flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                <span>Hostel Esports Season 1</span>
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              Hostel Esports &amp; Gaming Hub 🎮
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+              Hostel Esports 3D Arena 🎮
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
-              Showcase your Free Fire UID, rank up on the hostel board by live K/D &amp; Booyahs, and compete in campus custom room matches!
+
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-xl translate-z-20">
+              Interactive 3D rankings for campus Free Fire gamers. Sync your live BR rank, KD ratio &amp; Booyahs by UID to claim the #1 Gold Trophy on the 3D podium!
             </p>
 
-            <div className="pt-1.5 flex flex-wrap gap-2.5">
+            {/* 3D Tactile Buttons */}
+            <div className="pt-2 flex flex-wrap gap-3.5 translate-z-40">
               <button
                 type="button"
                 onClick={() => {
@@ -239,10 +257,10 @@ export const GamingPage: React.FC = () => {
                   setModalSuccess(null);
                   setIsModalOpen(true);
                 }}
-                className="px-4 py-2.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-2xl shadow-xl shadow-orange-500/25 transition-all active:scale-95 flex items-center gap-2 cursor-pointer border border-yellow-300/40"
+                className="px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center gap-2 cursor-pointer border border-yellow-300/40"
               >
                 <Gamepad2 className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                <span>{myProfile ? '⚡ Update My Gaming Stats' : '🎮 Register Free Fire UID'}</span>
+                <span>{myProfile ? '⚡ Update My 3D Stats' : '🎮 Register Free Fire UID'}</span>
               </button>
 
               {myProfile && (
@@ -250,41 +268,41 @@ export const GamingPage: React.FC = () => {
                   type="button"
                   onClick={handleSyncStats}
                   disabled={isSyncing}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-3 bg-purple-900/60 hover:bg-purple-800/80 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/30 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-cyan-300 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>Sync Stats</span>
+                  <span>Sync 3D Stats</span>
                 </button>
               )}
 
               <button
                 type="button"
                 onClick={() => setActiveTab('tournaments')}
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-2xl border border-white/15 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl border border-slate-700/80 backdrop-blur-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer shadow-md"
               >
-                <Swords className="w-4 h-4 text-purple-300" />
+                <Swords className="w-4 h-4 text-purple-400" />
                 <span>Custom Rooms ({tournaments.length})</span>
               </button>
             </div>
           </div>
 
-          {/* Quick Stats Pill Cards */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-white">{leaderboard.length}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+          {/* 3D Real-time Holographic Counters */}
+          <div className="flex items-center gap-3 shrink-0 self-start lg:self-auto translate-z-30">
+            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-purple-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-2xl font-black text-white">{leaderboard.length}</span>
+              <span className="block text-[10px] font-extrabold text-purple-300 uppercase tracking-wider mt-0.5">
                 Gamers
               </span>
             </div>
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-amber-300">{leaderboard[0]?.score || '5400'}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-amber-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-2xl font-black text-amber-400">{leaderboard[0]?.score || '5400'}</span>
+              <span className="block text-[10px] font-extrabold text-amber-300/90 uppercase tracking-wider mt-0.5">
                 Top Pts
               </span>
             </div>
-            <div className="px-4 py-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[85px]">
-              <span className="block text-xl font-black text-orange-400">🔥 BR</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-orange-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-2xl font-black text-orange-400">🔥 BR</span>
+              <span className="block text-[10px] font-extrabold text-orange-300/90 uppercase tracking-wider mt-0.5">
                 Ranked
               </span>
             </div>
@@ -292,140 +310,165 @@ export const GamingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Top 3 Champions Podium Cards */}
+      {/* 2. 3D PODIUM STAGE SHOWCASE (TOP 3 CHAMPIONS) */}
       {leaderboard.length > 0 && activeTab === 'leaderboard' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-          {/* Rank 2 (Silver) */}
-          {topThree[1] && (
-            <div className="order-2 md:order-1 p-5 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/80 shadow-lg text-white space-y-3 relative overflow-hidden animate-fade-in-up">
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-700/60 text-slate-200 border border-slate-500/40 flex items-center gap-1.5">
-                  <Medal className="w-3.5 h-3.5 text-slate-300" />
-                  <span>RANK #2 • SILVER</span>
-                </span>
-                <span className="text-xl font-black text-slate-200">{topThree[1].score} pts</span>
-              </div>
+        <div className="space-y-3 z-10 relative">
+          <div className="flex items-center gap-2 px-1">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+              3D Champions Podium • Top 3 Pro Players
+            </h2>
+          </div>
 
-              <div>
-                <h3 className="text-lg font-black text-white truncate">{topThree[1].in_game_name}</h3>
-                <p className="text-[11px] text-slate-400 font-medium truncate">
-                  {topThree[1].user_details?.first_name || topThree[1].user_details?.username} • {topThree[1].user_details?.hostel_name}
-                </p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 items-end">
+            {/* Rank #2 Silver 3D Card (Left Pillar) */}
+            {topThree[1] && (
+              <Card3D
+                glowColor="rgba(148, 163, 184, 0.4)"
+                className="order-2 md:order-1 p-6 rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-slate-700/80 text-white space-y-4 shadow-xl"
+              >
+                <div className="flex items-center justify-between translate-z-20">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-800 text-slate-200 border border-slate-600/60 flex items-center gap-1.5 shadow-md">
+                    <Medal className="w-3.5 h-3.5 text-slate-300" />
+                    <span>#2 SILVER RANK</span>
+                  </span>
+                  <span className="text-xl font-black text-slate-200">{topThree[1].score} pts</span>
+                </div>
 
-              <div className="grid grid-cols-3 gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px]">
-                <div>
-                  <span className="block text-slate-400">UID</span>
-                  <strong className="text-slate-200 font-bold">{topThree[1].uid}</strong>
+                <div className="translate-z-30">
+                  <h3 className="text-xl font-black text-white truncate drop-shadow-md">
+                    {topThree[1].in_game_name}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                    {topThree[1].user_details?.first_name || topThree[1].user_details?.username} • {topThree[1].user_details?.hostel_name}
+                  </p>
                 </div>
-                <div>
-                  <span className="block text-slate-400">K/D</span>
-                  <strong className="text-emerald-400 font-bold">{topThree[1].kd_ratio}</strong>
-                </div>
-                <div>
-                  <span className="block text-slate-400">Booyahs</span>
-                  <strong className="text-amber-400 font-bold">{topThree[1].total_booyahs}</strong>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Rank 1 (Gold Champion) */}
-          {topThree[0] && (
-            <div className="order-1 md:order-2 p-6 rounded-3xl bg-gradient-to-b from-amber-950/80 via-slate-900 to-slate-950 border-2 border-amber-500/60 shadow-2xl text-white space-y-3.5 relative overflow-hidden animate-fade-in-up md:-translate-y-2">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/30 text-amber-300 border border-amber-400/50 flex items-center gap-1.5 shadow-md">
-                  <Crown className="w-4 h-4 text-amber-400 animate-bounce" />
-                  <span>#1 GOLD CHAMPION 👑</span>
-                </span>
-                <span className="text-2xl font-black text-amber-400">{topThree[0].score} pts</span>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-black text-amber-200 truncate">{topThree[0].in_game_name}</h3>
-                <p className="text-xs text-slate-300 font-medium truncate">
-                  {topThree[0].user_details?.first_name || topThree[0].user_details?.username} • {topThree[0].user_details?.hostel_name}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 p-3 bg-amber-500/10 rounded-2xl border border-amber-400/20 text-center text-[10px]">
-                <div>
-                  <span className="block text-slate-400">UID</span>
-                  <strong className="text-amber-200 font-bold">{topThree[0].uid}</strong>
+                <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
+                  <div>
+                    <span className="block text-slate-400 font-medium">UID</span>
+                    <strong className="text-slate-200 font-bold font-mono">{topThree[1].uid}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 font-medium">K/D</span>
+                    <strong className="text-emerald-400 font-bold">{topThree[1].kd_ratio}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 font-medium">Booyahs</span>
+                    <strong className="text-amber-400 font-bold">{topThree[1].total_booyahs}</strong>
+                  </div>
                 </div>
-                <div>
-                  <span className="block text-slate-400">K/D</span>
-                  <strong className="text-emerald-300 font-bold">{topThree[0].kd_ratio}</strong>
-                </div>
-                <div>
-                  <span className="block text-slate-400">Booyahs</span>
-                  <strong className="text-amber-300 font-bold">{topThree[0].total_booyahs}</strong>
-                </div>
-              </div>
-            </div>
-          )}
+              </Card3D>
+            )}
 
-          {/* Rank 3 (Bronze) */}
-          {topThree[2] && (
-            <div className="order-3 p-5 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-900/60 shadow-lg text-white space-y-3 relative overflow-hidden animate-fade-in-up">
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-900/40 text-amber-400 border border-amber-800/40 flex items-center gap-1.5">
-                  <Medal className="w-3.5 h-3.5 text-amber-500" />
-                  <span>RANK #3 • BRONZE</span>
-                </span>
-                <span className="text-xl font-black text-amber-400">{topThree[2].score} pts</span>
-              </div>
+            {/* Rank #1 GOLD CHAMPION 3D Elevated Pedestal (Center Pillar) */}
+            {topThree[0] && (
+              <Card3D
+                isChampion={true}
+                glowColor="rgba(245, 158, 11, 0.55)"
+                className="order-1 md:order-2 p-7 rounded-[36px] bg-gradient-to-b from-amber-950/90 via-slate-900 to-slate-950 border-2 border-amber-400/80 text-white space-y-4.5 shadow-2xl md:-translate-y-4"
+              >
+                <div className="absolute top-0 right-0 w-36 h-36 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
 
-              <div>
-                <h3 className="text-lg font-black text-white truncate">{topThree[2].in_game_name}</h3>
-                <p className="text-[11px] text-slate-400 font-medium truncate">
-                  {topThree[2].user_details?.first_name || topThree[2].user_details?.username} • {topThree[2].user_details?.hostel_name}
-                </p>
-              </div>
+                <div className="flex items-center justify-between translate-z-30">
+                  <span className="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border border-amber-300 flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.6)]">
+                    <Crown className="w-4 h-4 text-slate-950 animate-bounce" />
+                    <span>#1 GOLD CHAMPION 👑</span>
+                  </span>
+                  <span className="text-2xl font-black text-amber-300">{topThree[0].score} pts</span>
+                </div>
 
-              <div className="grid grid-cols-3 gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px]">
-                <div>
-                  <span className="block text-slate-400">UID</span>
-                  <strong className="text-slate-200 font-bold">{topThree[2].uid}</strong>
+                <div className="translate-z-40">
+                  <h3 className="text-2xl font-black text-amber-200 truncate drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)]">
+                    {topThree[0].in_game_name}
+                  </h3>
+                  <p className="text-xs text-amber-100/80 font-medium truncate mt-0.5">
+                    {topThree[0].user_details?.first_name || topThree[0].user_details?.username} • {topThree[0].user_details?.hostel_name}
+                  </p>
                 </div>
-                <div>
-                  <span className="block text-slate-400">K/D</span>
-                  <strong className="text-emerald-400 font-bold">{topThree[2].kd_ratio}</strong>
+
+                <div className="grid grid-cols-3 gap-2.5 p-3.5 bg-amber-500/15 rounded-2xl border border-amber-400/30 text-center text-[10px] translate-z-30 backdrop-blur-md">
+                  <div>
+                    <span className="block text-amber-200/70 font-medium">Free Fire UID</span>
+                    <strong className="text-amber-100 font-bold font-mono">{topThree[0].uid}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-amber-200/70 font-medium">K/D Ratio</span>
+                    <strong className="text-emerald-300 font-bold">{topThree[0].kd_ratio}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-amber-200/70 font-medium">Booyahs</span>
+                    <strong className="text-amber-300 font-bold">{topThree[0].total_booyahs} 🏆</strong>
+                  </div>
                 </div>
-                <div>
-                  <span className="block text-slate-400">Booyahs</span>
-                  <strong className="text-amber-400 font-bold">{topThree[2].total_booyahs}</strong>
+              </Card3D>
+            )}
+
+            {/* Rank #3 Bronze 3D Card (Right Pillar) */}
+            {topThree[2] && (
+              <Card3D
+                glowColor="rgba(217, 119, 6, 0.4)"
+                className="order-3 p-6 rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-amber-900/70 text-white space-y-4 shadow-xl"
+              >
+                <div className="flex items-center justify-between translate-z-20">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950/80 text-amber-400 border border-amber-700/60 flex items-center gap-1.5 shadow-md">
+                    <Medal className="w-3.5 h-3.5 text-amber-500" />
+                    <span>#3 BRONZE RANK</span>
+                  </span>
+                  <span className="text-xl font-black text-amber-400">{topThree[2].score} pts</span>
                 </div>
-              </div>
-            </div>
-          )}
+
+                <div className="translate-z-30">
+                  <h3 className="text-xl font-black text-white truncate drop-shadow-md">
+                    {topThree[2].in_game_name}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                    {topThree[2].user_details?.first_name || topThree[2].user_details?.username} • {topThree[2].user_details?.hostel_name}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
+                  <div>
+                    <span className="block text-slate-400 font-medium">UID</span>
+                    <strong className="text-slate-200 font-bold font-mono">{topThree[2].uid}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 font-medium">K/D</span>
+                    <strong className="text-emerald-400 font-bold">{topThree[2].kd_ratio}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 font-medium">Booyahs</span>
+                    <strong className="text-amber-400 font-bold">{topThree[2].total_booyahs}</strong>
+                  </div>
+                </div>
+              </Card3D>
+            )}
+          </div>
         </div>
       )}
 
       {/* 3. Control Navigation Bar & Filters */}
-      <div className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle flex flex-col sm:flex-row items-center justify-between gap-3 z-10 relative">
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('leaderboard')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
               activeTab === 'leaderboard'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-slate-900 text-white shadow-md'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
             }`}
           >
             <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span>Leaderboard</span>
+            <span>Full 3D Leaderboard</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('tournaments')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
               activeTab === 'tournaments'
-                ? 'bg-purple-700 text-white shadow-xs'
+                ? 'bg-purple-700 text-white shadow-md'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
             }`}
           >
@@ -439,7 +482,7 @@ export const GamingPage: React.FC = () => {
           <select
             value={selectedHostel}
             onChange={(e) => setSelectedHostel(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs text-slate-700 font-semibold outline-none transition cursor-pointer"
+            className="px-3.5 py-2 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs text-slate-700 font-semibold outline-none transition cursor-pointer"
           >
             <option value="">All Hostels</option>
             {hostels.map((h) => (
@@ -474,7 +517,7 @@ export const GamingPage: React.FC = () => {
 
       {/* 4. Tab 1: Leaderboard Table View */}
       {activeTab === 'leaderboard' && (
-        <div className="space-y-4">
+        <div className="space-y-4 z-10 relative">
           {isLoading ? (
             <LoadingSkeleton count={6} />
           ) : leaderboard.length > 0 ? (
@@ -482,14 +525,14 @@ export const GamingPage: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
+                    <tr className="bg-slate-50/90 border-b border-slate-100 text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
                       <th className="py-3.5 px-4">Rank</th>
                       <th className="py-3.5 px-4">In-Game Name (IGN)</th>
                       <th className="py-3.5 px-4">Free Fire UID</th>
                       <th className="py-3.5 px-4">Rank Tier</th>
                       <th className="py-3.5 px-4">K/D Ratio</th>
                       <th className="py-3.5 px-4">Booyahs</th>
-                      <th className="py-3.5 px-4 text-right">Points</th>
+                      <th className="py-3.5 px-4 text-right">3D Points</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
@@ -501,7 +544,7 @@ export const GamingPage: React.FC = () => {
                         <tr
                           key={player.id}
                           className={`hover:bg-slate-50/80 transition-colors ${
-                            isMe ? 'bg-amber-50/60 font-bold' : ''
+                            isMe ? 'bg-amber-50/70 font-bold' : ''
                           }`}
                         >
                           {/* Rank Column */}
@@ -604,7 +647,7 @@ export const GamingPage: React.FC = () => {
 
       {/* 5. Tab 2: Custom Room Tournaments Section */}
       {activeTab === 'tournaments' && (
-        <div className="space-y-4">
+        <div className="space-y-4 z-10 relative">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-900">Hostel Custom Room Tournaments</h2>
@@ -613,29 +656,30 @@ export const GamingPage: React.FC = () => {
           </div>
 
           {tournaments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {tournaments.map((t) => (
-                <div
+                <Card3D
                   key={t.id}
-                  className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-subtle space-y-3.5 animate-fade-in-up"
+                  glowColor="rgba(168, 85, 247, 0.3)"
+                  className="p-6 rounded-[32px] bg-white border border-slate-200/80 shadow-lg space-y-4"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                  <div className="flex items-start justify-between gap-2 translate-z-20">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
                       {t.match_type === 'clash_squad' ? 'Clash Squad (4v4 CS)' : 'Battle Royale (Full Map)'}
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
                       t.status === 'live' ? 'bg-red-600 text-white animate-pulse' : 'bg-emerald-50 text-emerald-700'
                     }`}>
                       {t.status === 'live' ? 'LIVE NOW 🔥' : 'UPCOMING'}
                     </span>
                   </div>
 
-                  <div>
+                  <div className="translate-z-30">
                     <h3 className="text-base font-black text-slate-900">{t.title}</h3>
                     <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">{t.description || 'Hostel custom room match. All hostel residents are invited!'}</p>
                   </div>
 
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between text-xs">
+                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between text-xs translate-z-20">
                     <div>
                       <span className="block text-[10px] text-slate-400">Prize Pool</span>
                       <strong className="text-amber-600 font-bold">{t.prize_pool}</strong>
@@ -651,7 +695,7 @@ export const GamingPage: React.FC = () => {
                   </div>
 
                   {t.room_id ? (
-                    <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900">
+                    <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900 translate-z-30">
                       <span>Room ID: <strong className="font-mono">{t.room_id}</strong></span>
                       <span>Pass: <strong className="font-mono">{t.room_password || 'None'}</strong></span>
                     </div>
@@ -660,7 +704,7 @@ export const GamingPage: React.FC = () => {
                       Room ID &amp; Password will be revealed 15 minutes before match start.
                     </div>
                   )}
-                </div>
+                </Card3D>
               ))}
             </div>
           ) : (
@@ -674,12 +718,12 @@ export const GamingPage: React.FC = () => {
 
       {/* 6. Register / Update Profile Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-scale-in max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Gamepad2 className="w-5 h-5 text-orange-500" />
-                <h3 className="text-base font-black text-slate-900">Free Fire Profile Setup</h3>
+                <h3 className="text-base font-black text-slate-900">Free Fire 3D Profile Setup</h3>
               </div>
               <button
                 type="button"
@@ -816,9 +860,9 @@ export const GamingPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-2xl shadow-md transition active:scale-98 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-2xl shadow-md transition active:scale-98 cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving Profile...' : 'Save & Join Leaderboard 🏆'}
+                  {isSubmitting ? 'Saving 3D Profile...' : 'Save & Claim 3D Podium Rank 🏆'}
                 </button>
               </div>
             </form>
