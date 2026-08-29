@@ -14,6 +14,7 @@ import {
 import api from '../api/client';
 import { Post } from '../types';
 import { PostCard } from '../components/PostCard';
+import { SearchWithHistory } from '../components/SearchWithHistory';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 
 export const LostFoundPage: React.FC = () => {
@@ -161,24 +162,13 @@ export const LostFoundPage: React.FC = () => {
           </button>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
+        <div className="w-full sm:w-72">
+          <SearchWithHistory
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(val) => setSearchQuery(val)}
             placeholder="Search keys, ID cards, hostel block..."
-            className="w-full pl-10 pr-9 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200/80 rounded-2xl text-xs text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none transition placeholder:text-slate-400 font-medium"
+            storageKey="ht_search_history_lostfound"
           />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="p-1 text-slate-400 hover:text-slate-600 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
       </div>
 

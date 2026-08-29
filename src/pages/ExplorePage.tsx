@@ -19,6 +19,7 @@ import {
 import api from '../api/client';
 import { Post, Category, Hostel } from '../types';
 import { PostCard } from '../components/PostCard';
+import { SearchWithHistory } from '../components/SearchWithHistory';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 
 export const ExplorePage: React.FC = () => {
@@ -183,25 +184,14 @@ export const ExplorePage: React.FC = () => {
       {/* Filter Control Bar with Instant Search */}
       <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
+          {/* Search Input with History */}
+          <div className="flex-1">
+            <SearchWithHistory
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(val) => setSearchQuery(val)}
               placeholder="Search items, keywords, model, authors..."
-              className="w-full pl-10 pr-9 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200/80 rounded-2xl text-xs text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none transition placeholder:text-slate-400 font-medium"
+              storageKey="ht_search_history_explore"
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="p-1 text-slate-400 hover:text-slate-600 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">

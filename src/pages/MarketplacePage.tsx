@@ -18,6 +18,7 @@ import {
 import api from '../api/client';
 import { Post, Category } from '../types';
 import { PostCard } from '../components/PostCard';
+import { SearchWithHistory } from '../components/SearchWithHistory';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 
 export const MarketplacePage: React.FC = () => {
@@ -186,25 +187,14 @@ export const MarketplacePage: React.FC = () => {
             ))}
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64 shrink-0">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
+          {/* Search Box with History */}
+          <div className="w-full sm:w-72 shrink-0">
+            <SearchWithHistory
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(val) => setSearchQuery(val)}
               placeholder="Search items, coolers, cycles..."
-              className="w-full pl-9 pr-8 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none shadow-2xs placeholder:text-slate-400 font-medium transition"
+              storageKey="ht_search_history_marketplace"
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="p-1 text-slate-400 hover:text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
         </div>
       </div>
