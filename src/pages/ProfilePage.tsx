@@ -199,16 +199,16 @@ export const ProfilePage: React.FC = () => {
       </div>
 
       {/* 4K Ultra-Luxury Executive Resident Passport Banner */}
-      <div className="rounded-[36px] bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white p-6 sm:p-9 banner-3d border border-indigo-500/30 relative overflow-hidden space-y-6 animate-fade-in">
+      <div className="rounded-3xl sm:rounded-[36px] bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white p-5 sm:p-8 banner-3d border border-indigo-500/30 relative overflow-hidden space-y-5 sm:space-y-6 animate-fade-in">
         {/* Ambient 4K Spatial Glow Lights */}
         <div className="absolute -right-10 -top-10 w-64 h-64 bg-brand-500/25 rounded-full blur-3xl pointer-events-none animate-ambient-float" />
         <div className="absolute right-48 bottom-0 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl pointer-events-none animate-glow-pulse" />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transform-3d">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 min-w-0 translate-z-20">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 transform-3d">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 min-w-0 w-full md:w-auto translate-z-20">
             {/* 4K High-Definition Avatar with Iridescent Ring & Verification Badge */}
-            <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white font-black text-3xl flex items-center justify-center shadow-2xl overflow-hidden border-2 border-white/40 ring-4 ring-purple-500/30 ring-offset-4 ring-offset-slate-950">
+            <div className="relative shrink-0 self-center sm:self-auto">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-2xl overflow-hidden border-2 border-white/40 ring-4 ring-purple-500/30 ring-offset-4 ring-offset-slate-950">
                 {avatarUrl ? (
                   <img
                     src={getMediaUrl(avatarUrl)}
@@ -224,46 +224,46 @@ export const ProfilePage: React.FC = () => {
               </div>
 
               {/* Verified Shield Badge on Avatar */}
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-xl border-2 border-slate-950 flex items-center justify-center shadow-lg" title="Verified Campus Resident">
-                <ShieldCheck className="w-4 h-4 text-white stroke-[2.5]" />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 bg-emerald-500 rounded-xl border-2 border-slate-950 flex items-center justify-center shadow-lg" title="Verified Campus Resident">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white stroke-[2.5]" />
               </div>
             </div>
 
             {/* Resident Information */}
-            <div className="space-y-2 min-w-0">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/25 text-brand-300 rounded-full border border-brand-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+            <div className="space-y-1.5 sm:space-y-2 min-w-0 w-full text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-brand-500/25 text-brand-300 rounded-full border border-brand-400/40 backdrop-blur-md flex items-center gap-1 shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-brand-400" />
                   <span>RESIDENT PASSPORT</span>
                 </span>
-                <span className="text-[10px] font-extrabold text-white/90 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+                <span className="text-[9px] sm:text-[10px] font-extrabold text-white/90 bg-white/10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/15">
                   ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight truncate translate-z-30 drop-shadow-md">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-3xl font-black text-white leading-tight truncate translate-z-30 drop-shadow-md">
                   {displayName}
                 </h1>
                 <GenderIcon gender={gender} badge showLabel />
               </div>
 
               {usernameHandle && (
-                <p className="text-xs font-bold text-brand-300 flex items-center gap-1">
+                <p className="text-xs font-bold text-brand-300 flex items-center justify-center sm:justify-start gap-1">
                   <span>@{usernameHandle}</span>
                 </p>
               )}
 
               {/* Academic & Room Credentials */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-200 font-medium">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 pt-1 text-[11px] sm:text-xs text-slate-200 font-medium">
                 {programme && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
+                  <span className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
                     <GraduationCap className="w-3.5 h-3.5 text-brand-300" />
                     <span>{programme}{branch ? ` • ${branch}` : ''}</span>
                   </span>
                 )}
                 {hostelName && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
+                  <span className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-white/10 text-white rounded-xl border border-white/15 backdrop-blur-md font-bold">
                     <Building className="w-3.5 h-3.5 text-indigo-300" />
                     <span>{hostelName}{blockName ? ` • Block ${blockName}` : ''}{roomNumber ? ` • Rm ${roomNumber}` : ''}</span>
                   </span>
@@ -273,12 +273,12 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Action Area */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center w-full md:w-auto justify-end translate-z-40">
+          <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-center w-full md:w-auto justify-stretch sm:justify-end translate-z-40">
             {isOwnProfile ? (
-              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Link
                   to="/profile/edit"
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-black rounded-2xl btn-3d-brand cursor-pointer"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-black rounded-2xl btn-3d-brand cursor-pointer"
                 >
                   <Edit3 className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Edit Profile</span>
@@ -373,36 +373,36 @@ export const ProfilePage: React.FC = () => {
         ) : null}
 
         {/* 4K Spatial HUD Metrics Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/10 text-center translate-z-30">
-          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
-            <span className="block text-xl font-black text-white">{userPosts.length}</span>
-            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Posts &amp; Deals</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 pt-2 border-t border-white/10 text-center translate-z-30">
+          <div className="p-2.5 sm:p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-lg sm:text-xl font-black text-white">{userPosts.length}</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Posts &amp; Deals</span>
           </div>
 
-          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
-            <span className="block text-xl font-black text-brand-300">
+          <div className="p-2.5 sm:p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-lg sm:text-xl font-black text-brand-300">
               {new Date(joinedDate || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
             </span>
-            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Resident Since</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Resident Since</span>
           </div>
 
-          <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
-            <span className="block text-xl font-black text-emerald-300">Verified</span>
-            <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Campus Standing</span>
+          <div className="p-2.5 sm:p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+            <span className="block text-lg sm:text-xl font-black text-emerald-300">Verified</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Campus Status</span>
           </div>
 
           {isOwnProfile ? (
             <button
               onClick={() => setActiveTab('blocked')}
-              className="p-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl border border-white/10 transition text-center cursor-pointer"
+              className="p-2.5 sm:p-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl border border-white/10 transition text-center cursor-pointer"
             >
-              <span className="block text-xl font-black text-white">{blockedUsers.length}</span>
-              <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Privacy Controls</span>
+              <span className="block text-lg sm:text-xl font-black text-white">{blockedUsers.length}</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Privacy Controls</span>
             </button>
           ) : (
-            <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
-              <span className="block text-xl font-black text-purple-300">{hostelName ? 'Resident' : 'Member'}</span>
-              <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Hostel Status</span>
+            <div className="p-2.5 sm:p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+              <span className="block text-lg sm:text-xl font-black text-purple-300">{hostelName ? 'Resident' : 'Member'}</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-300 font-extrabold uppercase tracking-wider">Hostel Status</span>
             </div>
           )}
         </div>
