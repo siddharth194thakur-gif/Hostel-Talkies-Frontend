@@ -90,49 +90,28 @@ export const DashboardPage: React.FC = () => {
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Left: Resident Profile Card Meta */}
-          <div className="flex items-start sm:items-center gap-4">
-            <div className="relative shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-brand-600 to-purple-600 p-1 shadow-lg shadow-brand-500/25 border-2 border-white/20">
-                <div className="w-full h-full rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center text-xl sm:text-2xl font-black text-white">
-                  {user?.profile?.avatar ? (
-                    <img
-                      src={getMediaUrl(user.profile.avatar)}
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span>{user?.first_name?.[0] || user?.username?.[0] || 'S'}</span>
-                  )}
-                </div>
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
-                ✓
+          <div className="space-y-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                <span>Verified Resident</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">
+                ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
               </span>
             </div>
 
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                  <span>Verified Resident</span>
-                </span>
-                <span className="text-[10px] font-bold text-slate-400">
-                  ID: #{user?.id ? String(user.id).padStart(4, '0') : '0022'}
-                </span>
-              </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
+              {getGreeting()}, {user?.first_name || user?.username}! ✨
+            </h1>
 
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight truncate">
-                {getGreeting()}, {user?.first_name || user?.username}! ✨
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-medium">
-                <span className="inline-flex items-center gap-1.5 text-slate-200">
-                  <Building className="w-3.5 h-3.5 text-brand-400" />
-                  <strong>{user?.profile?.hostel_detail?.name || 'Campus Hostel'}</strong>
-                </span>
-                {user?.profile?.block_detail && <span>• Block {user.profile.block_detail.name}</span>}
-                {user?.profile?.room_detail && <span>• Rm {user.profile.room_detail.room_number}</span>}
-              </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-medium">
+              <span className="inline-flex items-center gap-1.5 text-slate-200">
+                <Building className="w-3.5 h-3.5 text-brand-400" />
+                <strong>{user?.profile?.hostel_detail?.name || 'Campus Hostel'}</strong>
+              </span>
+              {user?.profile?.block_detail && <span>• Block {user.profile.block_detail.name}</span>}
+              {user?.profile?.room_detail && <span>• Rm {user.profile.room_detail.room_number}</span>}
             </div>
           </div>
 
