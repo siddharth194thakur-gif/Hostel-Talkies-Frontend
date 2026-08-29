@@ -220,27 +220,27 @@ export const GamingPage: React.FC = () => {
       </div>
 
       {/* 1. 3D Neo-Esports Arena Hero Showcase Banner */}
-      <div className="relative p-6 sm:p-10 rounded-[36px] bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),0_0_25px_rgba(168,85,247,0.3)] border border-purple-500/30 transform-3d animate-fade-in z-10">
+      <div className="relative p-5 sm:p-10 rounded-3xl sm:rounded-[36px] bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),0_0_25px_rgba(168,85,247,0.3)] border border-purple-500/30 transform-3d animate-fade-in z-10">
         {/* 3D Cyber-Grid Horizon Floor */}
         <div className="absolute inset-x-0 bottom-0 h-40 cyber-grid-3d opacity-25 pointer-events-none" />
 
         {/* 3D Floating Polygonal Prism Badge */}
         <div className="absolute -right-8 -top-8 w-40 h-40 bg-gradient-to-br from-orange-500/30 via-purple-500/20 to-cyan-500/30 rounded-3xl blur-xl animate-spin-3d pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-4 max-w-2xl transform-3d">
-            <div className="flex flex-wrap items-center gap-2.5 translate-z-20">
-              <span className="px-3.5 py-1 text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-orange-500/30 to-amber-500/30 text-orange-300 rounded-full border border-orange-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
+          <div className="space-y-3.5 sm:space-y-4 max-w-2xl transform-3d">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-orange-500/30 to-amber-500/30 text-orange-300 rounded-full border border-orange-400/40 backdrop-blur-md flex items-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
                 <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
                 <span>FREE FIRE MAX ARENA</span>
               </span>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-purple-200 rounded-full border border-white/15 backdrop-blur-md flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-white/10 text-purple-200 rounded-full border border-white/15 backdrop-blur-md flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-amber-400" />
                 <span>Hostel Esports Season 1</span>
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight translate-z-30 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
               Hostel Esports &amp; Gaming Arena 🎮
             </h1>
 
@@ -249,7 +249,7 @@ export const GamingPage: React.FC = () => {
             </p>
 
             {/* Tactile Buttons */}
-            <div className="pt-2 flex flex-wrap gap-3.5 translate-z-40">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3.5 translate-z-40">
               <button
                 type="button"
                 onClick={() => {
@@ -257,7 +257,7 @@ export const GamingPage: React.FC = () => {
                   setModalSuccess(null);
                   setIsModalOpen(true);
                 }}
-                className="px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center gap-2 cursor-pointer border border-yellow-300/40"
+                className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center justify-center gap-2 cursor-pointer border border-yellow-300/40"
               >
                 <Gamepad2 className="w-4 h-4 text-slate-950 stroke-[2.5]" />
                 <span>{myProfile ? '⚡ Update My Gaming Stats' : '🎮 Register Free Fire UID'}</span>
@@ -268,7 +268,7 @@ export const GamingPage: React.FC = () => {
                   type="button"
                   onClick={handleSyncStats}
                   disabled={isSyncing}
-                  className="px-4 py-3 bg-purple-900/60 hover:bg-purple-800/80 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/30 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 py-3 bg-purple-900/60 hover:bg-purple-800/80 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-cyan-300 ${isSyncing ? 'animate-spin' : ''}`} />
                   <span>Sync Stats</span>
@@ -278,7 +278,7 @@ export const GamingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('tournaments')}
-                className="px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl border border-slate-700/80 backdrop-blur-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer shadow-md"
+                className="w-full sm:w-auto px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl border border-slate-700/80 backdrop-blur-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
                 <Swords className="w-4 h-4 text-purple-400" />
                 <span>Custom Rooms ({tournaments.length})</span>
@@ -286,23 +286,23 @@ export const GamingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 3D Real-time Holographic Counters */}
-          <div className="flex items-center gap-3 shrink-0 self-start lg:self-auto translate-z-30">
-            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-purple-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="block text-2xl font-black text-white">{leaderboard.length}</span>
-              <span className="block text-[10px] font-extrabold text-purple-300 uppercase tracking-wider mt-0.5">
+          {/* Real-time Holographic Counters */}
+          <div className="grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 shrink-0 self-stretch sm:self-start lg:self-auto translate-z-30">
+            <div className="px-3 sm:px-5 py-3 sm:py-4 bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-purple-500/30 text-center min-w-0 sm:min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-xl sm:text-2xl font-black text-white">{leaderboard.length}</span>
+              <span className="block text-[9px] sm:text-[10px] font-extrabold text-purple-300 uppercase tracking-wider mt-0.5">
                 Gamers
               </span>
             </div>
-            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-amber-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="block text-2xl font-black text-amber-400">{leaderboard[0]?.score || '5400'}</span>
-              <span className="block text-[10px] font-extrabold text-amber-300/90 uppercase tracking-wider mt-0.5">
+            <div className="px-3 sm:px-5 py-3 sm:py-4 bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-amber-500/30 text-center min-w-0 sm:min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-xl sm:text-2xl font-black text-amber-400">{leaderboard[0]?.score || '5400'}</span>
+              <span className="block text-[9px] sm:text-[10px] font-extrabold text-amber-300/90 uppercase tracking-wider mt-0.5">
                 Top Pts
               </span>
             </div>
-            <div className="px-5 py-4 bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-orange-500/30 text-center min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="block text-2xl font-black text-orange-400">🔥 BR</span>
-              <span className="block text-[10px] font-extrabold text-orange-300/90 uppercase tracking-wider mt-0.5">
+            <div className="px-3 sm:px-5 py-3 sm:py-4 bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-orange-500/30 text-center min-w-0 sm:min-w-[95px] shadow-[0_10px_25px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+              <span className="block text-xl sm:text-2xl font-black text-orange-400">🔥 BR</span>
+              <span className="block text-[9px] sm:text-[10px] font-extrabold text-orange-300/90 uppercase tracking-wider mt-0.5">
                 Ranked
               </span>
             </div>
@@ -320,23 +320,23 @@ export const GamingPage: React.FC = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 items-end">
-            {/* Rank #2 Silver 3D Card (Left Pillar) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-2 items-end">
+            {/* Rank #2 Silver Card (Left Pillar) */}
             {topThree[1] && (
               <Card3D
                 glowColor="rgba(148, 163, 184, 0.4)"
-                className="order-2 md:order-1 p-6 rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-slate-700/80 text-white space-y-4 shadow-xl"
+                className="order-2 md:order-1 p-5 sm:p-6 rounded-3xl sm:rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-slate-700/80 text-white space-y-3.5 sm:space-y-4 shadow-xl"
               >
                 <div className="flex items-center justify-between translate-z-20">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-800 text-slate-200 border border-slate-600/60 flex items-center gap-1.5 shadow-md">
+                  <span className="px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-slate-800 text-slate-200 border border-slate-600/60 flex items-center gap-1.5 shadow-md">
                     <Medal className="w-3.5 h-3.5 text-slate-300" />
                     <span>#2 SILVER RANK</span>
                   </span>
-                  <span className="text-xl font-black text-slate-200">{topThree[1].score} pts</span>
+                  <span className="text-lg sm:text-xl font-black text-slate-200">{topThree[1].score} pts</span>
                 </div>
 
                 <div className="translate-z-30">
-                  <h3 className="text-xl font-black text-white truncate drop-shadow-md">
+                  <h3 className="text-lg sm:text-xl font-black text-white truncate drop-shadow-md">
                     {topThree[1].in_game_name}
                   </h3>
                   <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
@@ -344,10 +344,17 @@ export const GamingPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
                   <div>
                     <span className="block text-slate-400 font-medium">UID</span>
-                    <strong className="text-slate-200 font-bold font-mono">{topThree[1].uid}</strong>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyUid(topThree[1].uid)}
+                      className="text-slate-200 font-bold font-mono hover:text-cyan-300 transition inline-flex items-center gap-0.5"
+                    >
+                      <span>{topThree[1].uid}</span>
+                      {copiedUid === topThree[1].uid && <Check className="w-2.5 h-2.5 text-emerald-400" />}
+                    </button>
                   </div>
                   <div>
                     <span className="block text-slate-400 font-medium">K/D</span>
@@ -361,25 +368,25 @@ export const GamingPage: React.FC = () => {
               </Card3D>
             )}
 
-            {/* Rank #1 GOLD CHAMPION 3D Elevated Pedestal (Center Pillar) */}
+            {/* Rank #1 GOLD CHAMPION Elevated Pedestal (Center Pillar) */}
             {topThree[0] && (
               <Card3D
                 isChampion={true}
                 glowColor="rgba(245, 158, 11, 0.55)"
-                className="order-1 md:order-2 p-7 rounded-[36px] bg-gradient-to-b from-amber-950/90 via-slate-900 to-slate-950 border-2 border-amber-400/80 text-white space-y-4.5 shadow-2xl md:-translate-y-4"
+                className="order-1 md:order-2 p-5 sm:p-7 rounded-3xl sm:rounded-[36px] bg-gradient-to-b from-amber-950/90 via-slate-900 to-slate-950 border-2 border-amber-400/80 text-white space-y-3.5 sm:space-y-4.5 shadow-2xl md:-translate-y-4"
               >
                 <div className="absolute top-0 right-0 w-36 h-36 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="flex items-center justify-between translate-z-30">
-                  <span className="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border border-amber-300 flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.6)]">
-                    <Crown className="w-4 h-4 text-slate-950 animate-bounce" />
+                  <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border border-amber-300 flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.6)]">
+                    <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950 animate-bounce" />
                     <span>#1 GOLD CHAMPION 👑</span>
                   </span>
-                  <span className="text-2xl font-black text-amber-300">{topThree[0].score} pts</span>
+                  <span className="text-xl sm:text-2xl font-black text-amber-300">{topThree[0].score} pts</span>
                 </div>
 
                 <div className="translate-z-40">
-                  <h3 className="text-2xl font-black text-amber-200 truncate drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)]">
+                  <h3 className="text-xl sm:text-2xl font-black text-amber-200 truncate drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)]">
                     {topThree[0].in_game_name}
                   </h3>
                   <p className="text-xs text-amber-100/80 font-medium truncate mt-0.5">
@@ -387,13 +394,20 @@ export const GamingPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 p-3.5 bg-amber-500/15 rounded-2xl border border-amber-400/30 text-center text-[10px] translate-z-30 backdrop-blur-md">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 p-2.5 sm:p-3.5 bg-amber-500/15 rounded-2xl border border-amber-400/30 text-center text-[10px] translate-z-30 backdrop-blur-md">
                   <div>
-                    <span className="block text-amber-200/70 font-medium">Free Fire UID</span>
-                    <strong className="text-amber-100 font-bold font-mono">{topThree[0].uid}</strong>
+                    <span className="block text-amber-200/70 font-medium">UID</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyUid(topThree[0].uid)}
+                      className="text-amber-100 font-bold font-mono hover:text-amber-300 transition inline-flex items-center gap-0.5"
+                    >
+                      <span>{topThree[0].uid}</span>
+                      {copiedUid === topThree[0].uid && <Check className="w-2.5 h-2.5 text-emerald-400" />}
+                    </button>
                   </div>
                   <div>
-                    <span className="block text-amber-200/70 font-medium">K/D Ratio</span>
+                    <span className="block text-amber-200/70 font-medium">K/D</span>
                     <strong className="text-emerald-300 font-bold">{topThree[0].kd_ratio}</strong>
                   </div>
                   <div>
@@ -404,22 +418,22 @@ export const GamingPage: React.FC = () => {
               </Card3D>
             )}
 
-            {/* Rank #3 Bronze 3D Card (Right Pillar) */}
+            {/* Rank #3 Bronze Card (Right Pillar) */}
             {topThree[2] && (
               <Card3D
                 glowColor="rgba(217, 119, 6, 0.4)"
-                className="order-3 p-6 rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-amber-900/70 text-white space-y-4 shadow-xl"
+                className="order-3 p-5 sm:p-6 rounded-3xl sm:rounded-[32px] bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-amber-900/70 text-white space-y-3.5 sm:space-y-4 shadow-xl"
               >
                 <div className="flex items-center justify-between translate-z-20">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950/80 text-amber-400 border border-amber-700/60 flex items-center gap-1.5 shadow-md">
+                  <span className="px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-950/80 text-amber-400 border border-amber-700/60 flex items-center gap-1.5 shadow-md">
                     <Medal className="w-3.5 h-3.5 text-amber-500" />
                     <span>#3 BRONZE RANK</span>
                   </span>
-                  <span className="text-xl font-black text-amber-400">{topThree[2].score} pts</span>
+                  <span className="text-lg sm:text-xl font-black text-amber-400">{topThree[2].score} pts</span>
                 </div>
 
                 <div className="translate-z-30">
-                  <h3 className="text-xl font-black text-white truncate drop-shadow-md">
+                  <h3 className="text-lg sm:text-xl font-black text-white truncate drop-shadow-md">
                     {topThree[2].in_game_name}
                   </h3>
                   <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
@@ -427,10 +441,17 @@ export const GamingPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-white/5 rounded-2xl border border-white/5 text-center text-[10px] translate-z-20 backdrop-blur-md">
                   <div>
                     <span className="block text-slate-400 font-medium">UID</span>
-                    <strong className="text-slate-200 font-bold font-mono">{topThree[2].uid}</strong>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyUid(topThree[2].uid)}
+                      className="text-slate-200 font-bold font-mono hover:text-amber-300 transition inline-flex items-center gap-0.5"
+                    >
+                      <span>{topThree[2].uid}</span>
+                      {copiedUid === topThree[2].uid && <Check className="w-2.5 h-2.5 text-emerald-400" />}
+                    </button>
                   </div>
                   <div>
                     <span className="block text-slate-400 font-medium">K/D</span>
@@ -448,12 +469,12 @@ export const GamingPage: React.FC = () => {
       )}
 
       {/* 3. Control Navigation Bar & Filters */}
-      <div className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle flex flex-col sm:flex-row items-center justify-between gap-3 z-10 relative">
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+      <div className="p-3.5 sm:p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10 relative">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('leaderboard')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
               activeTab === 'leaderboard'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
@@ -466,7 +487,7 @@ export const GamingPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('tournaments')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl font-black text-xs transition-all shrink-0 cursor-pointer ${
               activeTab === 'tournaments'
                 ? 'bg-purple-700 text-white shadow-md'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
@@ -482,7 +503,7 @@ export const GamingPage: React.FC = () => {
           <select
             value={selectedHostel}
             onChange={(e) => setSelectedHostel(e.target.value)}
-            className="px-3.5 py-2 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs text-slate-700 font-semibold outline-none transition cursor-pointer"
+            className="px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs text-slate-700 font-semibold outline-none transition cursor-pointer"
           >
             <option value="">All Hostels</option>
             {hostels.map((h) => (
@@ -515,125 +536,234 @@ export const GamingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Tab 1: Leaderboard Table View */}
+      {/* 4. Tab 1: Leaderboard View (Mobile Cards + Desktop Table) */}
       {activeTab === 'leaderboard' && (
         <div className="space-y-4 z-10 relative">
           {isLoading ? (
             <LoadingSkeleton count={6} />
           ) : leaderboard.length > 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-subtle overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/90 border-b border-slate-100 text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
-                      <th className="py-3.5 px-4">Rank</th>
-                      <th className="py-3.5 px-4">In-Game Name (IGN)</th>
-                      <th className="py-3.5 px-4">Free Fire UID</th>
-                      <th className="py-3.5 px-4">Rank Tier</th>
-                      <th className="py-3.5 px-4">K/D Ratio</th>
-                      <th className="py-3.5 px-4">Booyahs</th>
-                      <th className="py-3.5 px-4 text-right">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
-                    {leaderboard.map((player, index) => {
-                      const rankNum = index + 1;
-                      const isMe = user?.id === player.user;
+            <>
+              {/* A. Mobile Player Cards Feed (Screens < 640px) */}
+              <div className="block sm:hidden space-y-3">
+                {leaderboard.map((player, index) => {
+                  const rankNum = index + 1;
+                  const isMe = user?.id === player.user;
 
-                      return (
-                        <tr
-                          key={player.id}
-                          className={`hover:bg-slate-50/80 transition-colors ${
-                            isMe ? 'bg-amber-50/70 font-bold' : ''
-                          }`}
-                        >
-                          {/* Rank Column */}
-                          <td className="py-3.5 px-4 font-black">
+                  return (
+                    <div
+                      key={player.id}
+                      className={`p-4 rounded-2xl border ${
+                        isMe
+                          ? 'bg-amber-50/80 border-amber-300 shadow-sm'
+                          : 'bg-white border-slate-200/80 shadow-xs'
+                      } space-y-3`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {/* Rank Badge */}
+                          <div className="shrink-0">
                             {rankNum === 1 ? (
-                              <span className="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                              <span className="w-7 h-7 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center justify-center shadow-xs">
                                 👑 1
                               </span>
                             ) : rankNum === 2 ? (
-                              <span className="w-7 h-7 rounded-xl bg-slate-400 text-white flex items-center justify-center shadow-xs">
+                              <span className="w-7 h-7 rounded-xl bg-slate-400 text-white font-black text-xs flex items-center justify-center shadow-xs">
                                 2
                               </span>
                             ) : rankNum === 3 ? (
-                              <span className="w-7 h-7 rounded-xl bg-amber-800 text-white flex items-center justify-center shadow-xs">
+                              <span className="w-7 h-7 rounded-xl bg-amber-800 text-white font-black text-xs flex items-center justify-center shadow-xs">
                                 3
                               </span>
                             ) : (
-                              <span className="text-slate-500 font-bold px-2">#{rankNum}</span>
+                              <span className="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">
+                                #{rankNum}
+                              </span>
                             )}
-                          </td>
+                          </div>
 
-                          {/* IGN & Student Meta */}
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0">
-                                {player.in_game_name[0]?.toUpperCase() || 'P'}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-1.5">
-                                  <strong className="text-slate-900 font-black">{player.in_game_name}</strong>
-                                  {isMe && (
-                                    <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-md">
-                                      YOU
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-[10px] text-slate-400 font-medium">
-                                  {player.user_details?.first_name || player.user_details?.username} • {player.user_details?.hostel_name || 'Hostel'}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-
-                          {/* Free Fire UID */}
-                          <td className="py-3.5 px-4">
-                            <button
-                              type="button"
-                              onClick={() => handleCopyUid(player.uid)}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-mono text-[11px] transition cursor-pointer"
-                              title="Copy UID"
-                            >
-                              <span>{player.uid}</span>
-                              {copiedUid === player.uid ? (
-                                <Check className="w-3 h-3 text-emerald-600" />
-                              ) : (
-                                <Copy className="w-3 h-3 text-slate-400" />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <strong className="text-slate-900 font-black text-sm truncate">
+                                {player.in_game_name}
+                              </strong>
+                              {isMe && (
+                                <span className="px-1.5 py-0.5 bg-amber-500 text-slate-950 font-black text-[9px] rounded-md">
+                                  YOU
+                                </span>
                               )}
-                            </button>
-                          </td>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-medium truncate">
+                              {player.user_details?.first_name || player.user_details?.username} • {player.user_details?.hostel_name || 'Hostel'}
+                            </p>
+                          </div>
+                        </div>
 
-                          {/* Rank Tier */}
-                          <td className="py-3.5 px-4">
-                            <span className="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200/80 rounded-full text-[10px] font-bold">
-                              {player.br_rank || 'Heroic 💎'}
-                            </span>
-                          </td>
+                        {/* Total Score */}
+                        <div className="text-right shrink-0">
+                          <span className="font-black text-base text-slate-900">{player.score}</span>
+                          <span className="block text-[9px] text-slate-400 font-bold uppercase">Points</span>
+                        </div>
+                      </div>
 
-                          {/* K/D Ratio */}
-                          <td className="py-3.5 px-4 font-bold text-emerald-600">
-                            {player.kd_ratio} KD
-                          </td>
+                      {/* Stats Pills & UID */}
+                      <div className="grid grid-cols-3 gap-2 p-2 bg-slate-50 rounded-xl text-center text-[10px]">
+                        <div>
+                          <span className="text-slate-400 block font-medium">Rank</span>
+                          <span className="font-bold text-purple-700 truncate block">
+                            {player.br_rank?.split(' ')[0] || 'Heroic'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">K/D</span>
+                          <span className="font-bold text-emerald-600 block">{player.kd_ratio}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">Booyahs</span>
+                          <span className="font-bold text-amber-600 block">{player.total_booyahs} 🏆</span>
+                        </div>
+                      </div>
 
-                          {/* Booyahs */}
-                          <td className="py-3.5 px-4 font-bold text-amber-600">
-                            {player.total_booyahs} 🏆
-                          </td>
-
-                          {/* Total Score */}
-                          <td className="py-3.5 px-4 text-right">
-                            <span className="font-black text-sm text-slate-900">{player.score}</span>
-                            <span className="block text-[9px] text-slate-400">pts</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      {/* UID Copy Bar */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px]">
+                        <span className="text-slate-400 font-medium">UID: <span className="font-mono text-slate-700 font-bold">{player.uid}</span></span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyUid(player.uid)}
+                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-[10px] flex items-center gap-1 transition cursor-pointer"
+                        >
+                          {copiedUid === player.uid ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span className="text-emerald-600">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 text-slate-500" />
+                              <span>Copy UID</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+
+              {/* B. Desktop Full Table View (Screens >= 640px) */}
+              <div className="hidden sm:block bg-white rounded-3xl border border-slate-200/80 shadow-subtle overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/90 border-b border-slate-100 text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
+                        <th className="py-3.5 px-4">Rank</th>
+                        <th className="py-3.5 px-4">In-Game Name (IGN)</th>
+                        <th className="py-3.5 px-4">Free Fire UID</th>
+                        <th className="py-3.5 px-4">Rank Tier</th>
+                        <th className="py-3.5 px-4">K/D Ratio</th>
+                        <th className="py-3.5 px-4">Booyahs</th>
+                        <th className="py-3.5 px-4 text-right">Points</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
+                      {leaderboard.map((player, index) => {
+                        const rankNum = index + 1;
+                        const isMe = user?.id === player.user;
+
+                        return (
+                          <tr
+                            key={player.id}
+                            className={`hover:bg-slate-50/80 transition-colors ${
+                              isMe ? 'bg-amber-50/70 font-bold' : ''
+                            }`}
+                          >
+                            {/* Rank Column */}
+                            <td className="py-3.5 px-4 font-black">
+                              {rankNum === 1 ? (
+                                <span className="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                                  👑 1
+                                </span>
+                              ) : rankNum === 2 ? (
+                                <span className="w-7 h-7 rounded-xl bg-slate-400 text-white flex items-center justify-center shadow-xs">
+                                  2
+                                </span>
+                              ) : rankNum === 3 ? (
+                                <span className="w-7 h-7 rounded-xl bg-amber-800 text-white flex items-center justify-center shadow-xs">
+                                  3
+                                </span>
+                              ) : (
+                                <span className="text-slate-500 font-bold px-2">#{rankNum}</span>
+                              )}
+                            </td>
+
+                            {/* IGN & Student Meta */}
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                  {player.in_game_name[0]?.toUpperCase() || 'P'}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <strong className="text-slate-900 font-black">{player.in_game_name}</strong>
+                                    {isMe && (
+                                      <span className="px-1.5 py-0.2 bg-amber-500 text-slate-950 font-black text-[9px] rounded-md">
+                                        YOU
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-slate-400 font-medium">
+                                    {player.user_details?.first_name || player.user_details?.username} • {player.user_details?.hostel_name || 'Hostel'}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Free Fire UID */}
+                            <td className="py-3.5 px-4">
+                              <button
+                                type="button"
+                                onClick={() => handleCopyUid(player.uid)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-mono text-[11px] transition cursor-pointer"
+                                title="Copy UID"
+                              >
+                                <span>{player.uid}</span>
+                                {copiedUid === player.uid ? (
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3 text-slate-400" />
+                                )}
+                              </button>
+                            </td>
+
+                            {/* Rank Tier */}
+                            <td className="py-3.5 px-4">
+                              <span className="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200/80 rounded-full text-[10px] font-bold">
+                                {player.br_rank || 'Heroic 💎'}
+                              </span>
+                            </td>
+
+                            {/* K/D Ratio */}
+                            <td className="py-3.5 px-4 font-bold text-emerald-600">
+                              {player.kd_ratio} KD
+                            </td>
+
+                            {/* Booyahs */}
+                            <td className="py-3.5 px-4 font-bold text-amber-600">
+                              {player.total_booyahs} 🏆
+                            </td>
+
+                            {/* Total Score */}
+                            <td className="py-3.5 px-4 text-right">
+                              <span className="font-black text-sm text-slate-900">{player.score}</span>
+                              <span className="block text-[9px] text-slate-400">pts</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           ) : (
             <EmptyState
               title="No gaming profiles registered yet"
