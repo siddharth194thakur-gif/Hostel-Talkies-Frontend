@@ -65,6 +65,7 @@ export const GamingPage: React.FC = () => {
     likes: 1000,
     br_rank: 'Heroic 💎',
     br_rank_points: 2400,
+    cs_rank: 'Master 🎖️',
     kd_ratio: 2.5,
     total_booyahs: 45,
     region: 'IND',
@@ -103,6 +104,7 @@ export const GamingPage: React.FC = () => {
           likes: myProfileRes.data.profile.likes || 1000,
           br_rank: myProfileRes.data.profile.br_rank || 'Heroic 💎',
           br_rank_points: myProfileRes.data.profile.br_rank_points || 2400,
+          cs_rank: myProfileRes.data.profile.cs_rank || 'Master 🎖️',
           kd_ratio: myProfileRes.data.profile.kd_ratio || 2.5,
           total_booyahs: myProfileRes.data.profile.total_booyahs || 45,
           region: myProfileRes.data.profile.region || 'IND',
@@ -122,67 +124,85 @@ export const GamingPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [selectedHostel, searchQuery]);
 
-  // 1-Click Auto-Fetch & Link Free Fire Profile
-  const handleAutoLookupAndSave = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!user) {
-      setModalError('Student Login Required: Please log in to link your Free Fire Gaming Passport.');
-      return;
-    }
-
+  // Auto-Fetch or Submit Gaming Profile
+  const handleAutoLookup = async () => {
     if (!formData.uid.trim()) {
       setModalError('Please enter your Free Fire UID first.');
       return;
     }
 
     setIsLookingUp(true);
+    setModalError(null);
+    setModalSuccess(null);
+
+    try {
+      const res = await api.post('/gaming/lookup/', {
+        uid: formData.uid.trim(),
+        region: formData.region || 'IND',
+      });
+
+      if (res.data?.success && res.data?.in_game_name) {
+        setFormData((prev) => ({
+          ...prev,
+          in_game_name: res.data.in_game_name,
+          level: res.data.level || prev.level,
+          likes: res.data.likes || prev.likes,
+          br_rank: res.data.br_rank || prev.br_rank,
+          br_rank_points: res.data.br_rank_points || prev.br_rank_points,
+          cs_rank: res.data.cs_rank || prev.cs_rank,
+          kd_ratio: res.data.kd_ratio || prev.kd_ratio,
+          total_booyahs: res.data.total_booyahs || prev.total_booyahs,
+        }));
+        setModalSuccess(`Fetched real profile for ${res.data.in_game_name}! 🔥`);
+      } else {
+        setModalError(res.data?.error || 'Live Garena server is protected. Please enter your real Free Fire nickname & stats below.');
+      }
+    } catch (err: any) {
+      setModalError('Live Garena server is protected. Please enter your real in-game nickname and stats below.');
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
+  // Submit Gaming Profile
+  const handleSubmitProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      setModalError('Student Login Required: Please log in to save your Free Fire Gaming Passport.');
+      return;
+    }
+
+    if (!formData.uid.trim()) {
+      setModalError('Free Fire UID is required.');
+      return;
+    }
+
+    if (!formData.in_game_name.trim()) {
+      setModalError('Please enter your authentic Free Fire In-Game Nickname (IGN).');
+      return;
+    }
+
     setIsSubmitting(true);
     setModalError(null);
     setModalSuccess(null);
 
     try {
-      // Step 1: Auto-fetch live data from Free Fire Gateway
-      const lookupRes = await api.post('/gaming/lookup/', {
-        uid: formData.uid.trim(),
-        region: formData.region || 'IND',
+      const res = await api.post('/gaming/my-profile/', {
+        game_type: 'free_fire',
+        ...formData,
       });
 
-      const fetched = lookupRes.data;
-      const updatedProfileData = {
-        game_type: 'free_fire',
-        uid: formData.uid.trim(),
-        region: formData.region || 'IND',
-        in_game_name: fetched?.in_game_name || formData.in_game_name || `Player_${formData.uid.slice(-4)}`,
-        level: fetched?.level || formData.level || 50,
-        likes: fetched?.likes || formData.likes || 1000,
-        br_rank: fetched?.br_rank || formData.br_rank || 'Heroic 💎',
-        br_rank_points: fetched?.br_rank_points || formData.br_rank_points || 2400,
-        cs_rank: fetched?.cs_rank || 'Master 🎖️',
-        kd_ratio: fetched?.kd_ratio || formData.kd_ratio || 2.5,
-        total_booyahs: fetched?.total_booyahs || formData.total_booyahs || 45,
-        avatar_url: fetched?.avatar_url || null,
-      };
-
-      setFormData((prev) => ({
-        ...prev,
-        ...updatedProfileData,
-      }));
-
-      // Step 2: Auto-save directly to backend
-      const saveRes = await api.post('/gaming/my-profile/', updatedProfileData);
-
-      if (saveRes.data?.profile) {
-        setMyProfile(saveRes.data.profile);
-        setModalSuccess(`Successfully linked Free Fire profile for ${updatedProfileData.in_game_name}! 🔥`);
+      if (res.data?.profile) {
+        setMyProfile(res.data.profile);
+        setModalSuccess('Gamer Passport saved successfully! 🏆');
         setTimeout(() => {
           setIsModalOpen(false);
           fetchData();
-        }, 1200);
+        }, 1000);
       }
     } catch (err: any) {
-      setModalError(err.response?.data?.error || err.response?.data?.detail || 'Failed to auto-fetch. Please verify your UID.');
+      setModalError(err.response?.data?.error || err.response?.data?.detail || 'Failed to save profile. Please try again.');
     } finally {
-      setIsLookingUp(false);
       setIsSubmitting(false);
     }
   };
@@ -1026,12 +1046,12 @@ export const GamingPage: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleAutoLookupAndSave} className="space-y-4 text-xs">
-              {/* Free Fire UID Input */}
+            <form onSubmit={handleSubmitProfile} className="space-y-4 text-xs">
+              {/* Free Fire UID Input + Auto-Fetch */}
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1.5 flex items-center justify-between">
-                  <span>Enter Free Fire UID</span>
-                  <span className="text-[10px] text-orange-600 font-semibold">100% Automated Auto-Fetch</span>
+                <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+                  <span>Free Fire UID <span className="text-rose-500">*</span></span>
+                  <span className="text-[10px] text-slate-400">Your in-game numeric ID</span>
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -1039,13 +1059,45 @@ export const GamingPage: React.FC = () => {
                     required
                     value={formData.uid}
                     onChange={(e) => setFormData({ ...formData, uid: e.target.value.trim() })}
-                    placeholder="e.g. 2458910245"
-                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono font-bold text-slate-900 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none"
+                    placeholder="e.g. 1027766003"
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none"
                   />
+                  <button
+                    type="button"
+                    onClick={handleAutoLookup}
+                    disabled={isLookingUp || !formData.uid}
+                    className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-2xl border border-slate-200 transition active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+                  >
+                    <Zap className={`w-3.5 h-3.5 text-orange-500 ${isLookingUp ? 'animate-spin' : ''}`} />
+                    <span>{isLookingUp ? 'Fetching...' : 'Auto-Fetch'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* In-Game Name (IGN) & Region */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    In-Game Nickname (IGN) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.in_game_name}
+                    onChange={(e) => setFormData({ ...formData, in_game_name: e.target.value })}
+                    placeholder="e.g. ⚡THAKUR_OP⚡ or Real IGN"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Region / Server
+                  </label>
                   <select
                     value={formData.region}
                     onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                    className="px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 outline-none cursor-pointer shrink-0"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 outline-none cursor-pointer"
                   >
                     <option value="IND">IND 🇮🇳</option>
                     <option value="SG">SG 🇸🇬</option>
@@ -1055,42 +1107,126 @@ export const GamingPage: React.FC = () => {
                     <option value="GLOBAL">GLOBAL 🌐</option>
                   </select>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1.5">
-                  Sirf apna <strong>Free Fire UID</strong> daalo. Humara live gateway aapka official <strong>In-Game Name, Level, Likes aur Rank</strong> automatically fetch karke link kar dega.
-                </p>
               </div>
 
-              {/* Big 1-Click Action Button */}
+              {/* Stats Grid: BR Rank, Level, Likes, KD, Booyahs */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    BR Rank Tier
+                  </label>
+                  <select
+                    value={formData.br_rank}
+                    onChange={(e) => setFormData({ ...formData, br_rank: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none cursor-pointer"
+                  >
+                    <option value="Grandmaster 👑">Grandmaster 👑</option>
+                    <option value="Master 🎖️">Master 🎖️</option>
+                    <option value="Heroic 💎">Heroic 💎</option>
+                    <option value="Diamond 💠">Diamond 💠</option>
+                    <option value="Platinum 🥈">Platinum 🥈</option>
+                    <option value="Gold 🥉">Gold 🥉</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Player Level
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={formData.level}
+                    onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) || 1 })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Profile Likes
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.likes}
+                    onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    K/D Ratio
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={formData.kd_ratio}
+                    onChange={(e) => setFormData({ ...formData, kd_ratio: parseFloat(e.target.value) || 1.0 })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Total Booyahs 🏆
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.total_booyahs}
+                    onChange={(e) => setFormData({ ...formData, total_booyahs: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Rank Points
+                  </label>
+                  <input
+                    type="number"
+                    min="100"
+                    value={formData.br_rank_points}
+                    onChange={(e) => setFormData({ ...formData, br_rank_points: parseInt(e.target.value) || 1000 })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Live Preview Card */}
+              <div className="p-3.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl border border-indigo-500/30 text-white space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+                  <span>Live Gamer Card Preview</span>
+                  <span>{formData.region} • Lv. {formData.level}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-black text-white">{formData.in_game_name || 'Enter In-Game Nickname'}</h4>
+                    <p className="text-[10px] text-slate-400 font-mono">UID: {formData.uid || 'XXXXXXXXXX'}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-purple-300 block">{formData.br_rank}</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">{formData.kd_ratio} KD • {formData.total_booyahs} 🏆</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={isLookingUp || isSubmitting || !formData.uid}
+                  disabled={isSubmitting}
                   className="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm rounded-2xl shadow-lg shadow-orange-500/20 transition active:scale-98 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Zap className={`w-4 h-4 ${isLookingUp || isSubmitting ? 'animate-spin' : ''}`} />
-                  <span>{isLookingUp || isSubmitting ? 'Fetching & Linking Live Profile...' : '⚡ 1-Click Auto-Fetch & Link Free Fire Account'}</span>
+                  <Gamepad2 className="w-4 h-4 text-slate-950" />
+                  <span>{isSubmitting ? 'Saving Profile...' : 'Save & Claim Leaderboard Rank 🏆'}</span>
                 </button>
               </div>
-
-              {/* Live Preview Card if IGN exists */}
-              {formData.in_game_name && (
-                <div className="p-3.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl border border-indigo-500/30 text-white space-y-2 animate-fade-in">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                    <span>Live Free Fire Data Detected</span>
-                    <span>{formData.region} • Lv. {formData.level}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-black text-white">{formData.in_game_name}</h4>
-                      <p className="text-[10px] text-slate-400 font-mono">UID: {formData.uid}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-black text-purple-300 block">{formData.br_rank}</span>
-                      <span className="text-[10px] text-emerald-400 font-bold">{formData.kd_ratio} KD • {formData.total_booyahs} 🏆</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </form>
           </div>
         </div>
