@@ -257,10 +257,10 @@ export const GamingPage: React.FC = () => {
                   setModalSuccess(null);
                   setIsModalOpen(true);
                 }}
-                className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center justify-center gap-2 cursor-pointer border border-yellow-300/40"
+                className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-2xl btn-3d-orange flex items-center justify-center gap-2 cursor-pointer border border-yellow-300/40 shadow-lg"
               >
                 <Gamepad2 className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                <span>{myProfile ? '⚡ Update My Gaming Stats' : '🎮 Register Free Fire UID'}</span>
+                <span>{myProfile ? '⚡ Edit My Gamer Profile' : '🎮 Claim Free Fire Passport'}</span>
               </button>
 
               {myProfile && (
@@ -268,10 +268,10 @@ export const GamingPage: React.FC = () => {
                   type="button"
                   onClick={handleSyncStats}
                   disabled={isSyncing}
-                  className="w-full sm:w-auto px-4 py-3 bg-purple-900/60 hover:bg-purple-800/80 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 py-3 bg-purple-900/70 hover:bg-purple-800 text-white font-bold text-xs rounded-2xl btn-3d-purple border border-purple-400/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-cyan-300 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>Sync Stats</span>
+                  <span>{isSyncing ? 'Syncing...' : 'Sync Live Stats'}</span>
                 </button>
               )}
 
@@ -281,7 +281,7 @@ export const GamingPage: React.FC = () => {
                 className="w-full sm:w-auto px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl border border-slate-700/80 backdrop-blur-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
                 <Swords className="w-4 h-4 text-purple-400" />
-                <span>Custom Rooms ({tournaments.length})</span>
+                <span>Custom Room Matches ({tournaments.length})</span>
               </button>
             </div>
           </div>
@@ -310,7 +310,141 @@ export const GamingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. 3D PODIUM STAGE SHOWCASE (TOP 3 CHAMPIONS) */}
+      {/* 2. DEDICATED "MY GAMER COMBAT PASSPORT" COMMAND HUB */}
+      {myProfile ? (
+        <div className="z-10 relative">
+          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border-2 border-indigo-500/40 text-white shadow-2xl space-y-5 card-3d-luxury">
+            {/* Top Bar: Header & Live Rank Indicator */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 via-amber-500 to-yellow-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-orange-500/30 border border-yellow-300 shrink-0">
+                  {myProfile.in_game_name?.[0]?.toUpperCase() || 'FF'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                      {myProfile.in_game_name}
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                      <span>Verified Gamer</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300">
+                      Region: {myProfile.region || 'IND'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                    <span>Hostel: <strong className="text-slate-200">{myProfile.user_details?.hostel_name || 'Resident'}</strong></span>
+                    <span>•</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyUid(myProfile.uid)}
+                      className="text-amber-300 font-mono font-bold hover:text-amber-200 inline-flex items-center gap-1 transition cursor-pointer"
+                      title="Click to copy UID"
+                    >
+                      <span>UID: {myProfile.uid}</span>
+                      {copiedUid === myProfile.uid ? (
+                        <Check className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3 h-3 text-slate-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Score & Actions */}
+              <div className="flex items-center gap-3 self-start sm:self-auto">
+                <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 text-center">
+                  <span className="block text-xs font-bold text-amber-300 uppercase tracking-wider">Combat Score</span>
+                  <span className="block text-xl font-black text-white">{myProfile.score} pts</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalError(null);
+                    setModalSuccess(null);
+                    setIsModalOpen(true);
+                  }}
+                  className="px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md transition active:scale-95 cursor-pointer shrink-0"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Telemetry HUD Grid: BR Rank, CS Rank, K/D, Booyahs, Level, Likes */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider block mb-1">BR Rank Tier</span>
+                <span className="text-sm font-black text-white truncate block">{myProfile.br_rank || 'Heroic 💎'}</span>
+                <span className="text-[9px] text-slate-400">{myProfile.br_rank_points || 2400} pts</span>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block mb-1">K/D Ratio</span>
+                <span className="text-base font-black text-emerald-400 block">{myProfile.kd_ratio}</span>
+                <span className="text-[9px] text-slate-400">Elimination rate</span>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block mb-1">Total Booyahs</span>
+                <span className="text-base font-black text-amber-400 block">{myProfile.total_booyahs} 🏆</span>
+                <span className="text-[9px] text-slate-400">Match victories</span>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider block mb-1">Player Level</span>
+                <span className="text-base font-black text-cyan-300 block">Lv. {myProfile.level || 50}</span>
+                <span className="text-[9px] text-slate-400">Veteran status</span>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-rose-300 uppercase tracking-wider block mb-1">Profile Likes</span>
+                <span className="text-base font-black text-rose-400 block">❤️ {myProfile.likes || 1000}</span>
+                <span className="text-[9px] text-slate-400">Reputation</span>
+              </div>
+
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-center">
+                <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider block mb-1">CS Rank Tier</span>
+                <span className="text-sm font-black text-indigo-300 truncate block">{myProfile.cs_rank || 'Master 🎖️'}</span>
+                <span className="text-[9px] text-slate-400">Clash Squad</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : user ? (
+        <div className="z-10 relative">
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-orange-500/15 via-purple-500/10 to-amber-500/15 border border-orange-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 card-3d-luxury">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-orange-500 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
+                🎮
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-900">You haven't set up your Free Fire Gamer Passport yet!</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Register your UID to showcase your BR Rank, Booyahs &amp; compete for the #1 Gold Trophy on the campus leaderboard.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setModalError(null);
+                setModalSuccess(null);
+                setIsModalOpen(true);
+              }}
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md transition active:scale-95 cursor-pointer shrink-0"
+            >
+              + Create Gamer Passport 🚀
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* 3. 3D PODIUM STAGE SHOWCASE (TOP 3 CHAMPIONS) */}
       {leaderboard.length > 0 && activeTab === 'leaderboard' && (
         <div className="space-y-3 z-10 relative">
           <div className="flex items-center gap-2 px-1">
@@ -878,7 +1012,7 @@ export const GamingPage: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmitProfile} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSubmitProfile} className="space-y-4 text-xs">
               {/* Free Fire UID Input + Auto-Lookup Button */}
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
@@ -897,7 +1031,7 @@ export const GamingPage: React.FC = () => {
                     type="button"
                     onClick={handleAutoLookup}
                     disabled={isLookingUp || !formData.uid}
-                    className="px-3.5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-2xl shadow-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+                    className="px-3.5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-2xl shadow-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     <Zap className={`w-3.5 h-3.5 ${isLookingUp ? 'animate-spin' : ''}`} />
                     <span>{isLookingUp ? 'Fetching...' : '⚡ Auto-Fetch'}</span>
@@ -908,23 +1042,43 @@ export const GamingPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* In-Game Name */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  In-Game Nickname (IGN)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.in_game_name}
-                  onChange={(e) => setFormData({ ...formData, in_game_name: e.target.value })}
-                  placeholder="e.g. ⚡THAKUR_OP⚡"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none"
-                />
+              {/* In-Game Name & Region */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    In-Game Nickname (IGN)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.in_game_name}
+                    onChange={(e) => setFormData({ ...formData, in_game_name: e.target.value })}
+                    placeholder="e.g. ⚡THAKUR_OP⚡"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Region / Server
+                  </label>
+                  <select
+                    value={formData.region}
+                    onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  >
+                    <option value="IND">IND 🇮🇳</option>
+                    <option value="SG">SG 🇸🇬</option>
+                    <option value="BD">BD 🇧🇩</option>
+                    <option value="PK">PK 🇵🇰</option>
+                    <option value="BR">BR 🇧🇷</option>
+                    <option value="GLOBAL">GLOBAL 🌐</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Stats Grid: Rank, KD, Booyahs */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Stats Grid: BR Rank, CS Rank, KD, Booyahs, Level, Likes */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
                     BR Rank Tier
@@ -932,13 +1086,14 @@ export const GamingPage: React.FC = () => {
                   <select
                     value={formData.br_rank}
                     onChange={(e) => setFormData({ ...formData, br_rank: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
                   >
                     <option value="Grandmaster 👑">Grandmaster 👑</option>
                     <option value="Master 🎖️">Master 🎖️</option>
                     <option value="Heroic 💎">Heroic 💎</option>
                     <option value="Diamond 💠">Diamond 💠</option>
                     <option value="Platinum 🥈">Platinum 🥈</option>
+                    <option value="Gold 🥉">Gold 🥉</option>
                   </select>
                 </div>
 
@@ -953,7 +1108,7 @@ export const GamingPage: React.FC = () => {
                     max="30"
                     value={formData.kd_ratio}
                     onChange={(e) => setFormData({ ...formData, kd_ratio: parseFloat(e.target.value) || 1.0 })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
                   />
                 </div>
 
@@ -966,7 +1121,7 @@ export const GamingPage: React.FC = () => {
                     min="0"
                     value={formData.total_booyahs}
                     onChange={(e) => setFormData({ ...formData, total_booyahs: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
                   />
                 </div>
 
@@ -980,8 +1135,52 @@ export const GamingPage: React.FC = () => {
                     max="100"
                     value={formData.level}
                     onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) || 1 })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Profile Likes
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.likes}
+                    onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Rank Points
+                  </label>
+                  <input
+                    type="number"
+                    min="100"
+                    value={formData.br_rank_points}
+                    onChange={(e) => setFormData({ ...formData, br_rank_points: parseInt(e.target.value) || 1000 })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-900 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Real-time Live Mini Gamer Card Preview */}
+              <div className="p-3.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl border border-indigo-500/30 text-white space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+                  <span>Live Gamer Card Preview</span>
+                  <span>{formData.region} • Lv. {formData.level}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-black text-white">{formData.in_game_name || 'Your IGN'}</h4>
+                    <p className="text-[10px] text-slate-400 font-mono">UID: {formData.uid || 'XXXXXXXXXX'}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-purple-300 block">{formData.br_rank}</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">{formData.kd_ratio} KD • {formData.total_booyahs} 🏆</span>
+                  </div>
                 </div>
               </div>
 
