@@ -6,8 +6,8 @@ import { BackButton } from '../components/BackButton';
 
 export const ContactPage: React.FC = () => {
   const { user } = useAuth();
-  const [name, setName] = useState(user?.full_name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,7 +104,7 @@ export const ContactPage: React.FC = () => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Siddharth Singh"
+                    placeholder="Enter your full name"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 outline-none text-xs"
                   />
                 </div>
@@ -116,7 +116,7 @@ export const ContactPage: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="student@hostel.edu"
+                    placeholder="Enter your email address"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 outline-none text-xs"
                   />
                 </div>

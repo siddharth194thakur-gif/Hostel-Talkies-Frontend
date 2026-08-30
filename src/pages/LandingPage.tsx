@@ -123,18 +123,6 @@ export const LandingPage: React.FC = () => {
             </>
           )}
         </div>
-
-        {/* Demo Fast Login Banner */}
-        {!isAuthenticated && (
-          <div className="pt-4 max-w-md mx-auto">
-            <div className="p-3.5 bg-indigo-50/80 border border-indigo-200/80 rounded-2xl text-xs text-indigo-900 flex items-center justify-between card-3d-luxury">
-              <span>Quick Demo Access: <strong>siddharth@student.edu</strong></span>
-              <Link to="/login" className="font-black underline text-brand-700 hover:text-brand-800">
-                Log In →
-              </Link>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Feature Cards Grid */}
