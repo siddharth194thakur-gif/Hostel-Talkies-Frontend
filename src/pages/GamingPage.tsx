@@ -160,6 +160,11 @@ export const GamingPage: React.FC = () => {
   // Submit Gaming Profile
   const handleSubmitProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      setModalError('Student Login Required: Please log in to save your Free Fire Gaming Passport and claim your podium rank.');
+      return;
+    }
+
     if (!formData.uid.trim()) {
       setModalError('Free Fire UID is required.');
       return;
@@ -997,6 +1002,18 @@ export const GamingPage: React.FC = () => {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {!user && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center justify-between gap-2">
+                <span>Login required to claim &amp; save your Free Fire Passport.</span>
+                <Link
+                  to="/login?next=/gaming"
+                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-xs shrink-0"
+                >
+                  Log In →
+                </Link>
+              </div>
+            )}
 
             {modalError && (
               <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
