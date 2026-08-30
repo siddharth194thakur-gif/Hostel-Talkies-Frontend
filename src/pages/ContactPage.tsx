@@ -61,7 +61,12 @@ export const ContactPage: React.FC = () => {
 
           <div className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
             <h3 className="font-bold text-slate-900 text-sm">Support Email</h3>
-            <p className="text-brand-600 font-medium">support@hosteltalkies.edu</p>
+            <a
+              href="mailto:siddharth.hosteltalkies0022@gmail.com"
+              className="text-brand-600 font-bold hover:underline break-all block"
+            >
+              siddharth.hosteltalkies0022@gmail.com
+            </a>
           </div>
 
           <div className="p-5 bg-indigo-50/70 border border-indigo-100 rounded-2xl text-indigo-900 space-y-1">
