@@ -9,14 +9,16 @@
     max-width: 100vw;
   }
   body {
-    background-color: #F7F8FC;
-    color: #172033;
-    @apply antialiased min-h-screen selection:bg-indigo-600 selection:text-white font-sans;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    @apply antialiased min-h-screen selection:bg-brand-600 selection:text-white font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbar for sleek modern feel */
+/* Custom modern scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -32,16 +34,6 @@
   background: #CBD5E1;
 }
 
-@keyframes badgePop {
-  0% { transform: scale(0.85); opacity: 0; }
-  60% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.animate-badge-pop {
-  animation: badgePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -51,135 +43,49 @@
 }
 
 /* Staggered cascading reveal classes for feeds and lists */
-.stagger-1 { animation-delay: 40ms; }
-.stagger-2 { animation-delay: 80ms; }
-.stagger-3 { animation-delay: 120ms; }
-.stagger-4 { animation-delay: 160ms; }
-.stagger-5 { animation-delay: 200ms; }
-.stagger-6 { animation-delay: 240ms; }
+.stagger-1 { animation-delay: 30ms; }
+.stagger-2 { animation-delay: 60ms; }
+.stagger-3 { animation-delay: 90ms; }
+.stagger-4 { animation-delay: 120ms; }
+.stagger-5 { animation-delay: 150ms; }
+.stagger-6 { animation-delay: 180ms; }
+.stagger-7 { animation-delay: 210ms; }
+.stagger-8 { animation-delay: 240ms; }
+.stagger-9 { animation-delay: 270ms; }
+.stagger-10 { animation-delay: 300ms; }
+.stagger-11 { animation-delay: 330ms; }
+.stagger-12 { animation-delay: 360ms; }
 
 /* Micro-Interaction Button & Card physics */
 .interactive-card {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
 }
 .interactive-card:hover {
   transform: translateY(-2px);
 }
 
 /* 3D Perspective & Spatial Transform Utilities */
-.perspective-800 {
-  perspective: 800px;
-}
-.perspective-1000 {
-  perspective: 1000px;
-}
-.perspective-2000 {
-  perspective: 2000px;
-}
+.perspective-800 { perspective: 800px; }
+.perspective-1000 { perspective: 1000px; }
+.perspective-2000 { perspective: 2000px; }
 
-.transform-3d {
-  transform-style: preserve-3d;
-}
+.transform-3d { transform-style: preserve-3d; }
+.translate-z-10 { transform: translateZ(10px); }
+.translate-z-20 { transform: translateZ(20px); }
+.translate-z-30 { transform: translateZ(30px); }
+.translate-z-40 { transform: translateZ(40px); }
+.translate-z-50 { transform: translateZ(50px); }
 
-.translate-z-10 {
-  transform: translateZ(10px);
-}
-.translate-z-20 {
-  transform: translateZ(20px);
-}
-.translate-z-30 {
-  transform: translateZ(30px);
-}
-.translate-z-40 {
-  transform: translateZ(40px);
-}
-.translate-z-50 {
-  transform: translateZ(50px);
-}
-
-/* 3D Cyber-Grid floor */
-.cyber-grid-3d {
-  background-image: 
-    linear-gradient(to right, rgba(168, 85, 247, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(168, 85, 247, 0.15) 1px, transparent 1px);
-  background-size: 32px 32px;
-  transform: perspective(600px) rotateX(60deg);
-  transform-origin: center top;
-}
-
-/* 3D Glass Bevel & Depth Shadows */
-.cyber-card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-  box-shadow: 
-    0 20px 35px -10px rgba(15, 23, 42, 0.7),
-    0 0 15px 1px rgba(168, 85, 247, 0.2),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
-}
-
-.cyber-card-3d:hover {
-  transform: translateY(-8px) rotateX(4deg) rotateY(-2deg) scale(1.02);
-  box-shadow: 
-    0 30px 50px -12px rgba(15, 23, 42, 0.85),
-    0 0 30px 4px rgba(168, 85, 247, 0.4),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.4);
-}
-
-/* 3D Gold Champion Card Special Bevel */
-.champion-card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-  box-shadow: 
-    0 25px 45px -10px rgba(245, 158, 11, 0.35),
-    0 0 25px 2px rgba(245, 158, 11, 0.3),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.champion-card-3d:hover {
-  transform: translateY(-10px) rotateX(6deg) rotateY(-2deg) scale(1.03);
-  box-shadow: 
-    0 35px 60px -10px rgba(245, 158, 11, 0.5),
-    0 0 40px 6px rgba(245, 158, 11, 0.5),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.6);
-}
-
-/* 3D Floating Animations */
-@keyframes float3d {
-  0%, 100% {
-    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotateX(4deg) rotateY(3deg);
-  }
-}
-
-.animate-float-3d {
-  animation: float3d 5s ease-in-out infinite;
-}
-
-@keyframes spin3dSlow {
-  0% {
-    transform: rotate3d(1, 1, 1, 0deg);
-  }
-  100% {
-    transform: rotate3d(1, 1, 1, 360deg);
-  }
-}
-
-.animate-spin-3d {
-  animation: spin3dSlow 20s linear infinite;
-}
-
-/* Global 3D Spatial Design System */
+/* Linear / Stripe / Apple Inspired 3D Depth Card */
 .card-3d-luxury {
   transform-style: preserve-3d;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 4px 6px -1px rgba(15, 23, 42, 0.05),
-    0 2px 4px -2px rgba(15, 23, 42, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    0 1px 3px 0 rgba(15, 23, 42, 0.04),
+    0 1px 2px -1px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .card-3d-luxury::after {
@@ -191,13 +97,13 @@
   height: 200%;
   background: linear-gradient(
     60deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.45) 50%,
-    transparent 60%
+    transparent 42%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 58%
   );
   transform: translateX(-100%) rotate(25deg);
   pointer-events: none;
-  transition: transform 0.75s ease;
+  transition: transform 0.65s ease;
   z-index: 1;
 }
 
@@ -206,137 +112,166 @@
 }
 
 .card-3d-luxury:hover {
-  transform: translateY(-8px) scale(1.015) rotateX(1.5deg);
+  transform: translateY(-3px) scale(1.008);
   box-shadow: 
-    0 25px 35px -8px rgba(15, 23, 42, 0.12),
-    0 12px 16px -6px rgba(15, 23, 42, 0.05),
-    0 0 0 1px rgba(99, 102, 241, 0.25),
+    0 12px 24px -4px rgba(15, 23, 42, 0.08),
+    0 4px 6px -2px rgba(15, 23, 42, 0.03),
+    0 0 0 1px rgba(99, 102, 241, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
+/* Restrained 3D Cyber / Gaming Card */
+.cyber-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  box-shadow: 
+    0 15px 30px -8px rgba(15, 23, 42, 0.6),
+    0 0 12px 1px rgba(168, 85, 247, 0.15),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.cyber-card-3d:hover {
+  transform: translateY(-4px) rotateX(2deg) rotateY(-1deg) scale(1.01);
+  box-shadow: 
+    0 20px 40px -10px rgba(15, 23, 42, 0.75),
+    0 0 20px 2px rgba(168, 85, 247, 0.3),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* 3D Gold Champion Card */
+.champion-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  box-shadow: 
+    0 18px 35px -8px rgba(245, 158, 11, 0.25),
+    0 0 18px 1px rgba(245, 158, 11, 0.2),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.champion-card-3d:hover {
+  transform: translateY(-5px) rotateX(2.5deg) scale(1.015);
+  box-shadow: 
+    0 25px 45px -8px rgba(245, 158, 11, 0.35),
+    0 0 28px 3px rgba(245, 158, 11, 0.35),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Banner 3D */
 .banner-3d {
   transform-style: preserve-3d;
   position: relative;
-  background-size: 200% 200%;
-  animation: gradientFlow 12s ease infinite;
   box-shadow: 
-    0 25px 50px -12px rgba(15, 23, 42, 0.35),
-    0 0 35px 0 rgba(99, 102, 241, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    0 20px 35px -10px rgba(15, 23, 42, 0.18),
+    0 0 20px 0 rgba(99, 102, 241, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .badge-3d {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .badge-3d:hover {
-  transform: scale(1.08) translateY(-1px);
+  transform: translateY(-1px);
 }
 
-/* 3D Tactile Push Buttons */
+/* Professional Tactile Push Buttons (Linear/Apple Quality) */
 .btn-3d-brand {
-  box-shadow: 0 4px 0 0 #3730a3, 0 8px 15px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 0 0 #3730a3, 0 6px 12px rgba(79, 70, 229, 0.25);
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-3d-brand:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #3730a3, 0 12px 20px rgba(79, 70, 229, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 0 0 #3730a3, 0 8px 16px rgba(79, 70, 229, 0.32);
 }
 .btn-3d-brand:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #3730a3, 0 3px 6px rgba(79, 70, 229, 0.2);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #3730a3, 0 2px 4px rgba(79, 70, 229, 0.2);
 }
 
 .btn-3d-emerald {
-  box-shadow: 0 4px 0 0 #065f46, 0 8px 15px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 0 0 #065f46, 0 6px 12px rgba(16, 185, 129, 0.25);
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-3d-emerald:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #065f46, 0 12px 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 0 0 #065f46, 0 8px 16px rgba(16, 185, 129, 0.32);
 }
 .btn-3d-emerald:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #065f46, 0 3px 6px rgba(16, 185, 129, 0.2);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #065f46, 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .btn-3d-rose {
-  box-shadow: 0 4px 0 0 #9f1239, 0 8px 15px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 0 0 #9f1239, 0 6px 12px rgba(244, 63, 94, 0.25);
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-3d-rose:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #9f1239, 0 12px 20px rgba(244, 63, 94, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 0 0 #9f1239, 0 8px 16px rgba(244, 63, 94, 0.32);
 }
 .btn-3d-rose:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #9f1239, 0 3px 6px rgba(244, 63, 94, 0.2);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #9f1239, 0 2px 4px rgba(244, 63, 94, 0.2);
 }
 
 .btn-3d-orange {
-  box-shadow: 0 5px 0 0 #c2410c, 0 10px 20px rgba(234, 88, 12, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 0 0 #c2410c, 0 6px 12px rgba(234, 88, 12, 0.25);
   transition: all 0.15s ease;
 }
 .btn-3d-orange:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 0 0 #c2410c, 0 14px 25px rgba(234, 88, 12, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 0 0 #c2410c, 0 8px 16px rgba(234, 88, 12, 0.35);
 }
 .btn-3d-orange:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #c2410c, 0 3px 8px rgba(234, 88, 12, 0.25);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #c2410c, 0 2px 4px rgba(234, 88, 12, 0.2);
 }
 
 .btn-3d-purple {
-  box-shadow: 0 5px 0 0 #581c87, 0 10px 20px rgba(147, 51, 234, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 3px 0 0 #581c87, 0 6px 12px rgba(147, 51, 234, 0.25);
   transition: all 0.15s ease;
 }
 .btn-3d-purple:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 0 0 #581c87, 0 14px 25px rgba(147, 51, 234, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 0 0 #581c87, 0 8px 16px rgba(147, 51, 234, 0.35);
 }
 .btn-3d-purple:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #581c87, 0 3px 8px rgba(147, 51, 234, 0.25);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #581c87, 0 2px 4px rgba(147, 51, 234, 0.2);
 }
 
-/* Staggered Delay Extensions */
-.stagger-7 { animation-delay: 280ms; }
-.stagger-8 { animation-delay: 320ms; }
-.stagger-9 { animation-delay: 360ms; }
-.stagger-10 { animation-delay: 400ms; }
-.stagger-11 { animation-delay: 440ms; }
-.stagger-12 { animation-delay: 480ms; }
-
-/* Interactive Avatar Glow Ring */
-.avatar-ring-animated {
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(99, 102, 241, 0.5), 0 8px 16px rgba(79, 70, 229, 0.25);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
-}
-.avatar-ring-animated:hover {
-  transform: scale(1.1) rotate(4deg);
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 5px rgba(99, 102, 241, 0.8), 0 12px 20px rgba(79, 70, 229, 0.35);
-}
-
-/* Floating Pulsing Glow Orbs */
+/* Subtle Ambient Glow Blobs (Performance-friendly, soft) */
 .orb-glow-brand {
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(124, 58, 237, 0.2) 40%, transparent 70%);
-  filter: blur(40px);
-  animation: blobMorph 12s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(124, 58, 237, 0.08) 50%, transparent 70%);
+  filter: blur(50px);
 }
 
 .orb-glow-amber {
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, transparent 70%);
-  filter: blur(35px);
-  animation: blobMorph 10s ease-in-out infinite reverse;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 70%);
+  filter: blur(45px);
 }
 
 .orb-glow-emerald {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
-  filter: blur(35px);
-  animation: ambientFloat 8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, transparent 70%);
+  filter: blur(45px);
 }
 
-
-
-
-
+/* Accessible Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-3d-luxury::after {
+    display: none !important;
+  }
+  .card-3d-luxury:hover,
+  .cyber-card-3d:hover,
+  .champion-card-3d:hover {
+    transform: none !important;
+  }
+}
