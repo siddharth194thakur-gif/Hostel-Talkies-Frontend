@@ -173,31 +173,64 @@
 /* Global 3D Spatial Design System */
 .card-3d-luxury {
   transform-style: preserve-3d;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
   box-shadow: 
     0 4px 6px -1px rgba(15, 23, 42, 0.05),
     0 2px 4px -2px rgba(15, 23, 42, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
+
+.card-3d-luxury::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%) rotate(25deg);
+  pointer-events: none;
+  transition: transform 0.75s ease;
+  z-index: 1;
+}
+
+.card-3d-luxury:hover::after {
+  transform: translateX(100%) rotate(25deg);
+}
+
 .card-3d-luxury:hover {
-  transform: translateY(-6px) scale(1.01) rotateX(1deg);
+  transform: translateY(-8px) scale(1.015) rotateX(1.5deg);
   box-shadow: 
-    0 20px 30px -6px rgba(15, 23, 42, 0.09),
-    0 10px 12px -5px rgba(15, 23, 42, 0.04),
-    0 0 0 1px rgba(99, 102, 241, 0.2),
+    0 25px 35px -8px rgba(15, 23, 42, 0.12),
+    0 12px 16px -6px rgba(15, 23, 42, 0.05),
+    0 0 0 1px rgba(99, 102, 241, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .banner-3d {
   transform-style: preserve-3d;
+  position: relative;
+  background-size: 200% 200%;
+  animation: gradientFlow 12s ease infinite;
   box-shadow: 
-    0 25px 50px -12px rgba(15, 23, 42, 0.3),
-    0 0 30px 0 rgba(99, 102, 241, 0.2),
-    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    0 25px 50px -12px rgba(15, 23, 42, 0.35),
+    0 0 35px 0 rgba(99, 102, 241, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
 .badge-3d {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.badge-3d:hover {
+  transform: scale(1.08) translateY(-1px);
 }
 
 /* 3D Tactile Push Buttons */
@@ -265,6 +298,44 @@
   transform: translateY(3px);
   box-shadow: 0 1px 0 0 #581c87, 0 3px 8px rgba(147, 51, 234, 0.25);
 }
+
+/* Staggered Delay Extensions */
+.stagger-7 { animation-delay: 280ms; }
+.stagger-8 { animation-delay: 320ms; }
+.stagger-9 { animation-delay: 360ms; }
+.stagger-10 { animation-delay: 400ms; }
+.stagger-11 { animation-delay: 440ms; }
+.stagger-12 { animation-delay: 480ms; }
+
+/* Interactive Avatar Glow Ring */
+.avatar-ring-animated {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(99, 102, 241, 0.5), 0 8px 16px rgba(79, 70, 229, 0.25);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.avatar-ring-animated:hover {
+  transform: scale(1.1) rotate(4deg);
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 5px rgba(99, 102, 241, 0.8), 0 12px 20px rgba(79, 70, 229, 0.35);
+}
+
+/* Floating Pulsing Glow Orbs */
+.orb-glow-brand {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(124, 58, 237, 0.2) 40%, transparent 70%);
+  filter: blur(40px);
+  animation: blobMorph 12s ease-in-out infinite;
+}
+
+.orb-glow-amber {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, transparent 70%);
+  filter: blur(35px);
+  animation: blobMorph 10s ease-in-out infinite reverse;
+}
+
+.orb-glow-emerald {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
+  filter: blur(35px);
+  animation: ambientFloat 8s ease-in-out infinite;
+}
+
 
 
 

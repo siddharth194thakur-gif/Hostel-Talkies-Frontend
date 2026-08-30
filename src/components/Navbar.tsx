@@ -367,21 +367,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
                 {/* Create Post Button - Desktop & Tablet */}
                 <Link
                   to="/create-post"
-                  className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-full shadow-xs hover:shadow-badge transition-all duration-200 active:scale-95 whitespace-nowrap"
+                  className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-2xl btn-3d-brand active:scale-95 whitespace-nowrap shadow-xs"
                 >
-                  <PlusCircle className="w-3.5 h-3.5" />
+                  <PlusCircle className="w-4 h-4" />
                   <span>Create Post</span>
                 </Link>
 
                 {/* Messages Link with Badge */}
                 <Link
                   to="/messages"
-                  className="relative p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50/70 rounded-full transition-all duration-200"
+                  className="relative p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50/70 rounded-2xl transition-all duration-200 hover:scale-110 active:scale-95 group"
                   title="Messages"
                 >
-                  <MessageSquare className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5 transition-transform group-hover:-rotate-6" />
                   {unreadMessagesCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-badge border-2 border-white pointer-events-none">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-brand-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-badge border-2 border-white pointer-events-none animate-badge-pop">
                       {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                     </span>
                   )}
@@ -392,13 +392,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
                   <button
                     type="button"
                     onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                    className="relative p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50/70 rounded-full transition-all duration-200 focus:outline-none"
+                    className="relative p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50/70 rounded-2xl transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none group cursor-pointer"
                     title="Notifications"
                     aria-label="Notifications"
                   >
-                    <Bell className="w-5 h-5" />
+                    <Bell className="w-5 h-5 transition-transform group-hover:rotate-12" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-purple-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-badge border-2 border-white pointer-events-none">
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-purple-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-badge border-2 border-white pointer-events-none animate-badge-pop">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}

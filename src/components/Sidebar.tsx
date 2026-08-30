@@ -105,21 +105,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   to={item.to}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-200 ${
+                    `flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs transition-all duration-200 group ${
                       isActive
-                        ? 'bg-brand-50 text-brand-700 font-bold shadow-subtle'
-                        : 'text-slate-600 hover:bg-brand-50/50 hover:text-slate-900 font-medium'
+                        ? 'bg-gradient-to-r from-brand-50 to-indigo-50 text-brand-700 font-bold border border-brand-100 shadow-2xs translate-x-1'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium hover:translate-x-1'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-brand-600' : 'text-slate-400'}`} />
+                        <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-115 group-hover:rotate-6 ${isActive ? 'text-brand-600' : 'text-slate-400 group-hover:text-brand-600'}`} />
                         <span>{item.label}</span>
                       </div>
                       {typeof item.badge === 'number' && item.badge > 0 ? (
-                        <span className="px-1.5 py-0.2 min-w-[18px] text-[10px] font-bold bg-brand-600 text-white rounded-full text-center shadow-xs">
+                        <span className="px-1.5 py-0.5 min-w-[20px] text-[10px] font-black bg-brand-600 text-white rounded-full text-center shadow-xs animate-badge-pop">
                           {item.badge > 9 ? '9+' : item.badge}
                         </span>
                       ) : null}
