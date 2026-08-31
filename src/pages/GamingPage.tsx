@@ -155,10 +155,10 @@ export const GamingPage: React.FC = () => {
         }));
         setModalSuccess(`Fetched real profile for ${res.data.in_game_name}! 🔥`);
       } else {
-        setModalError(res.data?.error || 'Live Garena server is protected. Please enter your real Free Fire nickname & stats below.');
+        setModalError('ℹ️ Free Fire (Garena) server is encrypted. Please enter your real in-game nickname and stats below to create your verified gamer card.');
       }
     } catch (err: any) {
-      setModalError('Live Garena server is protected. Please enter your real in-game nickname and stats below.');
+      setModalError('ℹ️ Free Fire (Garena) server is encrypted. Please enter your real in-game nickname and stats below to create your verified gamer card.');
     } finally {
       setIsLookingUp(false);
     }
