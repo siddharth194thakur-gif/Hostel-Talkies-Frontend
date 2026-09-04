@@ -20,7 +20,18 @@ interface StudyResourceCardProps {
   resource: StudyResource;
 }
 
+const cleanDisplayTitle = (rawTitle: string): string => {
+  if (!rawTitle) return '';
+  return rawTitle
+    .replace(/[\s\-_(]*[💙~]*[∆\u2206][☮\u262e\ufe0f]+[💙~]*[\s\-_)]*/g, ' ')
+    .replace(/%E2%88%86%E2%98%AE/gi, '')
+    .replace(/%7E/gi, '')
+    .replace(/[\s~]{2,}/g, ' ')
+    .trim();
+};
+
 export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }) => {
+  const displayTitle = cleanDisplayTitle(resource.title);
   const [downloads, setDownloads] = useState(resource.downloads_count);
   const [copied, setCopied] = useState(false);
 
@@ -35,10 +46,10 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
-    const shareText = `📚 [Study Resource] ${resource.title} (${resource.course_name})\nCheck it on HostelTalkies Academic Vault!`;
+    const shareText = `📚 [Study Resource] ${displayTitle} (${resource.course_name})\nCheck it on HostelTalkies Academic Vault!`;
     if (navigator.share) {
       navigator.share({
-        title: resource.title,
+        title: displayTitle,
         text: shareText,
       }).catch(() => {});
     } else {
@@ -162,7 +173,7 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
         {/* Title */}
         <div>
           <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors">
-            {resource.title}
+            {displayTitle}
           </h3>
         </div>
 
