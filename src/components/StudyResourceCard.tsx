@@ -201,6 +201,16 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
               📖 {resource.unit}
             </span>
           )}
+          {resource.year && (
+            <span className="px-2.5 py-1 bg-amber-100/80 rounded-lg text-amber-900 border border-amber-300/60 font-bold">
+              🎓 Exam {resource.year}
+            </span>
+          )}
+          {resource.exam_session && (
+            <span className="px-2.5 py-1 bg-purple-50 rounded-lg text-purple-700 border border-purple-200/60 font-medium">
+              ⚡ {resource.exam_session}
+            </span>
+          )}
         </div>
 
       </div>

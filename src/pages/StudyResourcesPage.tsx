@@ -13,6 +13,8 @@ import {
   ChevronRight,
   ArrowLeft,
   FolderOpen,
+  Calendar,
+  Filter,
 } from 'lucide-react';
 import api from '../api/client';
 import { StudyResource } from '../types';
@@ -26,6 +28,12 @@ import { useAuth } from '../context/AuthContext';
 interface SubjectNode {
   types: string[];
   units: string[];
+  years?: string[];
+}
+
+interface PyqSubjectNode {
+  years: string[];
+  sessions: string[];
 }
 
 interface HierarchyTree {
@@ -36,21 +44,32 @@ interface HierarchyTree {
   };
 }
 
+interface PyqsHierarchyTree {
+  [semester: string]: {
+    [department: string]: {
+      [subject: string]: PyqSubjectNode;
+    };
+  };
+}
+
 interface MetaResponse {
   semesters: string[];
   departments: string[];
   resource_types: { value: string; label: string }[];
   units: string[];
+  years?: string[];
   hierarchy: HierarchyTree;
+  pyqs_hierarchy?: PyqsHierarchyTree;
 }
 
+type TabMode = 'all' | 'pyq';
 type Level = 'semester' | 'branch' | 'subject' | 'type' | 'resources';
 
 // ─── Resource type display helpers ───────────────────────────────────────────
 
 const TYPE_LABELS: Record<string, string> = {
   notes:               'Notes',
-  pyq:                 'PYQs',
+  pyq:                 'PYQ Papers',
   reference_material:  'Reference Material',
   lab_file:            'Lab Files',
   syllabus:            'Syllabus',
@@ -91,22 +110,35 @@ const typeLabel = (t: string) => TYPE_LABELS[t] ?? t;
 const typeColor = (t: string) => TYPE_COLORS[t] ?? { card: 'bg-slate-50 border-slate-200 hover:border-slate-400', icon: 'from-slate-600 to-slate-800' };
 const typeIcon  = (t: string): React.ElementType => TYPE_ICONS[t] ?? FileText;
 
+const SEMESTER_ORDER = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8', 'Sem 1 & 2', 'All Semesters'];
+const sortSemesters = (sems: string[]) => {
+  return [...sems].sort((a, b) => {
+    const ia = SEMESTER_ORDER.indexOf(a);
+    const ib = SEMESTER_ORDER.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return a.localeCompare(b);
+  });
+};
+
 // ─── Tile ─────────────────────────────────────────────────────────────────────
 
 interface SelectTileProps {
   label: string;
   sub?: string;
+  badge?: string;
   icon?: React.ElementType;
   iconBg?: string;
   cardCls?: string;
   onClick: () => void;
 }
 
-const SelectTile: React.FC<SelectTileProps> = ({ label, sub, icon: Icon, iconBg, cardCls, onClick }) => (
+const SelectTile: React.FC<SelectTileProps> = ({ label, sub, badge, icon: Icon, iconBg, cardCls, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`group w-full text-left p-4 rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] cursor-pointer ${cardCls ?? 'bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50/40'}`}
+    className={`group w-full text-left p-4 rounded-2xl border-2 transition-all duration-200 active:scale-[0.98] cursor-pointer relative overflow-hidden ${cardCls ?? 'bg-white border-slate-200 hover:border-brand-400 hover:bg-brand-50/40 shadow-xs'}`}
   >
     <div className="flex items-center gap-3">
       {Icon ? (
@@ -119,8 +151,15 @@ const SelectTile: React.FC<SelectTileProps> = ({ label, sub, icon: Icon, iconBg,
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-slate-900 text-sm truncate group-hover:text-brand-700 transition-colors">{label}</div>
-        {sub && <div className="text-xs text-slate-500 truncate mt-0.5">{sub}</div>}
+        <div className="flex items-center gap-2">
+          <div className="font-bold text-slate-900 text-sm truncate group-hover:text-brand-700 transition-colors">{label}</div>
+          {badge && (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-100 text-purple-700 border border-purple-200 shrink-0">
+              {badge}
+            </span>
+          )}
+        </div>
+        {sub && <div className="text-xs text-slate-500 truncate mt-0.5 font-medium">{sub}</div>}
       </div>
       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-brand-500 transition-colors shrink-0" />
     </div>
@@ -164,12 +203,16 @@ export const StudyResourcesPage: React.FC = () => {
   const [meta, setMeta]           = useState<MetaResponse | null>(null);
   const [metaLoading, setMetaLoading] = useState(true);
 
-  // Navigation
+  // Tab mode: 'all' (Academic Vault) vs 'pyq' (Previous Year Questions)
+  const [tabMode, setTabMode]     = useState<TabMode>('pyq');
+
+  // Navigation state
   const [level, setLevel]           = useState<Level>('semester');
   const [selSemester, setSelSemester] = useState('');
   const [selBranch, setSelBranch]     = useState('');
   const [selSubject, setSelSubject]   = useState('');
   const [selType, setSelType]         = useState('');
+  const [yearFilter, setYearFilter]   = useState<string>('all');
 
   // Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,12 +226,14 @@ export const StudyResourcesPage: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadTitle, setUploadTitle]         = useState('');
   const [uploadDesc, setUploadDesc]           = useState('');
-  const [uploadType, setUploadType]           = useState('notes');
+  const [uploadType, setUploadType]           = useState('pyq');
   const [uploadCourse, setUploadCourse]       = useState('');
   const [uploadCode, setUploadCode]           = useState('');
   const [uploadSem, setUploadSem]             = useState('');
   const [uploadDept, setUploadDept]           = useState('');
   const [uploadUnit, setUploadUnit]           = useState('');
+  const [uploadYear, setUploadYear]           = useState('');
+  const [uploadSession, setUploadSession]     = useState('');
   const [uploadFile, setUploadFile]           = useState<File | null>(null);
   const [uploadLink, setUploadLink]           = useState('');
   const [isSubmitting, setIsSubmitting]       = useState(false);
@@ -212,7 +257,10 @@ export const StudyResourcesPage: React.FC = () => {
       if (selSemester)          params.append('semester',   selSemester);
       if (selBranch)            params.append('department', selBranch);
       if (selSubject)           params.append('course',     selSubject);
-      if (selType)              params.append('type',       selType);
+      
+      const effectiveType = tabMode === 'pyq' ? 'pyq' : selType;
+      if (effectiveType)        params.append('type',       effectiveType);
+      if (yearFilter && yearFilter !== 'all') params.append('year', yearFilter);
       if (searchQuery.trim())   params.append('search',     searchQuery.trim());
 
       const res = await api.get<{ results: StudyResource[] } | StudyResource[]>(
@@ -224,14 +272,14 @@ export const StudyResourcesPage: React.FC = () => {
     } finally {
       setResLoading(false);
     }
-  }, [selSemester, selBranch, selSubject, selType, searchQuery]);
+  }, [selSemester, selBranch, selSubject, selType, tabMode, yearFilter, searchQuery]);
 
   useEffect(() => {
     if (level === 'resources' || searchMode) {
       const t = setTimeout(fetchResources, 250);
       return () => clearTimeout(t);
     }
-  }, [level, searchMode, fetchResources]);
+  }, [level, searchMode, yearFilter, fetchResources]);
 
   // Search mode triggers on any query input
   useEffect(() => {
@@ -247,23 +295,44 @@ export const StudyResourcesPage: React.FC = () => {
     setLevel(target);
     setSearchQuery('');
     setSearchMode(false);
+    setYearFilter('all');
     setResources([]);
   };
 
   const goBack = () => {
-    if (level === 'resources') resetTo('type');
+    if (level === 'resources') {
+      if (tabMode === 'pyq') {
+        resetTo('subject');
+      } else {
+        resetTo('type');
+      }
+    }
     else if (level === 'type')    resetTo('subject');
     else if (level === 'subject') resetTo('branch');
     else if (level === 'branch')  resetTo('semester');
   };
 
+  const handleTabSwitch = (newTab: TabMode) => {
+    if (newTab === tabMode) return;
+    setTabMode(newTab);
+    resetTo('semester');
+  };
+
   // ── Derived hierarchy data ───────────────────────────────────────────────
+  const activeTree = (tabMode === 'pyq' && meta?.pyqs_hierarchy)
+    ? meta.pyqs_hierarchy
+    : (meta?.hierarchy ?? {});
+
+  const hierSemesters = sortSemesters(
+    Object.keys(activeTree).filter(s => s && Object.keys(activeTree[s] ?? {}).length > 0)
+  );
+
   const hierBranches = meta && selSemester
-    ? Object.keys(meta.hierarchy[selSemester] ?? {}).sort()
+    ? Object.keys(activeTree[selSemester] ?? {}).sort()
     : [];
 
   const hierSubjects = meta && selSemester && selBranch
-    ? Object.keys(meta.hierarchy[selSemester]?.[selBranch] ?? {}).sort()
+    ? Object.keys(activeTree[selSemester]?.[selBranch] ?? {}).sort()
     : [];
 
   const hierTypes = meta && selSemester && selBranch && selSubject
@@ -279,26 +348,66 @@ export const StudyResourcesPage: React.FC = () => {
         a + Object.values(sem).reduce((b, dept) => b + Object.keys(dept).length, 0), 0)
     : 0;
 
+  const totalPyqSubjects = meta?.pyqs_hierarchy
+    ? Object.values(meta.pyqs_hierarchy).reduce((a, sem) =>
+        a + Object.values(sem).reduce((b, dept) => b + Object.keys(dept).length, 0), 0)
+    : 0;
+
   // ── Breadcrumb ───────────────────────────────────────────────────────────
   const crumbs: { label: string; onClick: () => void }[] = [
-    { label: 'Study Resources', onClick: () => resetTo('semester') },
+    {
+      label: tabMode === 'pyq' ? 'Previous Year Questions' : 'Study Resources',
+      onClick: () => resetTo('semester'),
+    },
   ];
   if (selSemester) crumbs.push({ label: selSemester, onClick: () => resetTo('branch') });
   if (selBranch)   crumbs.push({ label: selBranch,   onClick: () => resetTo('subject') });
-  if (selSubject)  crumbs.push({ label: selSubject,  onClick: () => resetTo('type') });
-  if (selType)     crumbs.push({ label: typeLabel(selType), onClick: () => {} });
+  if (selSubject)  crumbs.push({
+    label: selSubject,
+    onClick: () => tabMode === 'pyq' ? resetTo('subject') : resetTo('type')
+  });
+  if (tabMode !== 'pyq' && selType) crumbs.push({ label: typeLabel(selType), onClick: () => {} });
 
-  // ── Unit grouping ────────────────────────────────────────────────────────
+  // ── Resource grouping (Unit vs Year) ──────────────────────────────────────
+  const isPyqGrouping = tabMode === 'pyq' || selType === 'pyq';
+
+  const byYear: Record<string, StudyResource[]> = {};
+  const noYear: StudyResource[] = [];
+  const availableYearsSet = new Set<string>();
+
   const withUnit: Record<string, StudyResource[]> = {};
   const noUnit: StudyResource[] = [];
+
   for (const r of resources) {
-    if (r.unit) {
-      if (!withUnit[r.unit]) withUnit[r.unit] = [];
-      withUnit[r.unit].push(r);
+    if (r.year) availableYearsSet.add(r.year);
+    if (isPyqGrouping) {
+      if (r.year) {
+        if (!byYear[r.year]) byYear[r.year] = [];
+        byYear[r.year].push(r);
+      } else {
+        noYear.push(r);
+      }
     } else {
-      noUnit.push(r);
+      if (r.unit) {
+        if (!withUnit[r.unit]) withUnit[r.unit] = [];
+        withUnit[r.unit].push(r);
+      } else {
+        noUnit.push(r);
+      }
     }
   }
+
+  const sortedYears = Object.keys(byYear).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+    const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    return numB - numA;
+  });
+
+  const yearPillOptions = ['all', ...Array.from(availableYearsSet).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+    const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    return numB - numA;
+  })];
 
   // ── Upload submit ────────────────────────────────────────────────────────
   const handleUploadSubmit = async (e: React.FormEvent) => {
@@ -310,12 +419,14 @@ export const StudyResourcesPage: React.FC = () => {
     fd.append('description', uploadDesc);
     fd.append('resource_type', uploadType);
     fd.append('course_name', uploadCourse);
-    if (uploadCode) fd.append('course_code', uploadCode);
-    if (uploadSem)  fd.append('semester', uploadSem);
-    if (uploadDept) fd.append('department', uploadDept);
-    if (uploadUnit) fd.append('unit', uploadUnit);
-    if (uploadFile) fd.append('file', uploadFile);
-    if (uploadLink) fd.append('external_link', uploadLink);
+    if (uploadCode)    fd.append('course_code', uploadCode);
+    if (uploadSem)     fd.append('semester', uploadSem);
+    if (uploadDept)    fd.append('department', uploadDept);
+    if (uploadUnit)    fd.append('unit', uploadUnit);
+    if (uploadYear)    fd.append('year', uploadYear);
+    if (uploadSession) fd.append('exam_session', uploadSession);
+    if (uploadFile)    fd.append('file', uploadFile);
+    if (uploadLink)    fd.append('external_link', uploadLink);
     try {
       await api.post('/study/', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setUploadSuccess(true);
@@ -324,7 +435,8 @@ export const StudyResourcesPage: React.FC = () => {
         setShowUploadModal(false);
         setUploadSuccess(false);
         setUploadTitle(''); setUploadDesc(''); setUploadCourse(''); setUploadCode('');
-        setUploadSem(''); setUploadDept(''); setUploadUnit(''); setUploadFile(null); setUploadLink('');
+        setUploadSem(''); setUploadDept(''); setUploadUnit(''); setUploadYear(''); setUploadSession('');
+        setUploadFile(null); setUploadLink('');
       }, 1500);
     } catch (err: any) {
       setUploadError(err.response?.data?.detail ?? 'Failed to upload. Admin privileges required.');
@@ -340,7 +452,7 @@ export const StudyResourcesPage: React.FC = () => {
   if (metaLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-36 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 animate-pulse" />
+        <div className="h-44 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 animate-pulse" />
         <LoadingSkeleton count={6} />
       </div>
     );
@@ -349,17 +461,17 @@ export const StudyResourcesPage: React.FC = () => {
   return (
     <div className="space-y-5 text-xs">
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      {/* ── Hero Banner ───────────────────────────────────────────────────── */}
       <div className="relative p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden shadow-xl border border-slate-800 animate-fade-in">
-        <div className="absolute -right-12 -top-12 w-52 h-52 bg-brand-500/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-36 bottom-0 w-40 h-40 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -right-12 -top-12 w-56 h-56 bg-brand-500/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-36 bottom-0 w-44 h-44 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2">
               <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 flex items-center gap-1.5">
                 <GraduationCap className="w-3.5 h-3.5 text-brand-400" />
-                Academic Vault &amp; Study Hub
+                VBSPU Academic Vault
               </span>
               <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/30 flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" />
@@ -367,10 +479,12 @@ export const StudyResourcesPage: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              Study Resources &amp; PYQ Vault
+              {tabMode === 'pyq' ? 'Previous Year Questions (PYQs)' : 'Study Resources & Notes Hub'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Navigate semester-wise — notes, solved PYQs, lab files and more organised by branch and subject.
+              {tabMode === 'pyq'
+                ? 'Structured semester-wise and subject-wise PYQ papers with solved solutions, ordered newest to oldest.'
+                : 'Navigate semester-wise — lecture notes, reference material, lab manuals and syllabus organised by branch.'}
             </p>
           </div>
 
@@ -380,13 +494,18 @@ export const StudyResourcesPage: React.FC = () => {
               <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Semesters</span>
             </div>
             <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[72px]">
-              <span className="block text-xl font-black text-purple-300">{totalSubjects}</span>
+              <span className="block text-xl font-black text-purple-300">
+                {tabMode === 'pyq' ? totalPyqSubjects : totalSubjects}
+              </span>
               <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Subjects</span>
             </div>
             {isAdmin && (
               <button
                 type="button"
-                onClick={() => setShowUploadModal(true)}
+                onClick={() => {
+                  setUploadType(tabMode === 'pyq' ? 'pyq' : 'notes');
+                  setShowUploadModal(true);
+                }}
                 className="px-4 py-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
               >
                 <Upload className="w-4 h-4" />
@@ -394,6 +513,47 @@ export const StudyResourcesPage: React.FC = () => {
               </button>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ── Mode Toggle Bar ───────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3 p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/80">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => handleTabSwitch('pyq')}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
+              tabMode === 'pyq'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>PYQ Question Papers</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              tabMode === 'pyq' ? 'bg-purple-700/60 text-purple-100' : 'bg-slate-200 text-slate-700'
+            }`}>
+              128
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabSwitch('all')}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
+              tabMode === 'all'
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Academic Vault (All Materials)</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              tabMode === 'all' ? 'bg-brand-700/60 text-brand-100' : 'bg-slate-200 text-slate-700'
+            }`}>
+              189
+            </span>
+          </button>
         </div>
       </div>
 
@@ -409,7 +569,9 @@ export const StudyResourcesPage: React.FC = () => {
               selSubject  ? `Search within ${selSubject}…` :
               selBranch   ? `Search within ${selBranch}…` :
               selSemester ? `Search within ${selSemester}…` :
-              'Search by subject, topic or code (e.g. Data Structures, CS201)…'
+              tabMode === 'pyq'
+                ? 'Search question papers by subject, year or exam code (e.g. Data Structures 2024)…'
+                : 'Search by subject, topic or course code (e.g. Physics, CS201)…'
             }
             className="w-full pl-10 pr-9 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none transition placeholder:text-slate-400 font-medium"
           />
@@ -422,7 +584,7 @@ export const StudyResourcesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Breadcrumb + Back ──────────────────────────────────────────────── */}
+      {/* ── Breadcrumb + Back Button ───────────────────────────────────────── */}
       {(level !== 'semester' || searchMode) && (
         <div className="flex items-center gap-3">
           {level !== 'semester' && !searchMode && (
@@ -444,12 +606,17 @@ export const StudyResourcesPage: React.FC = () => {
       {/* ════════════════════════════════════════════════════════════════════ */}
       {searchMode && (
         <div className="space-y-4">
-          {(selSemester || selBranch || selSubject) && (
+          {(selSemester || selBranch || selSubject || tabMode === 'pyq') && (
             <div className="flex flex-wrap gap-2 text-[11px] items-center">
+              {tabMode === 'pyq' && (
+                <span className="px-3 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded-full font-semibold">
+                  📋 PYQ Filter Active
+                </span>
+              )}
               {selSemester && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📅 {selSemester}</span>}
               {selBranch   && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">🏛️ {selBranch}</span>}
               {selSubject  && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📚 {selSubject}</span>}
-              <span className="text-slate-400">— searching within context</span>
+              <span className="text-slate-400">— searching matching resources</span>
             </div>
           )}
           {resLoading ? <LoadingSkeleton count={6} /> : resources.length > 0 ? (
@@ -468,48 +635,77 @@ export const StudyResourcesPage: React.FC = () => {
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'semester' && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-brand-500 rounded-full" />
-            <h2 className="text-sm font-extrabold text-slate-900">Select Semester</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+              <h2 className="text-sm font-extrabold text-slate-900">
+                {tabMode === 'pyq' ? 'Select Semester for Question Papers' : 'Select Semester'}
+              </h2>
+            </div>
+            {tabMode === 'pyq' && (
+              <span className="text-[11px] text-slate-500 font-medium">
+                Organized from Sem 1 to Sem 8
+              </span>
+            )}
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {(meta?.semesters ?? []).map(sem => (
-              <SelectTile
-                key={sem}
-                label={sem}
-                sub={`${Object.keys(meta?.hierarchy?.[sem] ?? {}).length} branch${Object.keys(meta?.hierarchy?.[sem] ?? {}).length !== 1 ? 'es' : ''}`}
-                onClick={() => { setSelSemester(sem); setLevel('branch'); }}
-              />
-            ))}
+            {hierSemesters.map(sem => {
+              const branchCount = Object.keys(activeTree[sem] ?? {}).length;
+              const subText = tabMode === 'pyq'
+                ? `${branchCount} branch${branchCount !== 1 ? 'es' : ''} available`
+                : `${branchCount} department${branchCount !== 1 ? 's' : ''}`;
+              return (
+                <SelectTile
+                  key={sem}
+                  label={sem}
+                  sub={subText}
+                  badge={tabMode === 'pyq' ? 'PYQ' : undefined}
+                  icon={Calendar}
+                  iconBg={tabMode === 'pyq' ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
+                  onClick={() => { setSelSemester(sem); setLevel('branch'); }}
+                />
+              );
+            })}
           </div>
-          {(meta?.semesters ?? []).length === 0 && (
-            <EmptyState title="No semester data" message="No study resources found in the database." />
+
+          {hierSemesters.length === 0 && (
+            <EmptyState
+              title="No semester data"
+              message={tabMode === 'pyq' ? 'No question papers found for this selection.' : 'No study resources found in the database.'}
+            />
           )}
         </div>
       )}
 
       {/* ════════════════════════════════════════════════════════════════════ */}
-      {/* LEVEL: BRANCH                                                       */}
+      {/* LEVEL: BRANCH / DEPARTMENT                                          */}
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'branch' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-brand-500 rounded-full" />
-            <h2 className="text-sm font-extrabold text-slate-900">Select Branch / Department</h2>
+            <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+            <h2 className="text-sm font-extrabold text-slate-900">
+              Select Branch / Department — {selSemester}
+            </h2>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {hierBranches.map(br => {
-              const count = Object.keys(meta?.hierarchy?.[selSemester]?.[br] ?? {}).length;
+              const count = Object.keys(activeTree[selSemester]?.[br] ?? {}).length;
               return (
                 <SelectTile
                   key={br}
                   label={br}
                   sub={`${count} subject${count !== 1 ? 's' : ''}`}
+                  badge={tabMode === 'pyq' ? `${count} Subjects` : undefined}
+                  iconBg={tabMode === 'pyq' ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
                   onClick={() => { setSelBranch(br); setLevel('subject'); }}
                 />
               );
             })}
           </div>
+
           {hierBranches.length === 0 && (
             <EmptyState title="No branches" message={`No branches found for ${selSemester}.`} />
           )}
@@ -521,37 +717,76 @@ export const StudyResourcesPage: React.FC = () => {
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'subject' && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-brand-500 rounded-full" />
-            <h2 className="text-sm font-extrabold text-slate-900">Select Subject</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+              <h2 className="text-sm font-extrabold text-slate-900">
+                {tabMode === 'pyq' ? 'Select Subject for PYQs' : 'Select Subject'} — {selBranch}
+              </h2>
+            </div>
+            {tabMode === 'pyq' && (
+              <span className="text-[11px] text-purple-600 font-semibold">
+                Click a subject to view all years
+              </span>
+            )}
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {hierSubjects.map(subj => {
+              if (tabMode === 'pyq' && meta?.pyqs_hierarchy) {
+                const pyqNode = meta.pyqs_hierarchy[selSemester]?.[selBranch]?.[subj];
+                const yrList = pyqNode?.years ?? [];
+                const yrRange = yrList.length > 0
+                  ? `${yrList.length} Exam Year${yrList.length !== 1 ? 's' : ''} (${yrList[0]}${yrList.length > 1 ? ` – ${yrList[yrList.length - 1]}` : ''})`
+                  : 'PYQ Available';
+                return (
+                  <SelectTile
+                    key={subj}
+                    label={subj}
+                    sub={yrRange}
+                    badge={yrList.length > 0 ? `${yrList.length} Years` : undefined}
+                    icon={GraduationCap}
+                    iconBg="from-purple-600 to-violet-700"
+                    onClick={() => {
+                      setSelSubject(subj);
+                      setSelType('pyq');
+                      setLevel('resources');
+                    }}
+                  />
+                );
+              }
+
               const node = meta?.hierarchy?.[selSemester]?.[selBranch]?.[subj];
               return (
                 <SelectTile
                   key={subj}
                   label={subj}
                   sub={(node?.types ?? []).map(typeLabel).join(' · ')}
-                  onClick={() => { setSelSubject(subj); setLevel('type'); }}
+                  onClick={() => {
+                    setSelSubject(subj);
+                    setLevel('type');
+                  }}
                 />
               );
             })}
           </div>
+
           {hierSubjects.length === 0 && (
-            <EmptyState title="No subjects" message={`No subjects for ${selBranch} in ${selSemester}.`} />
+            <EmptyState title="No subjects" message={`No subjects found for ${selBranch} in ${selSemester}.`} />
           )}
         </div>
       )}
 
       {/* ════════════════════════════════════════════════════════════════════ */}
-      {/* LEVEL: RESOURCE TYPE                                                */}
+      {/* LEVEL: RESOURCE TYPE (General Mode Only)                            */}
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'type' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="w-1 h-5 bg-brand-500 rounded-full" />
-            <h2 className="text-sm font-extrabold text-slate-900">Select Resource Type</h2>
+            <h2 className="text-sm font-extrabold text-slate-900">
+              Select Resource Type — {selSubject}
+            </h2>
           </div>
 
           {hierUnits.length > 0 && (
@@ -579,6 +814,7 @@ export const StudyResourcesPage: React.FC = () => {
               );
             })}
           </div>
+
           {hierTypes.length === 0 && (
             <EmptyState title="No resource types" message="No resources found for this subject." />
           )}
@@ -586,10 +822,53 @@ export const StudyResourcesPage: React.FC = () => {
       )}
 
       {/* ════════════════════════════════════════════════════════════════════ */}
-      {/* LEVEL: RESOURCES (leaf)                                             */}
+      {/* LEVEL: RESOURCES (Leaf View)                                        */}
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'resources' && (
         <div className="space-y-5">
+          {/* Header Summary for Selected Subject */}
+          <div className="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mb-1">
+                <span>{selSemester}</span>
+                <span>•</span>
+                <span>{selBranch}</span>
+                {isPyqGrouping && (
+                  <>
+                    <span>•</span>
+                    <span className="text-purple-600 font-bold">Solved PYQ Collection</span>
+                  </>
+                )}
+              </div>
+              <h2 className="text-base font-extrabold text-slate-900">
+                {selSubject}
+              </h2>
+            </div>
+
+            {/* Year filter chips for PYQs */}
+            {isPyqGrouping && yearPillOptions.length > 2 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1 mr-1">
+                  <Filter className="w-3.5 h-3.5" /> Year:
+                </span>
+                {yearPillOptions.map(yr => (
+                  <button
+                    key={yr}
+                    type="button"
+                    onClick={() => setYearFilter(yr)}
+                    className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                      yearFilter === yr
+                        ? 'bg-purple-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {yr === 'all' ? `All Years (${resources.length})` : `${yr} (${resources.filter(r => r.year === yr).length})`}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {resLoading ? (
             <LoadingSkeleton count={6} />
           ) : resources.length === 0 ? (
@@ -601,9 +880,62 @@ export const StudyResourcesPage: React.FC = () => {
               actionText={isAdmin ? 'Publish Resource' : undefined}
               onAction={isAdmin ? () => setShowUploadModal(true) : undefined}
             />
+          ) : isPyqGrouping ? (
+            /* ── PYQ Layout: Grouped by Year (Newest → Oldest) ────────── */
+            <div className="space-y-6">
+              {sortedYears.map(yr => {
+                const yearPapers = byYear[yr] ?? [];
+                if (yearFilter !== 'all' && yearFilter !== yr) return null;
+                return (
+                  <div key={yr} className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-5 bg-purple-600 rounded-full" />
+                        <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                          <span>Examination Year {yr}</span>
+                        </h3>
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200">
+                          {yearPapers.length} Paper{yearPapers.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-400">
+                        {yr} Academic Session
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {yearPapers.map(r => (
+                        <StudyResourceCard key={r.id} resource={r} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Papers without an extracted year */}
+              {noYear.length > 0 && (yearFilter === 'all' || yearFilter === 'other') && (
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                    <div className="w-1.5 h-5 bg-slate-400 rounded-full" />
+                    <h3 className="text-sm font-extrabold text-slate-700">
+                      Additional / General Question Papers
+                    </h3>
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {noYear.length} Paper{noYear.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {noYear.map(r => (
+                      <StudyResourceCard key={r.id} resource={r} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
-            <>
-              {/* Grouped by unit */}
+            /* ── General Academic Material Layout: Grouped by Unit ───── */
+            <div className="space-y-6">
               {Object.keys(withUnit).sort().map(unit => (
                 <div key={unit} className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -619,13 +951,12 @@ export const StudyResourcesPage: React.FC = () => {
                 </div>
               ))}
 
-              {/* Resources without unit */}
               {noUnit.length > 0 && (
                 <div className="space-y-3">
                   {Object.keys(withUnit).length > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-1 h-5 bg-slate-300 rounded-full" />
-                      <h3 className="text-sm font-extrabold text-slate-700">General</h3>
+                      <h3 className="text-sm font-extrabold text-slate-700">General Material</h3>
                       <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
                         {noUnit.length} resource{noUnit.length !== 1 ? 's' : ''}
                       </span>
@@ -636,7 +967,7 @@ export const StudyResourcesPage: React.FC = () => {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       )}
@@ -657,7 +988,7 @@ export const StudyResourcesPage: React.FC = () => {
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Title *</label>
                 <input type="text" required value={uploadTitle} onChange={e => setUploadTitle(e.target.value)}
-                  placeholder="e.g. Unit 3 Trees & Graphs Solved Notes"
+                  placeholder="e.g. Data Structures End Sem 2025 Solved Paper"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
               </div>
 
@@ -666,8 +997,8 @@ export const StudyResourcesPage: React.FC = () => {
                   <label className="block font-semibold text-slate-700 mb-1">Resource Type *</label>
                   <select value={uploadType} onChange={e => setUploadType(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium">
-                    <option value="notes">Lecture Notes</option>
                     <option value="pyq">PYQ Papers</option>
+                    <option value="notes">Lecture Notes</option>
                     <option value="reference_material">Reference Material / E-Book</option>
                     <option value="lab_file">Lab Manual / Practical File</option>
                     <option value="syllabus">Syllabus &amp; Curriculum</option>
@@ -681,7 +1012,7 @@ export const StudyResourcesPage: React.FC = () => {
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Course / Subject *</label>
                   <input type="text" required value={uploadCourse} onChange={e => setUploadCourse(e.target.value)}
-                    placeholder="e.g. Data Structures"
+                    placeholder="e.g. Data Structures & Algorithms"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
                 </div>
               </div>
@@ -694,7 +1025,7 @@ export const StudyResourcesPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Branch / Dept</label>
-                  <input type="text" value={uploadDept} onChange={e => setUploadDept(e.target.value)} placeholder="CSE / ECE"
+                  <input type="text" value={uploadDept} onChange={e => setUploadDept(e.target.value)} placeholder="Computer Science (CSE)"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
                 </div>
                 <div>
@@ -704,17 +1035,35 @@ export const StudyResourcesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Unit <span className="font-normal text-slate-400">(optional)</span></label>
-                <input type="text" value={uploadUnit} onChange={e => setUploadUnit(e.target.value)}
-                  placeholder="e.g. Unit 1, Unit 2, All Units"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
-              </div>
+              {/* PYQ Year & Session fields */}
+              {uploadType === 'pyq' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-purple-50/60 rounded-xl border border-purple-200/60">
+                  <div>
+                    <label className="block font-semibold text-purple-900 mb-1">Academic / Paper Year</label>
+                    <input type="text" value={uploadYear} onChange={e => setUploadYear(e.target.value)}
+                      placeholder="e.g. 2025"
+                      className="w-full px-3.5 py-2.5 bg-white border border-purple-200 rounded-xl text-slate-800 focus:border-purple-500 focus:ring-3 focus:ring-purple-50 outline-none text-xs font-medium" />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-purple-900 mb-1">Exam / Session</label>
+                    <input type="text" value={uploadSession} onChange={e => setUploadSession(e.target.value)}
+                      placeholder="e.g. Even Semester (S2) or Regular"
+                      className="w-full px-3.5 py-2.5 bg-white border border-purple-200 rounded-xl text-slate-800 focus:border-purple-500 focus:ring-3 focus:ring-purple-50 outline-none text-xs font-medium" />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Unit <span className="font-normal text-slate-400">(optional)</span></label>
+                  <input type="text" value={uploadUnit} onChange={e => setUploadUnit(e.target.value)}
+                    placeholder="e.g. Unit 1, Unit 2, All Units"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
+                </div>
+              )}
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Description &amp; Highlights</label>
                 <textarea rows={2} value={uploadDesc} onChange={e => setUploadDesc(e.target.value)}
-                  placeholder="Important topics, question bank solutions, lab codes..."
+                  placeholder="Topics covered, paper highlights, solutions included..."
                   className="w-full p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none resize-none text-xs font-medium" />
               </div>
 
@@ -725,9 +1074,9 @@ export const StudyResourcesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Or External Link (Google Drive / GitHub)</label>
+                <label className="block font-semibold text-slate-700 mb-1">Or External Link (Google Drive / Direct PDF)</label>
                 <input type="url" value={uploadLink} onChange={e => setUploadLink(e.target.value)}
-                  placeholder="https://drive.google.com/…"
+                  placeholder="https://…"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none text-xs font-medium" />
               </div>
 
@@ -737,7 +1086,7 @@ export const StudyResourcesPage: React.FC = () => {
                   Cancel
                 </button>
                 <button type="submit" disabled={isSubmitting}
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-50">
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-50">
                   {isSubmitting ? 'Publishing…' : 'Publish Material'}
                 </button>
               </div>

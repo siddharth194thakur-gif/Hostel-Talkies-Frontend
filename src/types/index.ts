@@ -250,6 +250,8 @@ export interface StudyResource {
   semester: string;
   department: string;
   unit?: string;
+  year?: string;
+  exam_session?: string;
   file: string | null;
   external_link: string;
   source_website?: string;
