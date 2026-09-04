@@ -9,7 +9,6 @@ import {
   Check,
   Sparkles,
   Trophy,
-  Gamepad2,
   Music,
   ExternalLink,
   Flame,
@@ -51,13 +50,10 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
   const getEventGradient = () => {
     const titleLower = event.title.toLowerCase();
-    if (titleLower.includes('game') || titleLower.includes('esports') || titleLower.includes('lan') || titleLower.includes('valorant') || titleLower.includes('bgmi')) {
-      return { gradient: 'from-violet-600 via-purple-600 to-indigo-700', icon: Gamepad2, tag: 'ESPORTS LAN' };
+    if (titleLower.includes('cricket') || titleLower.includes('football') || titleLower.includes('badminton') || titleLower.includes('tournament') || titleLower.includes('league') || titleLower.includes('sport')) {
+      return { gradient: 'from-amber-500 via-orange-600 to-red-600', icon: Trophy, tag: 'SPORTS LEAGUE' };
     }
-    if (titleLower.includes('cricket') || titleLower.includes('football') || titleLower.includes('badminton') || titleLower.includes('tournament') || titleLower.includes('league')) {
-      return { gradient: 'from-amber-500 via-orange-600 to-red-600', icon: Trophy, tag: 'SPORTS TOURNAMENT' };
-    }
-    if (titleLower.includes('music') || titleLower.includes('dj') || titleLower.includes('night') || titleLower.includes('fest') || titleLower.includes('cultural')) {
+    if (titleLower.includes('music') || titleLower.includes('dj') || titleLower.includes('night') || titleLower.includes('fest') || titleLower.includes('cultural') || titleLower.includes('open mic')) {
       return { gradient: 'from-rose-500 via-pink-600 to-purple-600', icon: Music, tag: 'CULTURAL FEST' };
     }
     return { gradient: 'from-brand-600 via-indigo-600 to-blue-700', icon: Sparkles, tag: 'CAMPUS EVENT' };

@@ -371,60 +371,6 @@ export interface SiteSetting {
   maintenance_mode: boolean;
 }
 
-export interface GamingUserMeta {
-  id: number;
-  username: string;
-  first_name: string;
-  last_name: string;
-  avatar: string | null;
-  hostel_name: string;
-  room_info: string;
-}
-
-export interface GamingProfile {
-  id: number;
-  user: number;
-  user_details?: GamingUserMeta;
-  game_type: 'free_fire' | 'bgmi';
-  uid: string;
-  in_game_name: string;
-  level: number;
-  likes: number;
-  br_rank: string;
-  br_rank_points: number;
-  cs_rank: string;
-  kd_ratio: number;
-  total_booyahs: number;
-  headshot_rate: number;
-  score: number;
-  avatar_url?: string | null;
-  region: string;
-  proof_screenshot?: string | null;
-  is_verified: boolean;
-  rank_position?: number;
-  last_synced_at: string;
-  created_at: string;
-}
-
-export interface Tournament {
-  id: number;
-  title: string;
-  game_type: string;
-  match_type: 'squad_br' | 'clash_squad' | 'solo_br' | 'duo_br';
-  banner?: string | null;
-  description: string;
-  room_id: string;
-  room_password?: string;
-  start_time: string;
-  prize_pool: string;
-  entry_fee: string;
-  status: 'upcoming' | 'live' | 'completed';
-  max_teams: number;
-  created_by?: number;
-  created_by_name?: string;
-  created_at: string;
-}
-
 export interface ReportItem {
   id: number;
   reporter: number;
@@ -469,10 +415,95 @@ export interface AdminDashboardData {
     total_reports: number;
     pending_feedback: number;
     total_hostels: number;
-    total_gamers: number;
   };
   recent_students: User[];
   recent_logs: AdminActionLogItem[];
 }
+
+export type GameType = 'bgmi' | 'bgmi_lite' | 'free_fire_max' | 'other';
+export type CompetitionType = 'solo' | 'duo' | 'squad' | '1v1' | 'team' | 'custom';
+export type CompetitionStatus = 'upcoming' | 'registration_open' | 'live' | 'completed' | 'cancelled';
+export type ScoringType = 'manual' | 'participant_submission' | 'points_based';
+
+export interface CompetitionResult {
+  id: number;
+  competition: number;
+  participant: number;
+  participant_name: string;
+  participant_user_detail?: PublicUser;
+  position?: number | null;
+  kills: number;
+  points: number;
+  score?: string;
+  proof_image?: string | null;
+  notes?: string;
+  verification_status: 'pending' | 'approved' | 'rejected';
+  verified_by?: number | null;
+  verified_by_detail?: PublicUser | null;
+  verified_at?: string | null;
+  submitted_at: string;
+  updated_at?: string;
+}
+
+export interface CompetitionParticipant {
+  id: number;
+  competition: number;
+  user: number;
+  user_detail: PublicUser;
+  in_game_name: string;
+  game_uid?: string;
+  team_name?: string;
+  team_members?: string;
+  contact_number?: string;
+  slot_number: number | null;
+  status: 'registered' | 'confirmed' | 'disqualified';
+  joined_at: string;
+  results?: CompetitionResult[];
+}
+
+export interface Competition {
+  id: number;
+  creator: number;
+  creator_detail: PublicUser;
+  hostel: number | null;
+  hostel_name?: string | null;
+  hostel_detail?: Hostel | null;
+  name: string;
+  game: GameType;
+  custom_game_name?: string;
+  game_display: string;
+  description: string;
+  rules: string;
+  competition_type: CompetitionType;
+  status: CompetitionStatus;
+  start_datetime: string;
+  end_datetime?: string | null;
+  registration_deadline?: string | null;
+  max_participants: number;
+  is_registration_closed_by_organizer: boolean;
+  is_registration_open: boolean;
+  room_id?: string;
+  room_password?: string;
+  scoring_type: ScoringType;
+  scoring_rules?: Record<string, any>;
+  prize_pool?: string;
+  contact_info?: string;
+  is_active: boolean;
+  participants_count: number;
+  is_creator: boolean;
+  is_joined: boolean;
+  my_participant_info?: CompetitionParticipant | null;
+  leaderboard?: CompetitionResult[];
+  participants?: CompetitionParticipant[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Backwards compatibility alias
+export type CustomRoom = Competition;
+export type RoomParticipant = CompetitionParticipant;
+export type RoomStatus = CompetitionStatus;
+export type MatchMode = CompetitionType;
+
 
 

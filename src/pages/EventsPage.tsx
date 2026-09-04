@@ -5,7 +5,6 @@ import {
   Building,
   Sparkles,
   Trophy,
-  Gamepad2,
   Music,
   Flame,
   X,
@@ -57,7 +56,6 @@ export const EventsPage: React.FC = () => {
       if (selectedCategory) {
         list = list.filter((e) => {
           const t = (e.title + ' ' + e.description).toLowerCase();
-          if (selectedCategory === 'esports') return t.includes('game') || t.includes('lan') || t.includes('bgmi') || t.includes('valorant') || t.includes('esport');
           if (selectedCategory === 'sports') return t.includes('cricket') || t.includes('football') || t.includes('badminton') || t.includes('tournament') || t.includes('league') || t.includes('sport');
           if (selectedCategory === 'cultural') return t.includes('music') || t.includes('dj') || t.includes('night') || t.includes('fest') || t.includes('dance') || t.includes('cultural') || t.includes('open mic');
           if (selectedCategory === 'tech') return t.includes('hackathon') || t.includes('code') || t.includes('tech') || t.includes('workshop') || t.includes('ai');
@@ -82,7 +80,6 @@ export const EventsPage: React.FC = () => {
 
   const categories = [
     { id: '', label: 'All Gatherings', icon: Sparkles },
-    { id: 'esports', label: 'Esports & LAN', icon: Gamepad2 },
     { id: 'sports', label: 'Sports Leagues', icon: Trophy },
     { id: 'cultural', label: 'Cultural & DJ Nights', icon: Music },
     { id: 'tech', label: 'Tech & Hackathons', icon: Flame },
@@ -109,10 +106,10 @@ export const EventsPage: React.FC = () => {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              Hostel Events &amp; Tournaments
+              Hostel Events &amp; Gatherings
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
-              Explore upcoming intra-hostel tournaments, gaming LAN nights, cultural celebrations, sports leagues, and open mics happening across campus.
+              Explore upcoming intra-hostel sports leagues, cultural celebrations, acoustic open mics, and student gatherings happening across campus.
             </p>
           </div>
 

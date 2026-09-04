@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShieldAlert, Users, Package, Flag, MessageSquare, Building2,
-  Gamepad2, RefreshCw, CheckCircle2, XCircle, AlertTriangle,
+  RefreshCw, CheckCircle2, XCircle, AlertTriangle,
   ExternalLink, Search, X, Check, Filter, ChevronRight, Eye,
   SlidersHorizontal, Clock, ShieldCheck, Mail, Building, Sparkles,
   Zap, Lock, Shield
@@ -136,7 +136,6 @@ export const AdminPage: React.FC = () => {
     total_reports: reports.length,
     pending_feedback: feedbackList.filter((f) => f.status === 'pending').length,
     total_hostels: 0,
-    total_gamers: 0,
   };
 
   return (
@@ -227,8 +226,8 @@ export const AdminPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. 6 Real-time 4K Spatial HUD Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* 2. 5 Real-time 4K Spatial HUD Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div
           onClick={() => setActiveTab('students')}
           className="p-4 rounded-2xl bg-white border border-slate-200/80 card-3d-luxury cursor-pointer transition space-y-1.5"
@@ -278,19 +277,6 @@ export const AdminPage: React.FC = () => {
           <div>
             <span className="block text-xl font-black text-slate-900">{stats.pending_feedback}</span>
             <span className="text-[11px] text-slate-500 font-semibold">Support Tickets</span>
-          </div>
-        </div>
-
-        <div
-          onClick={() => navigate('/gaming')}
-          className="p-4 rounded-2xl bg-white border border-slate-200/80 card-3d-luxury cursor-pointer transition space-y-1.5"
-        >
-          <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-            <Gamepad2 className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="block text-xl font-black text-slate-900">{stats.total_gamers}</span>
-            <span className="text-[11px] text-slate-500 font-semibold">Esports Gamers</span>
           </div>
         </div>
 

@@ -199,7 +199,7 @@ export const CreatePostPage: React.FC = () => {
                   <span>Create Your Category *</span>
                 </label>
                 <span className="text-[10px] text-slate-500 font-medium">
-                  e.g. Food, Mess, Electronics, Gaming, Notes, Sports
+                  e.g. Food, Mess, Electronics, Study Notes, Sports
                 </span>
               </div>
               <input
@@ -237,7 +237,7 @@ export const CreatePostPage: React.FC = () => {
                 : postType === 'giveaway'
                 ? 'e.g. Wooden Study Desk available for free pick-up'
                 : postType === 'others'
-                ? 'e.g. Gaming Tournament / Hostel Mess Discussion / Custom Request'
+                ? 'e.g. Hostel Mess Discussion / Project Partner / Custom Request'
                 : 'e.g. Roommate needed for Aryabhata Block A1'
             }
             className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium placeholder:text-slate-400"

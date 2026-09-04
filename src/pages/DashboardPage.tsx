@@ -25,6 +25,7 @@ import {
   MessageSquare,
   Activity,
   Layers,
+  Gamepad2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Post, Notice, Event, HostelService } from '../types';
@@ -123,6 +124,13 @@ export const DashboardPage: React.FC = () => {
             >
               <PlusCircle className="w-4 h-4 text-brand-600 stroke-[2.5]" />
               <span>+ Post Listing</span>
+            </Link>
+            <Link
+              to="/gaming"
+              className="px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold text-xs rounded-2xl border border-white/25 backdrop-blur-sm transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <Gamepad2 className="w-4 h-4 text-amber-300" />
+              <span>Gaming Hub 🎮</span>
             </Link>
             <Link
               to="/profile/edit"

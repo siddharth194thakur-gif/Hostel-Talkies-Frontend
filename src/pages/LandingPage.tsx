@@ -58,8 +58,8 @@ export const LandingPage: React.FC = () => {
       color: 'bg-purple-50 text-purple-600',
     },
     {
-      title: 'Events & LAN Nights',
-      description: 'Stay updated on gaming tournaments, cultural open mics, acoustic nights, and tournaments.',
+      title: 'Events & Cultural Fests',
+      description: 'Stay updated on college fests, cultural open mics, acoustic nights, and sports leagues.',
       icon: Calendar,
       color: 'bg-pink-50 text-pink-600',
     },

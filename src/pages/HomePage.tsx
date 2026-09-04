@@ -67,6 +67,13 @@ export const HomePage: React.FC = () => {
       bgLight: 'bg-amber-50 text-amber-600 border-amber-100',
     },
     {
+      to: '/gaming',
+      title: 'Gaming Hub 🎮',
+      desc: 'Tournaments & matches',
+      icon: Gamepad2,
+      bgLight: 'bg-purple-50 text-purple-600 border-purple-100',
+    },
+    {
       to: '/lost-found',
       title: 'Lost & Found',
       desc: 'Recover missing items',
@@ -88,25 +95,11 @@ export const HomePage: React.FC = () => {
       bgLight: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     {
-      to: '/gaming',
-      title: 'Gaming Arena 🎮',
-      desc: 'Free Fire Rank & Custom',
-      icon: Gamepad2,
-      bgLight: 'bg-orange-50 text-orange-600 border-orange-100',
-    },
-    {
       to: '/events',
       title: 'Campus Events',
       desc: 'Fests, sports & clubs',
       icon: Calendar,
-      bgLight: 'bg-purple-50 text-purple-600 border-purple-100',
-    },
-    {
-      to: '/messages',
-      title: 'Messages',
-      desc: 'Chat with residents',
-      icon: MessageSquare,
-      bgLight: 'bg-brand-50 text-brand-600 border-brand-100',
+      bgLight: 'bg-indigo-50 text-indigo-600 border-indigo-100',
     },
   ];
 
