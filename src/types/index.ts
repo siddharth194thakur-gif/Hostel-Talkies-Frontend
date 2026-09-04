@@ -249,14 +249,20 @@ export interface StudyResource {
   course_code: string;
   semester: string;
   department: string;
+  unit?: string;
   file: string | null;
   external_link: string;
+  source_website?: string;
+  source_url?: string;
+  author?: string;
   uploader: number;
   uploader_detail: PublicUser;
   downloads_count: number;
   is_active: boolean;
+  is_pending_review?: boolean;
   created_at: string;
 }
+
 
 export interface MessageReactionItem {
   emoji: string;

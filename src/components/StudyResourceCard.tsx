@@ -65,10 +65,11 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
           icon: GraduationCap,
         };
       case 'book':
+      case 'reference_material':
         return {
           badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           iconBg: 'from-emerald-500 to-teal-600',
-          label: 'REFERENCE BOOK',
+          label: 'REFERENCE MATERIAL',
           icon: BookOpen,
         };
       case 'pdf':
@@ -77,6 +78,41 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
           iconBg: 'from-amber-500 to-orange-600',
           label: 'CHEATSHEET / FORMULAS',
           icon: Zap,
+        };
+      case 'lab_file':
+        return {
+          badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
+          iconBg: 'from-orange-500 to-red-500',
+          label: 'LAB FILE / MANUAL',
+          icon: Layers,
+        };
+      case 'syllabus':
+        return {
+          badgeBg: 'bg-green-50 text-green-700 border-green-200',
+          iconBg: 'from-green-500 to-emerald-600',
+          label: 'SYLLABUS',
+          icon: BookOpen,
+        };
+      case 'important_questions':
+        return {
+          badgeBg: 'bg-rose-50 text-rose-700 border-rose-200',
+          iconBg: 'from-rose-500 to-pink-600',
+          label: 'IMPORTANT QUESTIONS',
+          icon: Sparkles,
+        };
+      case 'study_material':
+        return {
+          badgeBg: 'bg-sky-50 text-sky-700 border-sky-200',
+          iconBg: 'from-sky-500 to-blue-600',
+          label: 'STUDY MATERIAL',
+          icon: FileText,
+        };
+      case 'assignment':
+        return {
+          badgeBg: 'bg-violet-50 text-violet-700 border-violet-200',
+          iconBg: 'from-violet-500 to-purple-600',
+          label: 'ASSIGNMENT',
+          icon: FileText,
         };
       default:
         return {
@@ -87,6 +123,7 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
         };
     }
   };
+
 
   const theme = getTypeTheme();
   const Icon = theme.icon;
@@ -136,7 +173,7 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
           </p>
         )}
 
-        {/* Tags Matrix: Semester & Department */}
+        {/* Tags Matrix: Semester, Department & Unit */}
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[11px] font-semibold text-slate-600">
           {resource.semester && (
             <span className="px-2.5 py-1 bg-slate-100 rounded-lg text-slate-700 border border-slate-200/60">
@@ -148,7 +185,13 @@ export const StudyResourceCard: React.FC<StudyResourceCardProps> = ({ resource }
               🏛️ {resource.department}
             </span>
           )}
+          {resource.unit && (
+            <span className="px-2.5 py-1 bg-brand-50 rounded-lg text-brand-700 border border-brand-200/60">
+              📖 {resource.unit}
+            </span>
+          )}
         </div>
+
       </div>
 
       {/* Footer: Contributor & Download CTA */}
