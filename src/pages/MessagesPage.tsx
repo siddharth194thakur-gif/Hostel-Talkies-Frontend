@@ -6,7 +6,7 @@ import {
   LogOut, UserPlus, Image as ImageIcon, Crown,
   Paperclip, Smile, Eye, FileDown, UploadCloud, ChevronDown,
   Palette, Flag, Info, ArrowUp, ArrowDown, Ban,
-  CornerUpLeft, Copy, Video, FileText, Sparkles, MessageSquare
+  CornerUpLeft, Copy, Video, FileText, Sparkles, MessageSquare, Loader2
 } from 'lucide-react';
 import api, { getMediaUrl } from '../api/client';
 import {
@@ -138,6 +138,14 @@ export const MessagesPage: React.FC = () => {
   const [showBlockConfirmModal, setShowBlockConfirmModal] = useState(false);
   const [showUnblockConfirmModal, setShowUnblockConfirmModal] = useState(false);
   const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+
+  // Start New Direct Chat State
+  const [showStartChatModal, setShowStartChatModal] = useState(false);
+  const [directUserSearchQuery, setDirectUserSearchQuery] = useState('');
+  const [searchedStudents, setSearchedStudents] = useState<PublicUser[]>([]);
+  const [isSearchingStudents, setIsSearchingStudents] = useState(false);
+  const [isStartingDirectChat, setIsStartingDirectChat] = useState(false);
+  const [chatSearchFilter, setChatSearchFilter] = useState('');
 
   // Group Modals State
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -338,6 +346,47 @@ export const MessagesPage: React.FC = () => {
     }, 250);
     return () => clearTimeout(delayDebounce);
   }, [addMemberSearchQuery, showAddMembersModal, activeConversation]);
+
+  // Search students for starting direct chat
+  useEffect(() => {
+    if (!showStartChatModal || !directUserSearchQuery.trim()) {
+      setSearchedStudents([]);
+      setIsSearchingStudents(false);
+      return;
+    }
+    const delayDebounce = setTimeout(async () => {
+      setIsSearchingStudents(true);
+      try {
+        const res = await api.get<PublicUser[]>(`/messages/available-members/?search=${encodeURIComponent(directUserSearchQuery.trim())}`);
+        setSearchedStudents(res.data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearchingStudents(false);
+      }
+    }, 250);
+    return () => clearTimeout(delayDebounce);
+  }, [directUserSearchQuery, showStartChatModal]);
+
+  const handleStartDirectChat = async (recipientId: number) => {
+    if (isStartingDirectChat) return;
+    setIsStartingDirectChat(true);
+    try {
+      const res = await api.post('/messages/start/', { recipient_id: recipientId });
+      if (res.data?.id) {
+        setShowStartChatModal(false);
+        setDirectUserSearchQuery('');
+        const list = await fetchConversations();
+        const conv = list.find((c: Conversation) => c.id === res.data.id) || res.data;
+        setActiveConversation(conv);
+        navigate(`/messages/${res.data.id}`);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Could not start conversation with this user.');
+    } finally {
+      setIsStartingDirectChat(false);
+    }
+  };
 
   // Send Text Message
   const handleSendMessage = async (e?: React.FormEvent) => {
@@ -797,8 +846,33 @@ export const MessagesPage: React.FC = () => {
     return classes;
   };
 
-  const directConversations = conversations.filter(c => !c.is_group);
-  const groupConversations = conversations.filter(c => c.is_group);
+  const directConversations = useMemo(() => {
+    const list = conversations.filter(c => !c.is_group);
+    if (!chatSearchFilter.trim()) return list;
+    const q = chatSearchFilter.toLowerCase().trim();
+    const cleanId = q.replace(/^[#@]/, '');
+    return list.filter(c => {
+      const otherUser = c.other_user;
+      const { subtitle } = getOtherParticipantDetail(c);
+      const matchName = (otherUser?.full_name || '').toLowerCase().includes(q);
+      const matchSubtitle = (subtitle || '').toLowerCase().includes(q);
+      const matchLastMsg = (c.last_message?.content || '').toLowerCase().includes(q);
+      const matchUsername = (otherUser?.username || '').toLowerCase().includes(q.replace('@', ''));
+      const matchId = String(otherUser?.id || '') === cleanId;
+      return matchName || matchSubtitle || matchLastMsg || matchUsername || matchId;
+    });
+  }, [conversations, chatSearchFilter]);
+
+  const groupConversations = useMemo(() => {
+    const list = conversations.filter(c => c.is_group);
+    if (!chatSearchFilter.trim()) return list;
+    const q = chatSearchFilter.toLowerCase().trim();
+    return list.filter(c => {
+      const matchName = (c.group_name || '').toLowerCase().includes(q);
+      const matchLastMsg = c.last_message?.content?.toLowerCase().includes(q);
+      return matchName || matchLastMsg;
+    });
+  }, [conversations, chatSearchFilter]);
 
   return (
     <div
@@ -839,16 +913,30 @@ export const MessagesPage: React.FC = () => {
               <h2 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">Messages</h2>
             </div>
 
-            {activeTab === 'groups' && (
-              <button
-                type="button"
-                onClick={() => setShowCreateGroup(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-xs transition active:scale-95 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>New Group</span>
-              </button>
-            )}
+            <div className="flex items-center gap-1.5">
+              {activeTab === 'direct' && (
+                <button
+                  type="button"
+                  onClick={() => setShowStartChatModal(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-xs transition active:scale-95 cursor-pointer"
+                  title="Start a new direct chat"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>New Chat</span>
+                </button>
+              )}
+
+              {activeTab === 'groups' && (
+                <button
+                  type="button"
+                  onClick={() => setShowCreateGroup(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-xs transition active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>New Group</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Direct vs Groups Toggle Tabs */}
@@ -863,7 +951,7 @@ export const MessagesPage: React.FC = () => {
               }`}
             >
               <UserIcon className="w-3.5 h-3.5" />
-              <span>Direct ({directConversations.length})</span>
+              <span>Direct ({conversations.filter(c => !c.is_group).length})</span>
             </button>
 
             <button
@@ -876,8 +964,29 @@ export const MessagesPage: React.FC = () => {
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>Groups ({groupConversations.length})</span>
+              <span>Groups ({conversations.filter(c => c.is_group).length})</span>
             </button>
+          </div>
+
+          {/* Quick Filter Search Box */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <input
+              type="text"
+              value={chatSearchFilter}
+              onChange={(e) => setChatSearchFilter(e.target.value)}
+              placeholder={activeTab === 'direct' ? "Filter chats by name or @user..." : "Filter groups..."}
+              className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-200/90 focus:border-brand-400 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition"
+            />
+            {chatSearchFilter && (
+              <button
+                type="button"
+                onClick={() => setChatSearchFilter('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -1031,10 +1140,29 @@ export const MessagesPage: React.FC = () => {
               );
             })
           ) : (
-            <div className="p-8 text-center text-xs text-slate-400">
-              {activeTab === 'direct'
-                ? 'No direct conversations yet. Reach out to hostel residents from Home or Marketplace.'
-                : 'No private groups yet. Create your first hostel group!'}
+            <div className="p-8 text-center text-xs text-slate-400 space-y-3">
+              <p>
+                {chatSearchFilter.trim()
+                  ? `No conversations matching "${chatSearchFilter}".`
+                  : activeTab === 'direct'
+                  ? 'No direct conversations yet.'
+                  : 'No private groups yet. Create your first hostel group!'}
+              </p>
+              {activeTab === 'direct' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (chatSearchFilter.trim()) {
+                      setDirectUserSearchQuery(chatSearchFilter.trim());
+                    }
+                    setShowStartChatModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition cursor-pointer shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{chatSearchFilter.trim() ? `Search "${chatSearchFilter}" in Students` : 'Start a Chat'}</span>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -1941,6 +2069,139 @@ export const MessagesPage: React.FC = () => {
           targetTitle={reportingTarget.title}
           onClose={() => setReportingTarget(null)}
         />
+      )}
+
+      {/* Start Direct Chat Modal */}
+      {showStartChatModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setShowStartChatModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">Start Direct Chat</h3>
+                  <p className="text-[11px] text-slate-500">Find any student by username, ID, or name</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowStartChatModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 border-b border-slate-100 bg-white">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  autoFocus
+                  value={directUserSearchQuery}
+                  onChange={(e) => setDirectUserSearchQuery(e.target.value)}
+                  placeholder="e.g. siddharth, @iamsid4246, or #2..."
+                  className="w-full pl-9 pr-8 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-xs text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-brand-500/10 transition"
+                />
+                {directUserSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setDirectUserSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3 divide-y divide-slate-50 min-h-[160px] max-h-[380px]">
+              {isSearchingStudents ? (
+                <div className="p-4 space-y-2.5">
+                  <LoadingSkeleton count={3} />
+                </div>
+              ) : directUserSearchQuery.trim() === '' ? (
+                <div className="py-8 text-center text-xs text-slate-400 space-y-1.5">
+                  <UserIcon className="w-8 h-8 text-slate-300 mx-auto" />
+                  <p className="font-semibold text-slate-600">Search for a student</p>
+                  <p className="text-[11px]">Type an exact User ID (e.g. #2), @username, or full name.</p>
+                </div>
+              ) : searchedStudents.length === 0 ? (
+                <div className="py-8 text-center text-xs text-slate-400">
+                  No users found matching "{directUserSearchQuery}".
+                </div>
+              ) : (
+                searchedStudents.map((member) => (
+                  <div
+                    key={member.id}
+                    onClick={() => handleStartDirectChat(member.id)}
+                    className="p-2.5 flex items-center justify-between gap-3 hover:bg-brand-50/60 rounded-xl transition cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shrink-0 overflow-hidden border border-slate-200 shadow-2xs">
+                        {(member.profile?.avatar || member.profile_picture) ? (
+                          <img
+                            src={getMediaUrl((member.profile?.avatar || member.profile_picture)!)}
+                            alt={member.full_name || member.username}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span>{member.first_name?.charAt(0) || member.full_name?.charAt(0) || member.username?.charAt(0) || 'U'}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs text-slate-900 group-hover:text-brand-600 transition truncate block">
+                            {member.full_name || member.username}
+                          </span>
+                          {member.profile?.gender && (
+                            <GenderIcon gender={member.profile.gender} className="w-3 h-3 text-slate-400" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap text-[10px]">
+                          <span className="font-mono text-brand-700 bg-brand-50 px-1 rounded">
+                            @{member.username}
+                          </span>
+                          <span className="font-mono text-slate-500">
+                            ID: #{member.id}
+                          </span>
+                          {member.profile?.hostel_name && (
+                            <span className="text-slate-500 truncate">
+                              • {member.profile.hostel_name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isStartingDirectChat}
+                      className="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-semibold rounded-lg shadow-2xs transition shrink-0 group-hover:scale-105"
+                    >
+                      {isStartingDirectChat ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        'Chat'
+                      )}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Create Group Modal */}

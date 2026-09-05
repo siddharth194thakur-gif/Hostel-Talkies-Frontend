@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
 
   // Debounced search preview
   useEffect(() => {
-    if (searchQuery.trim().length < 2) {
+    if (!searchQuery.trim()) {
       setSearchResults(null);
       return;
     }
@@ -90,6 +90,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
     return '/';
   };
 
+  const handleQuickMessage = async (recipientId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowSearchDropdown(false);
+    setShowMobileSearch(false);
+    try {
+      const res = await api.post('/messages/start/', { recipient_id: recipientId });
+      if (res.data?.id) {
+        navigate(`/messages/${res.data.id}`);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Could not start conversation with this user.');
+    }
+  };
+
   const renderSearchDropdown = () => {
     if (!showSearchDropdown || !searchResults) return null;
 
@@ -102,52 +117,70 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2.5 py-1">
                 People
               </div>
-              {searchResults.people.map((person: any) => (
-                <button
-                  key={`person-${person.id}`}
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setShowSearchDropdown(false);
-                    setShowMobileSearch(false);
-                    navigate(`/profile/${person.id}`);
-                  }}
-                  onClick={() => {
-                    setShowSearchDropdown(false);
-                    setShowMobileSearch(false);
-                    navigate(`/profile/${person.id}`);
-                  }}
-                  className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-brand-50/60 active:bg-brand-100/70 transition group cursor-pointer active:scale-[0.98] select-none"
-                >
-                  <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0 overflow-hidden border border-slate-200 shadow-2xs">
-                    {(person.profile?.avatar || person.profile_picture) ? (
-                      <img
-                        src={getMediaUrl((person.profile?.avatar || person.profile_picture)!)}
-                        alt={person.full_name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <span>{person.first_name?.charAt(0) || person.full_name?.charAt(0) || 'U'}</span>
-                    )}
+              {searchResults.people.map((person: any) => {
+                const isMe = user?.id === person.id;
+                return (
+                  <div
+                    key={`person-${person.id}`}
+                    onMouseDown={(e) => {
+                      // Prevent input blur before click finishes
+                      e.preventDefault();
+                    }}
+                    onClick={() => {
+                      setShowSearchDropdown(false);
+                      setShowMobileSearch(false);
+                      navigate(`/profile/${person.id}`);
+                    }}
+                    className="w-full text-left flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl hover:bg-brand-50/60 active:bg-brand-100/70 transition group cursor-pointer select-none"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0 overflow-hidden border border-slate-200 shadow-2xs">
+                        {(person.profile?.avatar || person.profile_picture) ? (
+                          <img
+                            src={getMediaUrl((person.profile?.avatar || person.profile_picture)!)}
+                            alt={person.full_name || person.username}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span>{person.first_name?.charAt(0) || person.full_name?.charAt(0) || person.username?.charAt(0) || 'U'}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-xs text-slate-800 group-hover:text-brand-600 transition truncate block">
+                          {person.full_name || person.username}
+                        </span>
+                        <span className="text-[10px] text-slate-500 truncate block">
+                          @{person.username} • ID: #{person.id}
+                          {person.profile?.hostel_name ? ` • ${person.profile.hostel_name}` : ''}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {!isMe && (
+                        <button
+                          type="button"
+                          title={`Message @${person.username}`}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          onClick={(e) => handleQuickMessage(person.id, e)}
+                          className="p-1.5 bg-white hover:bg-brand-600 text-slate-600 hover:text-white rounded-lg border border-slate-200 hover:border-brand-600 shadow-2xs transition cursor-pointer"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <span className="text-[10px] font-semibold text-brand-600 opacity-0 group-hover:opacity-100 transition shrink-0 bg-brand-50 px-2 py-0.5 rounded-md">
+                        Profile →
+                      </span>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-semibold text-xs text-slate-800 group-hover:text-brand-600 transition truncate block">
-                      {person.full_name || person.username}
-                    </span>
-                    <span className="text-[11px] text-slate-500 truncate block">
-                      {person.profile?.hostel_name || 'Resident'}
-                      {person.profile?.programme ? ` • ${person.profile.programme}` : ''}
-                      {person.profile?.branch ? ` (${person.profile.branch})` : ''}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-brand-600 opacity-0 group-hover:opacity-100 transition shrink-0 bg-brand-50 px-2 py-0.5 rounded-md">
-                    Profile →
-                  </span>
-                </button>
-              ))}
+                );
+              })}
             </div>
           )}
 
