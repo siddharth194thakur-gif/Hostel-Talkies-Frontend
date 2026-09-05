@@ -24,7 +24,7 @@ export const SearchResultsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const query = searchParams.get('q') || '';
+  const query = searchParams.get('q') || searchParams.get('query') || searchParams.get('search') || '';
 
   const [results, setResults] = useState<SearchResultsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,7 +88,6 @@ export const SearchResultsPage: React.FC = () => {
         (results?.posts?.length || 0) +
         (results?.notices?.length || 0) +
         (results?.events?.length || 0) +
-        (results?.services?.length || 0) +
         (results?.study_resources?.length || 0) +
         (results?.competitions?.length || 0);
 
@@ -103,7 +102,9 @@ export const SearchResultsPage: React.FC = () => {
           Search Results for "{query}"
         </h1>
         <p className="text-xs text-slate-500">
-          Found {totalResults} matching results across all categories
+          {isLoading
+            ? 'Searching across all campus categories...'
+            : `Found ${totalResults} matching ${totalResults === 1 ? 'result' : 'results'} across all categories`}
         </p>
       </div>
 
@@ -314,31 +315,6 @@ export const SearchResultsPage: React.FC = () => {
                   >
                     <span className="font-semibold text-slate-900">{e.title}</span>
                     <span className="text-slate-500">{e.event_date}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Services */}
-          {results.services && results.services.length > 0 && (
-            <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-                <Wrench className="w-4 h-4 text-cyan-600" />
-                <h3 className="font-bold text-slate-900 text-sm">Services ({results.services.length})</h3>
-              </div>
-              <div className="divide-y divide-slate-100">
-                {results.services.map((srv) => (
-                  <Link
-                    key={srv.id}
-                    to="/services"
-                    className="py-3 flex items-center justify-between hover:bg-slate-50 px-2 rounded-xl transition"
-                  >
-                    <div>
-                      <div className="font-semibold text-slate-900">{srv.name}</div>
-                      <div className="text-[11px] text-slate-500">{srv.location}</div>
-                    </div>
-                    <span className="text-[10px] font-semibold text-brand-600 uppercase">{srv.category}</span>
                   </Link>
                 ))}
               </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   UserPlus, Lock, Mail, User, Building, AlertCircle, CheckCircle,
-  GraduationCap, BookOpen, ShieldCheck, Sparkles, RotateCw
+  GraduationCap, BookOpen, ShieldCheck, Sparkles, RotateCw, Eye, EyeOff
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -85,15 +85,18 @@ export const RegisterPage: React.FC = () => {
   // Basic Information
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [gender, setGender] = useState('prefer_not_to_say');
+  const [gender, setGender] = useState('');
 
   // Academic Information
-  const [programme, setProgramme] = useState('B.Tech');
-  const [branch, setBranch] = useState(PROGRAMME_BRANCHES['B.Tech'][0]);
+  const [programme, setProgramme] = useState('');
+  const [branch, setBranch] = useState('');
 
   // Account Information
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
 
   // Cascading Hostel Dropdowns
   const [hostels, setHostels] = useState<Hostel[]>([]);
@@ -111,12 +114,9 @@ export const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // When programme changes, update available branches and set default branch
+  // When programme changes, reset branch so user manually selects
   useEffect(() => {
-    const branches = PROGRAMME_BRANCHES[programme] || PROGRAMME_BRANCHES['Other'];
-    if (branches && branches.length > 0) {
-      setBranch(branches[0]);
-    }
+    setBranch('');
   }, [programme]);
 
   // 1. Fetch available Hostels dynamically from database on mount
@@ -211,9 +211,28 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setPasswordMismatch(false);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setPasswordMismatch(true);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!gender) {
+      setError('Please select your gender.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!programme) {
+      setError('Please select your programme/course.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!branch) {
+      setError('Please select your branch / specialisation.');
       setIsSubmitting(false);
       return;
     }
@@ -325,13 +344,15 @@ export const RegisterPage: React.FC = () => {
                 {/* 3. Gender */}
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
-                    Gender
+                    Gender <span className="text-rose-500">*</span>
                   </label>
                   <select
+                    required
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
                   >
+                    <option value="">Select Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
@@ -352,7 +373,7 @@ export const RegisterPage: React.FC = () => {
                 {/* 4. Programme / Course */}
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
-                    Programme / Course <span className="text-rose-500">*</span>
+                    Course <span className="text-rose-500">*</span>
                   </label>
                   <select
                     required
@@ -360,6 +381,7 @@ export const RegisterPage: React.FC = () => {
                     onChange={(e) => setProgramme(e.target.value)}
                     className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
                   >
+                    <option value="">Select Course</option>
                     {Object.keys(PROGRAMME_BRANCHES).map((prog) => (
                       <option key={prog} value={prog}>
                         {prog}
@@ -377,9 +399,11 @@ export const RegisterPage: React.FC = () => {
                     required
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
+                    disabled={!programme}
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-60"
                   >
-                    {(PROGRAMME_BRANCHES[programme] || PROGRAMME_BRANCHES['Other']).map((b) => (
+                    <option value="">{programme ? 'Select Branch' : 'Select Course first'}</option>
+                    {programme && (PROGRAMME_BRANCHES[programme] || PROGRAMME_BRANCHES['Other']).map((b) => (
                       <option key={b} value={b}>
                         {b}
                       </option>
@@ -401,7 +425,7 @@ export const RegisterPage: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block font-semibold text-slate-700">
-                      Select Hostel <span className="text-rose-500 font-bold">*</span>
+                      Hostel <span className="text-rose-500 font-bold">*</span>
                     </label>
                     {(hostelsError || (hostels.length === 0 && !isLoadingHostels)) && (
                       <button
@@ -426,8 +450,8 @@ export const RegisterPage: React.FC = () => {
                       {isLoadingHostels
                         ? 'Loading available hostels...'
                         : hostels.length === 0 && !isLoadingHostels
-                        ? '-- No Hostels Found (Click Retry) --'
-                        : '-- Choose Your Hostel --'}
+                        ? 'No Hostels Found (Click Retry)'
+                        : 'Select Hostel'}
                     </option>
                     {hostels.map((h) => (
                       <option key={h.id} value={h.id}>
@@ -452,19 +476,27 @@ export const RegisterPage: React.FC = () => {
                   )}
                 </div>
 
-                {/* 7 & 8. Block & Room Select (OPTIONAL) */}
+                {/* 7 & 8. Block & Room Select */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">
-                      7. Block <span className="text-slate-400 font-normal">(Optional)</span>
+                      Block
                     </label>
                     <select
                       value={selectedBlock}
                       onChange={(e) => setSelectedBlock(e.target.value)}
-                      disabled={!selectedHostel || isLoadingBlocks || blocks.length === 0}
+                      disabled={!selectedHostel || isLoadingBlocks}
                       className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-50 disabled:bg-slate-100"
                     >
-                      <option value="">-- Skip or Select Block --</option>
+                      <option value="">
+                        {isLoadingBlocks
+                          ? 'Loading blocks...'
+                          : !selectedHostel
+                          ? 'Select Hostel first'
+                          : blocks.length === 0
+                          ? 'No blocks available'
+                          : 'Select Block'}
+                      </option>
                       {blocks.map((b) => (
                         <option key={b.id} value={b.id}>
                           {b.name}
@@ -475,7 +507,7 @@ export const RegisterPage: React.FC = () => {
 
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">
-                      8. Room Number <span className="text-slate-400 font-normal">(Optional)</span>
+                      Room Number <span className="text-slate-400 font-normal">(Optional)</span>
                     </label>
                     <select
                       value={selectedRoom}
@@ -483,7 +515,15 @@ export const RegisterPage: React.FC = () => {
                       disabled={!selectedBlock || isLoadingRooms || rooms.length === 0}
                       className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-50 disabled:bg-slate-100"
                     >
-                      <option value="">-- Skip or Select Room --</option>
+                      <option value="">
+                        {isLoadingRooms
+                          ? 'Loading rooms...'
+                          : !selectedBlock
+                          ? 'Select Block first'
+                          : rooms.length === 0
+                          ? 'No rooms listed (Optional)'
+                          : 'Select Room'}
+                      </option>
                       {rooms.map((r) => (
                         <option key={r.id} value={r.id}>
                           Room {r.room_number} (Floor {r.floor})
@@ -516,14 +556,27 @@ export const RegisterPage: React.FC = () => {
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       required
                       minLength={6}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (passwordMismatch && e.target.value === confirmPassword) {
+                          setPasswordMismatch(false);
+                        }
+                      }}
                       placeholder="Min 6 characters"
-                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
+                      className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
                     />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-0.5"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
 
@@ -535,15 +588,38 @@ export const RegisterPage: React.FC = () => {
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       required
                       minLength={6}
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        if (passwordMismatch && e.target.value === password) {
+                          setPasswordMismatch(false);
+                        }
+                      }}
                       placeholder="Re-enter password"
-                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs"
+                      className={`w-full pl-9 pr-10 py-2.5 bg-slate-50 border rounded-xl text-slate-900 focus:bg-white focus:ring-2 outline-none text-xs ${
+                        passwordMismatch
+                          ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-100'
+                          : 'border-slate-200 focus:border-brand-500 focus:ring-brand-100'
+                      }`}
                     />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-0.5"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
+                  {passwordMismatch && (
+                    <p className="text-[11px] text-rose-600 font-medium mt-1.5 flex items-center gap-1 animate-in fade-in">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Password do not match</span>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

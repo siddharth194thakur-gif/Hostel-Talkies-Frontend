@@ -46,12 +46,6 @@ export const LandingPage: React.FC = () => {
       color: 'bg-emerald-50 text-emerald-600',
     },
     {
-      title: 'Hostel Services',
-      description: 'Instant directory for laundry, Xerox, electrician, barber, and campus amenities.',
-      icon: Wrench,
-      color: 'bg-amber-50 text-amber-600',
-    },
-    {
       title: 'Official Notice Board',
       description: 'Never miss urgent hostel announcements, water maintenance, or sports registrations.',
       icon: BellRing,

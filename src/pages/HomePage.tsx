@@ -88,13 +88,6 @@ export const HomePage: React.FC = () => {
       bgLight: 'bg-blue-50 text-blue-600 border-blue-100',
     },
     {
-      to: '/services',
-      title: 'Hostel Services',
-      desc: 'Maintenance & repairs',
-      icon: Wrench,
-      bgLight: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    },
-    {
       to: '/events',
       title: 'Campus Events',
       desc: 'Fests, sports & clubs',

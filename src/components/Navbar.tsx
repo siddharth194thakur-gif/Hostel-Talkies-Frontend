@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Search,
   Bell,
@@ -22,8 +22,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
   const { user, logout, isAuthenticated } = useAuth();
   const { notifications, unreadCount, unreadMessagesCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Synchronize search input with URL ?q=... when navigating to /search
+  useEffect(() => {
+    if (location.pathname === '/search') {
+      const q = new URLSearchParams(location.search).get('q') || '';
+      if (q !== searchQuery) {
+        setSearchQuery(q);
+      }
+    }
+  }, [location.pathname, location.search]);
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);

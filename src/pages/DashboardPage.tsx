@@ -7,7 +7,6 @@ import {
   Search,
   BellRing,
   Calendar,
-  Wrench,
   GraduationCap,
   Bookmark,
   ArrowRight,
@@ -28,7 +27,7 @@ import {
   Gamepad2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Post, Notice, Event, HostelService } from '../types';
+import { Post, Notice, Event } from '../types';
 import api, { getMediaUrl } from '../api/client';
 import { PostCard } from '../components/PostCard';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
@@ -41,26 +40,23 @@ export const DashboardPage: React.FC = () => {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [services, setServices] = useState<HostelService[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'my_posts' | 'services'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'my_posts'>('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      const [allPostsRes, myPostsRes, noticesRes, eventsRes, servicesRes] = await Promise.all([
+      const [allPostsRes, myPostsRes, noticesRes, eventsRes] = await Promise.all([
         api.get<{ results: Post[] } | Post[]>('/posts/?page_size=4'),
         user?.id ? api.get<{ results: Post[] } | Post[]>(`/posts/?author=${user.id}`) : Promise.resolve({ data: [] }),
         api.get<{ results: Notice[] } | Notice[]>('/notices/'),
         api.get<{ results: Event[] } | Event[]>('/events/?upcoming=true'),
-        api.get<{ results: HostelService[] } | HostelService[]>('/services/'),
       ]);
 
       setAllPosts(Array.isArray(allPostsRes.data) ? allPostsRes.data : (allPostsRes.data as any)?.results || []);
       setMyPosts(Array.isArray(myPostsRes.data) ? myPostsRes.data : (myPostsRes.data as any)?.results || []);
       setNotices(Array.isArray(noticesRes.data) ? noticesRes.data : (noticesRes.data as any)?.results || []);
       setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : (eventsRes.data as any)?.results || []);
-      setServices(Array.isArray(servicesRes.data) ? servicesRes.data : (servicesRes.data as any)?.results || []);
     } catch (err) {
       console.error('Failed to load dashboard data', err);
     } finally {
@@ -151,7 +147,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Personal Metrics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 card-3d-luxury group animate-fade-in-up">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">My Active Posts</span>
@@ -183,17 +179,6 @@ export const DashboardPage: React.FC = () => {
           </div>
           <span className="text-2xl font-black text-slate-900">{events.length}</span>
           <span className="block text-[10px] text-purple-600 font-bold mt-1">Tournaments &amp; fests</span>
-        </div>
-
-        <div className="p-4 sm:p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle hover:shadow-card-hover hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 group animate-fade-in-up">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hostel Services</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Wrench className="w-4 h-4" />
-            </div>
-          </div>
-          <span className="text-2xl font-black text-slate-900">{services.length || 6}</span>
-          <span className="block text-[10px] text-emerald-600 font-bold mt-1">Repairs &amp; laundry active</span>
         </div>
       </div>
 
@@ -252,17 +237,6 @@ export const DashboardPage: React.FC = () => {
               >
                 My Listings ({myPosts.length})
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('services')}
-                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                  activeTab === 'services'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-                }`}
-              >
-                Hostel Helpdesk
-              </button>
             </div>
 
             <Link to="/marketplace" className="text-[11px] font-bold text-brand-600 hover:underline">
@@ -307,71 +281,10 @@ export const DashboardPage: React.FC = () => {
               />
             )
           )}
-
-          {/* Tab 3: Hostel Helpdesk & Services Quick Request */}
-          {activeTab === 'services' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {[
-                { name: 'Hostel Electrician', desc: 'Fan, tube light, power socket repairs', icon: Zap, status: 'Available' },
-                { name: 'Plumber & Water Supply', desc: 'Tap leakage, washroom pipeline repair', icon: Wrench, status: 'Available' },
-                { name: 'Hostel Wi-Fi & LAN Desk', desc: 'Room network connection issues', icon: Activity, status: 'Active 24/7' },
-                { name: 'Hostel Laundry Service', desc: 'Daily pickup and washing', icon: Layers, status: 'Open 8 AM - 8 PM' },
-              ].map((serv, idx) => {
-                const Icon = serv.icon;
-                return (
-                  <div key={idx} className="p-4 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-2 hover:border-slate-300 transition animate-fade-in-up">
-                    <div className="flex items-center justify-between">
-                      <div className="w-9 h-9 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center">
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
-                        {serv.status}
-                      </span>
-                    </div>
-                    <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm">{serv.name}</h4>
-                    <p className="text-[11px] text-slate-500">{serv.desc}</p>
-                    <Link
-                      to="/services"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:text-brand-700 pt-1"
-                    >
-                      <span>Request Assistance →</span>
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
 
-        {/* Right 1 Col: Hostel Admin Desk & Meal Timings Widget */}
+        {/* Right 1 Col: Daily Mess Timings & Recent Notices Widget */}
         <div className="space-y-6">
-          {/* Hostel Authority & Caretaker Desk Card */}
-          <div className="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">Hostel Desk Info</h3>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                Active
-              </span>
-            </div>
-
-            <div className="space-y-2.5 text-xs text-slate-600">
-              <div className="p-3 bg-slate-50 rounded-2xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Chief Warden Desk</span>
-                <p className="font-extrabold text-slate-900">Dr. Rajesh Verma</p>
-                <p className="text-[11px] text-slate-500">Admin Block • 10:00 AM - 5:00 PM</p>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-2xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Hostel Caretaker</span>
-                <p className="font-extrabold text-slate-900">Mr. Ramesh Kumar</p>
-                <p className="text-[11px] text-slate-500">Ground Floor Caretaker Room</p>
-              </div>
-            </div>
-          </div>
-
           {/* Daily Mess Timings Widget */}
           <div className="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-subtle space-y-3.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
