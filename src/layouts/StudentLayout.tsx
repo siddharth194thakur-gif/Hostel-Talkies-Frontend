@@ -55,9 +55,10 @@ export const StudentLayout: React.FC = () => {
   return (
     <div className={`flex flex-col bg-slate-50 ${isMessagesPage ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       {/* On mobile in messages page, hide global navbar so chat is 100% full screen */}
-      <div className={isMessagesPage ? 'hidden lg:block' : 'block'}>
-        <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      </div>
+      <Navbar
+        className={isMessagesPage ? 'hidden lg:block' : ''}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      />
 
       <div className={`flex-1 flex w-full mx-auto ${isMessagesPage ? 'min-h-0 overflow-hidden max-w-full lg:max-w-7xl' : 'max-w-7xl'}`}>
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />

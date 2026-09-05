@@ -16,9 +16,10 @@ import { GenderIcon } from './GenderIcon';
 interface NavbarProps {
   onToggleSidebar?: () => void;
   showSearch?: boolean;
+  className?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch, className = '' }) => {
   const { user, logout, isAuthenticated } = useAuth();
   const { notifications, unreadCount, unreadMessagesCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
@@ -327,7 +328,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, showSearch }) =
   };
 
   return (
-    <header className={`sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-subtle transition-all ${isAuthenticated ? 'lg:pl-64' : ''}`}>
+    <header className={`sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-subtle transition-all ${isAuthenticated ? 'lg:pl-64' : ''} ${className}`}>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           
