@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { Hostel, Block, Room } from '../types';
+import { Hostel } from '../types';
 
 const PROGRAMME_BRANCHES: Record<string, string[]> = {
   'B.Tech': [
@@ -98,18 +98,10 @@ export const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordMismatch, setPasswordMismatch] = useState(false);
 
-  // Cascading Hostel Dropdowns
+  // Hostel Dropdown
   const [hostels, setHostels] = useState<Hostel[]>([]);
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [rooms, setRooms] = useState<Room[]>([]);
-
   const [selectedHostel, setSelectedHostel] = useState<string>('');
-  const [selectedBlock, setSelectedBlock] = useState<string>('');
-  const [selectedRoom, setSelectedRoom] = useState<string>('');
-
   const [isLoadingHostels, setIsLoadingHostels] = useState(false);
-  const [isLoadingBlocks, setIsLoadingBlocks] = useState(false);
-  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -119,7 +111,7 @@ export const RegisterPage: React.FC = () => {
     setBranch('');
   }, [programme]);
 
-  // 1. Fetch available Hostels dynamically from database on mount
+  // Fetch available Hostels dynamically from database on mount
   const [hostelsError, setHostelsError] = useState('');
 
   const fetchHostels = async () => {
@@ -148,64 +140,6 @@ export const RegisterPage: React.FC = () => {
   useEffect(() => {
     fetchHostels();
   }, []);
-
-  // 2. When Hostel changes, fetch its Blocks dynamically
-  useEffect(() => {
-    setSelectedBlock('');
-    setSelectedRoom('');
-    setBlocks([]);
-    setRooms([]);
-
-    if (!selectedHostel) return;
-
-    const fetchBlocks = async () => {
-      setIsLoadingBlocks(true);
-      try {
-        const res = await api.get<{ results: Block[] } | Block[]>(`/hostels/${selectedHostel}/blocks/`);
-        const data = res.data as any;
-        const list: Block[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.results)
-          ? data.results
-          : [];
-        setBlocks(list);
-      } catch (err) {
-        console.error('Failed to load blocks', err);
-        setBlocks([]);
-      } finally {
-        setIsLoadingBlocks(false);
-      }
-    };
-    fetchBlocks();
-  }, [selectedHostel]);
-
-  // 3. When Block changes, fetch its Rooms dynamically
-  useEffect(() => {
-    setSelectedRoom('');
-    setRooms([]);
-
-    if (!selectedBlock) return;
-
-    const fetchRooms = async () => {
-      setIsLoadingRooms(true);
-      try {
-        const res = await api.get<{ results: Room[] } | Room[]>(`/hostels/blocks/${selectedBlock}/rooms/`);
-        const data = res.data as any;
-        const list: Room[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.results)
-          ? data.results
-          : [];
-        setRooms(list);
-      } catch (err) {
-        console.error('Failed to load rooms', err);
-        setRooms([]);
-      } finally {
-        setIsLoadingRooms(false);
-      }
-    };
-    fetchRooms();
-  }, [selectedBlock]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -254,9 +188,6 @@ export const RegisterPage: React.FC = () => {
         confirm_password: confirmPassword,
         hostel: parseInt(selectedHostel),
       };
-
-      if (selectedBlock) payload.block = parseInt(selectedBlock);
-      if (selectedRoom) payload.room = parseInt(selectedRoom);
 
       const res = await api.post('/auth/register/', payload);
       login(res.data.tokens, res.data.user);
@@ -474,68 +405,6 @@ export const RegisterPage: React.FC = () => {
                       </button>
                     </div>
                   )}
-                </div>
-
-                {/* 7 & 8. Block & Room Select */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      Block
-                    </label>
-                    <select
-                      value={selectedBlock}
-                      onChange={(e) => setSelectedBlock(e.target.value)}
-                      disabled={!selectedHostel || isLoadingBlocks}
-                      className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-50 disabled:bg-slate-100"
-                    >
-                      <option value="">
-                        {isLoadingBlocks
-                          ? 'Loading blocks...'
-                          : !selectedHostel
-                          ? 'Select Hostel first'
-                          : blocks.length === 0
-                          ? 'No blocks available'
-                          : 'Select Block'}
-                      </option>
-                      {blocks.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      Room Number <span className="text-slate-400 font-normal">(Optional)</span>
-                    </label>
-                    <select
-                      value={selectedRoom}
-                      onChange={(e) => setSelectedRoom(e.target.value)}
-                      disabled={!selectedBlock || isLoadingRooms || rooms.length === 0}
-                      className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-50 disabled:bg-slate-100"
-                    >
-                      <option value="">
-                        {isLoadingRooms
-                          ? 'Loading rooms...'
-                          : !selectedBlock
-                          ? 'Select Block first'
-                          : rooms.length === 0
-                          ? 'No rooms listed (Optional)'
-                          : 'Select Room'}
-                      </option>
-                      {rooms.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          Room {r.room_number} (Floor {r.floor})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Privacy Note: Block and Room are optional. You can register without them.</span>
                 </div>
               </div>
             </div>
