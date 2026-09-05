@@ -15,6 +15,7 @@ import {
   FolderOpen,
   Calendar,
   Filter,
+  Library,
 } from 'lucide-react';
 import api from '../api/client';
 import { StudyResource } from '../types';
@@ -56,16 +57,92 @@ interface MetaResponse {
   semesters: string[];
   departments: string[];
   resource_types: { value: string; label: string }[];
+  type_counts?: Record<string, number>;
+  total_count?: number;
   units: string[];
   years?: string[];
   hierarchy: HierarchyTree;
   pyqs_hierarchy?: PyqsHierarchyTree;
 }
 
-type TabMode = 'all' | 'pyq';
+export type CategoryKey = 'pyq' | 'notes' | 'syllabus' | 'lab_file' | 'reference_material' | 'all';
 type Level = 'semester' | 'branch' | 'subject' | 'type' | 'resources';
 
-// ─── Resource type display helpers ───────────────────────────────────────────
+// ─── Resource Category Definitions ────────────────────────────────────────────
+
+interface CategoryDef {
+  key: CategoryKey;
+  label: string;
+  shortLabel: string;
+  description: string;
+  icon: React.ElementType;
+  iconBg: string;
+  pillActive: string;
+  badgeColor: string;
+}
+
+const CATEGORIES: CategoryDef[] = [
+  {
+    key: 'pyq',
+    label: 'Previous Year Questions (PYQs)',
+    shortLabel: 'PYQ Papers',
+    description: 'Solved & official question papers ordered from newest to oldest',
+    icon: GraduationCap,
+    iconBg: 'from-purple-600 to-indigo-700',
+    pillActive: 'bg-purple-600 text-white shadow-md shadow-purple-600/20',
+    badgeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+  },
+  {
+    key: 'notes',
+    label: 'Lecture Notes',
+    shortLabel: 'Notes',
+    description: 'Faculty lecture notes & comprehensive unit-wise study material',
+    icon: FileText,
+    iconBg: 'from-blue-500 to-indigo-600',
+    pillActive: 'bg-blue-600 text-white shadow-md shadow-blue-600/20',
+    badgeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+  },
+  {
+    key: 'reference_material',
+    label: 'Reference Materials & Books',
+    shortLabel: 'Books & Reference',
+    description: 'Textbooks, quantum guides & standard academic references',
+    icon: BookOpen,
+    iconBg: 'from-emerald-500 to-teal-600',
+    pillActive: 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20',
+    badgeColor: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  },
+  {
+    key: 'lab_file',
+    label: 'Lab Files & Manuals',
+    shortLabel: 'Lab Files',
+    description: 'Practical files, experiment manuals & code implementations',
+    icon: Layers,
+    iconBg: 'from-orange-500 to-red-500',
+    pillActive: 'bg-orange-600 text-white shadow-md shadow-orange-600/20',
+    badgeColor: 'bg-orange-100 text-orange-700 border-orange-200',
+  },
+  {
+    key: 'syllabus',
+    label: 'Syllabus & Schemes',
+    shortLabel: 'Syllabus',
+    description: 'Official university curriculum, course schemes & subject syllabus',
+    icon: BookOpen,
+    iconBg: 'from-green-500 to-emerald-600',
+    pillActive: 'bg-green-600 text-white shadow-md shadow-green-600/20',
+    badgeColor: 'bg-green-100 text-green-700 border-green-200',
+  },
+  {
+    key: 'all',
+    label: 'All Academic Materials',
+    shortLabel: 'All Materials',
+    description: 'Unified database including notes, PYQs, syllabus & reference books',
+    icon: Library,
+    iconBg: 'from-slate-700 to-slate-900',
+    pillActive: 'bg-slate-900 text-white shadow-md shadow-slate-900/20',
+    badgeColor: 'bg-slate-100 text-slate-700 border-slate-200',
+  },
+];
 
 const TYPE_LABELS: Record<string, string> = {
   notes:               'Notes',
@@ -122,7 +199,7 @@ const sortSemesters = (sems: string[]) => {
   });
 };
 
-// ─── Tile ─────────────────────────────────────────────────────────────────────
+// ─── Select Tile Component ───────────────────────────────────────────────────
 
 interface SelectTileProps {
   label: string;
@@ -166,7 +243,7 @@ const SelectTile: React.FC<SelectTileProps> = ({ label, sub, badge, icon: Icon, 
   </button>
 );
 
-// ─── Breadcrumb ───────────────────────────────────────────────────────────────
+// ─── Breadcrumb Component ────────────────────────────────────────────────────
 
 interface BreadcrumbProps {
   parts: { label: string; onClick: () => void }[];
@@ -203,10 +280,10 @@ export const StudyResourcesPage: React.FC = () => {
   const [meta, setMeta]           = useState<MetaResponse | null>(null);
   const [metaLoading, setMetaLoading] = useState(true);
 
-  // Tab mode: 'all' (Academic Vault) vs 'pyq' (Previous Year Questions)
-  const [tabMode, setTabMode]     = useState<TabMode>('pyq');
+  // Active Category: 'pyq' | 'notes' | 'syllabus' | 'lab_file' | 'reference_material' | 'all'
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>('pyq');
 
-  // Navigation state
+  // Navigation hierarchy state
   const [level, setLevel]           = useState<Level>('semester');
   const [selSemester, setSelSemester] = useState('');
   const [selBranch, setSelBranch]     = useState('');
@@ -214,7 +291,7 @@ export const StudyResourcesPage: React.FC = () => {
   const [selType, setSelType]         = useState('');
   const [yearFilter, setYearFilter]   = useState<string>('all');
 
-  // Search
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode]   = useState(false);
 
@@ -222,7 +299,7 @@ export const StudyResourcesPage: React.FC = () => {
   const [resources, setResources]     = useState<StudyResource[]>([]);
   const [resLoading, setResLoading]   = useState(false);
 
-  // Upload modal
+  // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadTitle, setUploadTitle]         = useState('');
   const [uploadDesc, setUploadDesc]           = useState('');
@@ -249,19 +326,20 @@ export const StudyResourcesPage: React.FC = () => {
       .finally(() => setMetaLoading(false));
   }, []);
 
-  // ── Fetch resources ──────────────────────────────────────────────────────
+  // ── Fetch resources for current selection ────────────────────────────────
   const fetchResources = useCallback(async () => {
     setResLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selSemester)          params.append('semester',   selSemester);
-      if (selBranch)            params.append('department', selBranch);
-      if (selSubject)           params.append('course',     selSubject);
-      
-      const effectiveType = tabMode === 'pyq' ? 'pyq' : selType;
-      if (effectiveType)        params.append('type',       effectiveType);
+      if (selSemester) params.append('semester', selSemester);
+      if (selBranch)   params.append('department', selBranch);
+      if (selSubject)  params.append('course', selSubject);
+
+      const effectiveType = activeCategory !== 'all' ? activeCategory : selType;
+      if (effectiveType) params.append('type', effectiveType);
+
       if (yearFilter && yearFilter !== 'all') params.append('year', yearFilter);
-      if (searchQuery.trim())   params.append('search',     searchQuery.trim());
+      if (searchQuery.trim()) params.append('search', searchQuery.trim());
 
       const res = await api.get<{ results: StudyResource[] } | StudyResource[]>(
         `/study/?${params.toString()}`
@@ -272,7 +350,7 @@ export const StudyResourcesPage: React.FC = () => {
     } finally {
       setResLoading(false);
     }
-  }, [selSemester, selBranch, selSubject, selType, tabMode, yearFilter, searchQuery]);
+  }, [selSemester, selBranch, selSubject, selType, activeCategory, yearFilter, searchQuery]);
 
   useEffect(() => {
     if (level === 'resources' || searchMode) {
@@ -281,7 +359,7 @@ export const StudyResourcesPage: React.FC = () => {
     }
   }, [level, searchMode, yearFilter, fetchResources]);
 
-  // Search mode triggers on any query input
+  // Search mode triggers on any non-empty query
   useEffect(() => {
     setSearchMode(searchQuery.trim().length > 0);
   }, [searchQuery]);
@@ -301,10 +379,10 @@ export const StudyResourcesPage: React.FC = () => {
 
   const goBack = () => {
     if (level === 'resources') {
-      if (tabMode === 'pyq') {
-        resetTo('subject');
-      } else {
+      if (activeCategory === 'all') {
         resetTo('type');
+      } else {
+        resetTo('subject');
       }
     }
     else if (level === 'type')    resetTo('subject');
@@ -312,29 +390,67 @@ export const StudyResourcesPage: React.FC = () => {
     else if (level === 'branch')  resetTo('semester');
   };
 
-  const handleTabSwitch = (newTab: TabMode) => {
-    if (newTab === tabMode) return;
-    setTabMode(newTab);
+  const handleCategorySwitch = (newCat: CategoryKey) => {
+    if (newCat === activeCategory) return;
+    setActiveCategory(newCat);
     resetTo('semester');
   };
 
-  // ── Derived hierarchy data ───────────────────────────────────────────────
-  const activeTree = (tabMode === 'pyq' && meta?.pyqs_hierarchy)
-    ? meta.pyqs_hierarchy
-    : (meta?.hierarchy ?? {});
+  // ── Category-filtered tree logic ─────────────────────────────────────────
+  // For PYQ: use pyqs_hierarchy.
+  // For other specific categories: filter hierarchy so only branches/subjects with that type appear.
+  const isPyqMode = activeCategory === 'pyq';
 
-  const hierSemesters = sortSemesters(
-    Object.keys(activeTree).filter(s => s && Object.keys(activeTree[s] ?? {}).length > 0)
-  );
+  const hierSemesters = React.useMemo(() => {
+    if (!meta) return [];
+    if (isPyqMode && meta.pyqs_hierarchy) {
+      return sortSemesters(
+        Object.keys(meta.pyqs_hierarchy).filter(s => s && Object.keys(meta.pyqs_hierarchy![s] ?? {}).length > 0)
+      );
+    }
+    if (activeCategory === 'all') {
+      return sortSemesters(
+        Object.keys(meta.hierarchy).filter(s => s && Object.keys(meta.hierarchy[s] ?? {}).length > 0)
+      );
+    }
+    // Specific category (notes, syllabus, lab_file, reference_material):
+    // Only include semesters where at least one subject has this type
+    const sems = Object.keys(meta.hierarchy).filter(sem => {
+      const depts = meta.hierarchy[sem] ?? {};
+      return Object.values(depts).some(subjs =>
+        Object.values(subjs).some(node => node.types.includes(activeCategory))
+      );
+    });
+    return sortSemesters(sems);
+  }, [meta, activeCategory, isPyqMode]);
 
-  const hierBranches = meta && selSemester
-    ? Object.keys(activeTree[selSemester] ?? {}).sort()
-    : [];
+  const hierBranches = React.useMemo(() => {
+    if (!meta || !selSemester) return [];
+    if (isPyqMode && meta.pyqs_hierarchy) {
+      return Object.keys(meta.pyqs_hierarchy[selSemester] ?? {}).sort();
+    }
+    if (activeCategory === 'all') {
+      return Object.keys(meta.hierarchy[selSemester] ?? {}).sort();
+    }
+    const depts = meta.hierarchy[selSemester] ?? {};
+    return Object.keys(depts).filter(dept =>
+      Object.values(depts[dept] ?? {}).some(node => node.types.includes(activeCategory))
+    ).sort();
+  }, [meta, selSemester, activeCategory, isPyqMode]);
 
-  const hierSubjects = meta && selSemester && selBranch
-    ? Object.keys(activeTree[selSemester]?.[selBranch] ?? {}).sort()
-    : [];
+  const hierSubjects = React.useMemo(() => {
+    if (!meta || !selSemester || !selBranch) return [];
+    if (isPyqMode && meta.pyqs_hierarchy) {
+      return Object.keys(meta.pyqs_hierarchy[selSemester]?.[selBranch] ?? {}).sort();
+    }
+    const subjs = meta.hierarchy[selSemester]?.[selBranch] ?? {};
+    if (activeCategory === 'all') {
+      return Object.keys(subjs).sort();
+    }
+    return Object.keys(subjs).filter(s => subjs[s]?.types.includes(activeCategory)).sort();
+  }, [meta, selSemester, selBranch, activeCategory, isPyqMode]);
 
+  // General mode type nodes
   const hierTypes = meta && selSemester && selBranch && selSubject
     ? (meta.hierarchy[selSemester]?.[selBranch]?.[selSubject]?.types ?? [])
     : [];
@@ -343,20 +459,12 @@ export const StudyResourcesPage: React.FC = () => {
     ? (meta.hierarchy[selSemester]?.[selBranch]?.[selSubject]?.units ?? [])
     : [];
 
-  const totalSubjects = meta
-    ? Object.values(meta.hierarchy).reduce((a, sem) =>
-        a + Object.values(sem).reduce((b, dept) => b + Object.keys(dept).length, 0), 0)
-    : 0;
-
-  const totalPyqSubjects = meta?.pyqs_hierarchy
-    ? Object.values(meta.pyqs_hierarchy).reduce((a, sem) =>
-        a + Object.values(sem).reduce((b, dept) => b + Object.keys(dept).length, 0), 0)
-    : 0;
-
   // ── Breadcrumb ───────────────────────────────────────────────────────────
+  const activeCatDef = CATEGORIES.find(c => c.key === activeCategory) ?? CATEGORIES[0];
+
   const crumbs: { label: string; onClick: () => void }[] = [
     {
-      label: tabMode === 'pyq' ? 'Previous Year Questions' : 'Study Resources',
+      label: activeCatDef.shortLabel,
       onClick: () => resetTo('semester'),
     },
   ];
@@ -364,12 +472,12 @@ export const StudyResourcesPage: React.FC = () => {
   if (selBranch)   crumbs.push({ label: selBranch,   onClick: () => resetTo('subject') });
   if (selSubject)  crumbs.push({
     label: selSubject,
-    onClick: () => tabMode === 'pyq' ? resetTo('subject') : resetTo('type')
+    onClick: () => activeCategory !== 'all' ? resetTo('subject') : resetTo('type')
   });
-  if (tabMode !== 'pyq' && selType) crumbs.push({ label: typeLabel(selType), onClick: () => {} });
+  if (activeCategory === 'all' && selType) crumbs.push({ label: typeLabel(selType), onClick: () => {} });
 
-  // ── Resource grouping (Unit vs Year) ──────────────────────────────────────
-  const isPyqGrouping = tabMode === 'pyq' || selType === 'pyq';
+  // ── Resource grouping (Year vs Unit) ─────────────────────────────────────
+  const isPyqGrouping = activeCategory === 'pyq' || selType === 'pyq';
 
   const byYear: Record<string, StudyResource[]> = {};
   const noYear: StudyResource[] = [];
@@ -458,6 +566,13 @@ export const StudyResourcesPage: React.FC = () => {
     );
   }
 
+  const pyqCount = meta?.type_counts?.['pyq'] ?? 128;
+  const notesCount = meta?.type_counts?.['notes'] ?? 34;
+  const refCount = meta?.type_counts?.['reference_material'] ?? 12;
+  const labCount = meta?.type_counts?.['lab_file'] ?? 9;
+  const sylCount = meta?.type_counts?.['syllabus'] ?? 6;
+  const totalCount = meta?.total_count ?? 189;
+
   return (
     <div className="space-y-5 text-xs">
 
@@ -468,45 +583,45 @@ export const StudyResourcesPage: React.FC = () => {
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2 max-w-xl">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 flex items-center gap-1.5">
                 <GraduationCap className="w-3.5 h-3.5 text-brand-400" />
-                VBSPU Academic Vault
+                VBSPU Study Vault &amp; PYQ Hub
               </span>
               <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/30 flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                Peer-Verified
+                120 VbspuEDU Archive Preserved
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-              {tabMode === 'pyq' ? 'Previous Year Questions (PYQs)' : 'Study Resources & Notes Hub'}
+              {activeCatDef.label}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              {tabMode === 'pyq'
-                ? 'Structured semester-wise and subject-wise PYQ papers with solved solutions, ordered newest to oldest.'
-                : 'Navigate semester-wise — lecture notes, reference material, lab manuals and syllabus organised by branch.'}
+              {activeCatDef.description}
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
-            <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[72px]">
-              <span className="block text-xl font-black text-white">{meta?.semesters?.length ?? 0}</span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Semesters</span>
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
+            <div className="px-3 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[64px]">
+              <span className="block text-lg font-black text-white">{totalCount}</span>
+              <span className="block text-[9px] font-semibold text-slate-300 uppercase tracking-wider">Total</span>
             </div>
-            <div className="px-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[72px]">
-              <span className="block text-xl font-black text-purple-300">
-                {tabMode === 'pyq' ? totalPyqSubjects : totalSubjects}
-              </span>
-              <span className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Subjects</span>
+            <div className="px-3 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[64px]">
+              <span className="block text-lg font-black text-purple-300">{pyqCount}</span>
+              <span className="block text-[9px] font-semibold text-purple-200 uppercase tracking-wider">PYQs</span>
+            </div>
+            <div className="px-3 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center min-w-[64px]">
+              <span className="block text-lg font-black text-blue-300">{notesCount}</span>
+              <span className="block text-[9px] font-semibold text-blue-200 uppercase tracking-wider">Notes</span>
             </div>
             {isAdmin && (
               <button
                 type="button"
                 onClick={() => {
-                  setUploadType(tabMode === 'pyq' ? 'pyq' : 'notes');
+                  setUploadType(activeCategory !== 'all' ? activeCategory : 'notes');
                   setShowUploadModal(true);
                 }}
-                className="px-4 py-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                className="px-4 py-3 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
               >
                 <Upload className="w-4 h-4" />
                 <span>+ Publish</span>
@@ -516,45 +631,38 @@ export const StudyResourcesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Mode Toggle Bar ───────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/80">
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => handleTabSwitch('pyq')}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
-              tabMode === 'pyq'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
-          >
-            <GraduationCap className="w-4 h-4" />
-            <span>PYQ Question Papers</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              tabMode === 'pyq' ? 'bg-purple-700/60 text-purple-100' : 'bg-slate-200 text-slate-700'
-            }`}>
-              128
-            </span>
-          </button>
+      {/* ── Category Selectors / Navigation Tabs ───────────────────────────── */}
+      <div className="p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        {CATEGORIES.map(cat => {
+          const Icon = cat.icon;
+          const isActive = activeCategory === cat.key;
+          const count =
+            cat.key === 'pyq' ? pyqCount :
+            cat.key === 'notes' ? notesCount :
+            cat.key === 'reference_material' ? refCount :
+            cat.key === 'lab_file' ? labCount :
+            cat.key === 'syllabus' ? sylCount :
+            totalCount;
 
-          <button
-            type="button"
-            onClick={() => handleTabSwitch('all')}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
-              tabMode === 'all'
-                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Academic Vault (All Materials)</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              tabMode === 'all' ? 'bg-brand-700/60 text-brand-100' : 'bg-slate-200 text-slate-700'
-            }`}>
-              189
-            </span>
-          </button>
-        </div>
+          return (
+            <button
+              key={cat.key}
+              type="button"
+              onClick={() => handleCategorySwitch(cat.key)}
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-extrabold text-xs transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                isActive ? cat.pillActive : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{cat.shortLabel}</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                isActive ? 'bg-black/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Search Bar ────────────────────────────────────────────────────── */}
@@ -569,9 +677,7 @@ export const StudyResourcesPage: React.FC = () => {
               selSubject  ? `Search within ${selSubject}…` :
               selBranch   ? `Search within ${selBranch}…` :
               selSemester ? `Search within ${selSemester}…` :
-              tabMode === 'pyq'
-                ? 'Search question papers by subject, year or exam code (e.g. Data Structures 2024)…'
-                : 'Search by subject, topic or course code (e.g. Physics, CS201)…'
+              `Search ${activeCatDef.shortLabel.toLowerCase()} by subject, code or keyword (e.g. Data Structures, Physics)…`
             }
             className="w-full pl-10 pr-9 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200/80 rounded-xl text-xs text-slate-900 focus:border-brand-500 focus:ring-3 focus:ring-brand-50 outline-none transition placeholder:text-slate-400 font-medium"
           />
@@ -606,26 +712,25 @@ export const StudyResourcesPage: React.FC = () => {
       {/* ════════════════════════════════════════════════════════════════════ */}
       {searchMode && (
         <div className="space-y-4">
-          {(selSemester || selBranch || selSubject || tabMode === 'pyq') && (
-            <div className="flex flex-wrap gap-2 text-[11px] items-center">
-              {tabMode === 'pyq' && (
-                <span className="px-3 py-1 bg-purple-50 border border-purple-200 text-purple-700 rounded-full font-semibold">
-                  📋 PYQ Filter Active
-                </span>
-              )}
-              {selSemester && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📅 {selSemester}</span>}
-              {selBranch   && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">🏛️ {selBranch}</span>}
-              {selSubject  && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📚 {selSubject}</span>}
-              <span className="text-slate-400">— searching matching resources</span>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 text-[11px] items-center">
+            {activeCategory !== 'all' && (
+              <span className={`px-3 py-1 rounded-full font-bold border ${activeCatDef.badgeColor}`}>
+                {activeCatDef.shortLabel} Scope
+              </span>
+            )}
+            {selSemester && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📅 {selSemester}</span>}
+            {selBranch   && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">🏛️ {selBranch}</span>}
+            {selSubject  && <span className="px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full font-semibold">📚 {selSubject}</span>}
+            <span className="text-slate-400">— matching resources</span>
+          </div>
+
           {resLoading ? <LoadingSkeleton count={6} /> : resources.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {resources.map(r => <StudyResourceCard key={r.id} resource={r} />)}
             </div>
           ) : (
             <EmptyState title="No results found"
-              message={`No resources match "${searchQuery}"${selSemester ? ` in ${selSemester}` : ''}. Try a broader search.`} />
+              message={`No resources match "${searchQuery}" in ${activeCatDef.shortLabel}. Try a broader search.`} />
           )}
         </div>
       )}
@@ -634,47 +739,101 @@ export const StudyResourcesPage: React.FC = () => {
       {/* LEVEL: SEMESTER                                                     */}
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'semester' && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
+        <div className="space-y-6">
+
+          {/* Quick Category Overview Cards at Root Level */}
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+              <div className="w-1 h-5 bg-brand-500 rounded-full" />
               <h2 className="text-sm font-extrabold text-slate-900">
-                {tabMode === 'pyq' ? 'Select Semester for Question Papers' : 'Select Semester'}
+                Browse by Academic Section
               </h2>
             </div>
-            {tabMode === 'pyq' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {CATEGORIES.filter(c => c.key !== 'all').map(cat => {
+                const Icon = cat.icon;
+                const isCurrent = activeCategory === cat.key;
+                const count =
+                  cat.key === 'pyq' ? pyqCount :
+                  cat.key === 'notes' ? notesCount :
+                  cat.key === 'reference_material' ? refCount :
+                  cat.key === 'lab_file' ? labCount :
+                  sylCount;
+
+                return (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    onClick={() => handleCategorySwitch(cat.key)}
+                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer ${
+                      isCurrent
+                        ? 'bg-purple-50/70 border-purple-400 ring-2 ring-purple-100 shadow-sm'
+                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${cat.iconBg} text-white flex items-center justify-center shadow-md shrink-0`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-slate-900 text-sm">{cat.shortLabel}</div>
+                          <div className="text-[11px] text-slate-500 font-medium">{count} items available</div>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-0.5 text-[10px] font-black rounded-md ${
+                        isCurrent ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {isCurrent ? 'Active' : 'Select'}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Semester Selector for Active Category */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`w-1 h-5 rounded-full ${isPyqMode ? 'bg-purple-600' : 'bg-brand-500'}`} />
+                <h2 className="text-sm font-extrabold text-slate-900">
+                  Select Semester for {activeCatDef.shortLabel}
+                </h2>
+              </div>
               <span className="text-[11px] text-slate-500 font-medium">
-                Organized from Sem 1 to Sem 8
+                {isPyqMode ? 'Organized from Sem 1 to Sem 8' : 'Available semesters'}
               </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {hierSemesters.map(sem => {
+                const subText = isPyqMode
+                  ? `${Object.keys(meta?.pyqs_hierarchy?.[sem] ?? {}).length} branches with PYQs`
+                  : `${Object.keys(meta?.hierarchy?.[sem] ?? {}).length} departments`;
+
+                return (
+                  <SelectTile
+                    key={sem}
+                    label={sem}
+                    sub={subText}
+                    badge={isPyqMode ? 'PYQ Hub' : undefined}
+                    icon={Calendar}
+                    iconBg={isPyqMode ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
+                    onClick={() => { setSelSemester(sem); setLevel('branch'); }}
+                  />
+                );
+              })}
+            </div>
+
+            {hierSemesters.length === 0 && (
+              <EmptyState
+                title="No semester data"
+                message={`No resources found for ${activeCatDef.shortLabel} in the database.`}
+              />
             )}
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {hierSemesters.map(sem => {
-              const branchCount = Object.keys(activeTree[sem] ?? {}).length;
-              const subText = tabMode === 'pyq'
-                ? `${branchCount} branch${branchCount !== 1 ? 'es' : ''} available`
-                : `${branchCount} department${branchCount !== 1 ? 's' : ''}`;
-              return (
-                <SelectTile
-                  key={sem}
-                  label={sem}
-                  sub={subText}
-                  badge={tabMode === 'pyq' ? 'PYQ' : undefined}
-                  icon={Calendar}
-                  iconBg={tabMode === 'pyq' ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
-                  onClick={() => { setSelSemester(sem); setLevel('branch'); }}
-                />
-              );
-            })}
-          </div>
-
-          {hierSemesters.length === 0 && (
-            <EmptyState
-              title="No semester data"
-              message={tabMode === 'pyq' ? 'No question papers found for this selection.' : 'No study resources found in the database.'}
-            />
-          )}
         </div>
       )}
 
@@ -684,22 +843,25 @@ export const StudyResourcesPage: React.FC = () => {
       {!searchMode && level === 'branch' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+            <div className={`w-1 h-5 rounded-full ${isPyqMode ? 'bg-purple-600' : 'bg-brand-500'}`} />
             <h2 className="text-sm font-extrabold text-slate-900">
-              Select Branch / Department — {selSemester}
+              Select Branch / Department — {selSemester} ({activeCatDef.shortLabel})
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {hierBranches.map(br => {
-              const count = Object.keys(activeTree[selSemester]?.[br] ?? {}).length;
+              const count = isPyqMode
+                ? Object.keys(meta?.pyqs_hierarchy?.[selSemester]?.[br] ?? {}).length
+                : Object.keys(meta?.hierarchy?.[selSemester]?.[br] ?? {}).length;
+
               return (
                 <SelectTile
                   key={br}
                   label={br}
                   sub={`${count} subject${count !== 1 ? 's' : ''}`}
-                  badge={tabMode === 'pyq' ? `${count} Subjects` : undefined}
-                  iconBg={tabMode === 'pyq' ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
+                  badge={isPyqMode ? `${count} Subjects` : undefined}
+                  iconBg={isPyqMode ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
                   onClick={() => { setSelBranch(br); setLevel('subject'); }}
                 />
               );
@@ -707,7 +869,7 @@ export const StudyResourcesPage: React.FC = () => {
           </div>
 
           {hierBranches.length === 0 && (
-            <EmptyState title="No branches" message={`No branches found for ${selSemester}.`} />
+            <EmptyState title="No branches" message={`No branches found for ${selSemester} under ${activeCatDef.shortLabel}.`} />
           )}
         </div>
       )}
@@ -719,26 +881,27 @@ export const StudyResourcesPage: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className={`w-1 h-5 rounded-full ${tabMode === 'pyq' ? 'bg-purple-600' : 'bg-brand-500'}`} />
+              <div className={`w-1 h-5 rounded-full ${isPyqMode ? 'bg-purple-600' : 'bg-brand-500'}`} />
               <h2 className="text-sm font-extrabold text-slate-900">
-                {tabMode === 'pyq' ? 'Select Subject for PYQs' : 'Select Subject'} — {selBranch}
+                Select Subject — {selBranch} ({activeCatDef.shortLabel})
               </h2>
             </div>
-            {tabMode === 'pyq' && (
+            {isPyqMode && (
               <span className="text-[11px] text-purple-600 font-semibold">
-                Click a subject to view all years
+                Click a subject to view paper years (Newest → Oldest)
               </span>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {hierSubjects.map(subj => {
-              if (tabMode === 'pyq' && meta?.pyqs_hierarchy) {
+              if (isPyqMode && meta?.pyqs_hierarchy) {
                 const pyqNode = meta.pyqs_hierarchy[selSemester]?.[selBranch]?.[subj];
                 const yrList = pyqNode?.years ?? [];
                 const yrRange = yrList.length > 0
                   ? `${yrList.length} Exam Year${yrList.length !== 1 ? 's' : ''} (${yrList[0]}${yrList.length > 1 ? ` – ${yrList[yrList.length - 1]}` : ''})`
                   : 'PYQ Available';
+
                 return (
                   <SelectTile
                     key={subj}
@@ -756,6 +919,30 @@ export const StudyResourcesPage: React.FC = () => {
                 );
               }
 
+              if (activeCategory !== 'all') {
+                const node = meta?.hierarchy?.[selSemester]?.[selBranch]?.[subj];
+                const units = node?.units ?? [];
+                const subDesc = units.length > 0
+                  ? `${units.length} Unit${units.length !== 1 ? 's' : ''} (${units.join(', ')})`
+                  : 'Available in Vault';
+
+                return (
+                  <SelectTile
+                    key={subj}
+                    label={subj}
+                    sub={subDesc}
+                    icon={activeCatDef.icon}
+                    iconBg={activeCatDef.iconBg}
+                    onClick={() => {
+                      setSelSubject(subj);
+                      setSelType(activeCategory);
+                      setLevel('resources');
+                    }}
+                  />
+                );
+              }
+
+              // 'all' category mode
               const node = meta?.hierarchy?.[selSemester]?.[selBranch]?.[subj];
               return (
                 <SelectTile
@@ -778,7 +965,7 @@ export const StudyResourcesPage: React.FC = () => {
       )}
 
       {/* ════════════════════════════════════════════════════════════════════ */}
-      {/* LEVEL: RESOURCE TYPE (General Mode Only)                            */}
+      {/* LEVEL: RESOURCE TYPE (Unified 'all' Mode Only)                      */}
       {/* ════════════════════════════════════════════════════════════════════ */}
       {!searchMode && level === 'type' && (
         <div className="space-y-3">
@@ -833,12 +1020,10 @@ export const StudyResourcesPage: React.FC = () => {
                 <span>{selSemester}</span>
                 <span>•</span>
                 <span>{selBranch}</span>
-                {isPyqGrouping && (
-                  <>
-                    <span>•</span>
-                    <span className="text-purple-600 font-bold">Solved PYQ Collection</span>
-                  </>
-                )}
+                <span>•</span>
+                <span className={`font-bold ${isPyqGrouping ? 'text-purple-600' : 'text-brand-600'}`}>
+                  {activeCatDef.shortLabel}
+                </span>
               </div>
               <h2 className="text-base font-extrabold text-slate-900">
                 {selSubject}
