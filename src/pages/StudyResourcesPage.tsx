@@ -270,15 +270,22 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ parts }) => (
   </nav>
 );
 
+// ─── Module-Level Fast Memory Caches ─────────────────────────────────────────
+let cachedMeta: MetaResponse | null = null;
+let cachedMetaTime = 0;
+const META_CACHE_TTL = 10 * 60 * 1000; // 10 minutes TTL
+
+const resourcesCache = new Map<string, StudyResource[]>();
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export const StudyResourcesPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = Boolean(user?.is_staff || user?.is_superuser || user?.is_hostel_admin);
 
-  // Meta / hierarchy
-  const [meta, setMeta]           = useState<MetaResponse | null>(null);
-  const [metaLoading, setMetaLoading] = useState(true);
+  // Meta / hierarchy (instant load if already in memory)
+  const [meta, setMeta]               = useState<MetaResponse | null>(() => cachedMeta);
+  const [metaLoading, setMetaLoading] = useState<boolean>(() => !cachedMeta);
 
   // Active Category: 'pyq' | 'notes' | 'syllabus' | 'lab_file' | 'reference_material' | 'all'
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('pyq');
@@ -299,6 +306,9 @@ export const StudyResourcesPage: React.FC = () => {
   const [resources, setResources]     = useState<StudyResource[]>([]);
   const [resLoading, setResLoading]   = useState(false);
 
+  // Abort controller ref to cancel obsolete in-flight queries
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadTitle, setUploadTitle]         = useState('');
@@ -317,45 +327,86 @@ export const StudyResourcesPage: React.FC = () => {
   const [uploadSuccess, setUploadSuccess]     = useState(false);
   const [uploadError, setUploadError]         = useState('');
 
-  // ── Load meta on mount ───────────────────────────────────────────────────
+  // ── Load meta on mount with SWR caching ──────────────────────────────────
   useEffect(() => {
-    setMetaLoading(true);
-    api.get<MetaResponse>('/study/meta/')
-      .then(r => setMeta(r.data))
-      .catch(console.error)
-      .finally(() => setMetaLoading(false));
+    const isStale = !cachedMeta || Date.now() - cachedMetaTime > META_CACHE_TTL;
+    if (isStale) {
+      if (!cachedMeta) {
+        setMetaLoading(true);
+      }
+      api.get<MetaResponse>('/study/meta/')
+        .then(r => {
+          cachedMeta = r.data;
+          cachedMetaTime = Date.now();
+          setMeta(r.data);
+        })
+        .catch(console.error)
+        .finally(() => setMetaLoading(false));
+    }
   }, []);
 
   // ── Fetch resources for current selection ────────────────────────────────
   const fetchResources = useCallback(async () => {
-    setResLoading(true);
+    const effectiveType = activeCategory !== 'all' ? activeCategory : selType;
+    const cacheKey = `${selSemester}|${selBranch}|${selSubject}|${effectiveType}|${yearFilter}|${searchQuery.trim()}`;
+
+    // Instant render if cached
+    if (resourcesCache.has(cacheKey)) {
+      setResources(resourcesCache.get(cacheKey)!);
+      setResLoading(false);
+    } else {
+      setResLoading(true);
+    }
+
+    // Cancel previous request if still pending
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const params = new URLSearchParams();
       if (selSemester) params.append('semester', selSemester);
       if (selBranch)   params.append('department', selBranch);
       if (selSubject)  params.append('course', selSubject);
 
-      const effectiveType = activeCategory !== 'all' ? activeCategory : selType;
       if (effectiveType) params.append('type', effectiveType);
 
       if (yearFilter && yearFilter !== 'all') params.append('year', yearFilter);
       if (searchQuery.trim()) params.append('search', searchQuery.trim());
 
+      // Fetch with page_size=100 so all subject resources are loaded completely
+      params.append('page_size', '100');
+
       const res = await api.get<{ results: StudyResource[] } | StudyResource[]>(
-        `/study/?${params.toString()}`
+        `/study/?${params.toString()}`,
+        { signal: controller.signal }
       );
-      setResources(Array.isArray(res.data) ? res.data : res.data.results ?? []);
-    } catch (err) {
-      console.error(err);
+      const data = Array.isArray(res.data) ? res.data : res.data.results ?? [];
+      resourcesCache.set(cacheKey, data);
+      setResources(data);
+    } catch (err: any) {
+      if (err?.name !== 'CanceledError' && err?.code !== 'ERR_CANCELED') {
+        console.error(err);
+      }
     } finally {
-      setResLoading(false);
+      if (abortControllerRef.current === controller) {
+        setResLoading(false);
+      }
     }
   }, [selSemester, selBranch, selSubject, selType, activeCategory, yearFilter, searchQuery]);
 
   useEffect(() => {
-    if (level === 'resources' || searchMode) {
-      const t = setTimeout(fetchResources, 250);
+    if (searchMode) {
+      // Debounce only for live search keyboard input
+      const t = setTimeout(() => {
+        fetchResources();
+      }, 250);
       return () => clearTimeout(t);
+    } else if (level === 'resources') {
+      // Immediate execution (0ms) on subject / filter navigation!
+      fetchResources();
     }
   }, [level, searchMode, yearFilter, fetchResources]);
 
@@ -538,7 +589,15 @@ export const StudyResourcesPage: React.FC = () => {
     try {
       await api.post('/study/', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setUploadSuccess(true);
-      api.get<MetaResponse>('/study/meta/').then(r => setMeta(r.data)).catch(() => {});
+      // Invalidate client-side cache
+      cachedMeta = null;
+      cachedMetaTime = 0;
+      resourcesCache.clear();
+      api.get<MetaResponse>('/study/meta/').then(r => {
+        cachedMeta = r.data;
+        cachedMetaTime = Date.now();
+        setMeta(r.data);
+      }).catch(() => {});
       setTimeout(() => {
         setShowUploadModal(false);
         setUploadSuccess(false);
