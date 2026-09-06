@@ -14,6 +14,7 @@ import {
 import api from '../api/client';
 import { Event, Hostel } from '../types';
 import { EventCard } from '../components/EventCard';
+import { SIHHackathonFeatured } from '../components/SIHHackathonFeatured';
 import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
 
 export const EventsPage: React.FC = () => {
@@ -63,6 +64,15 @@ export const EventsPage: React.FC = () => {
         });
       }
 
+      // Guarantee SIH 2026 Hackathon is prioritized at the very top (index 0)
+      list.sort((a: Event, b: Event) => {
+        const isSIHA = (a.title || '').toLowerCase().includes('smart india hackathon') || (a.title || '').toLowerCase().includes('sih');
+        const isSIHB = (b.title || '').toLowerCase().includes('smart india hackathon') || (b.title || '').toLowerCase().includes('sih');
+        if (isSIHA && !isSIHB) return -1;
+        if (!isSIHA && isSIHB) return 1;
+        return 0;
+      });
+
       setEvents(list);
     } catch (err) {
       console.error(err);
@@ -84,6 +94,14 @@ export const EventsPage: React.FC = () => {
     { id: 'cultural', label: 'Cultural & DJ Nights', icon: Music },
     { id: 'tech', label: 'Tech & Hackathons', icon: Flame },
   ];
+
+  const isSIH = (e: Event) => {
+    const t = (e.title || '').toLowerCase();
+    return t.includes('smart india hackathon') || t.includes('sih');
+  };
+
+  const sihEvent = events.find(isSIH);
+  const otherEvents = events.filter((e) => !isSIH(e));
 
   return (
     <div className="space-y-6 text-xs">
@@ -214,10 +232,47 @@ export const EventsPage: React.FC = () => {
       {isLoading ? (
         <LoadingSkeleton count={6} />
       ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
+        <div className="space-y-6">
+          {/* 1. SIH 2026 Hackathon is prioritized at the VERY TOP */}
+          {sihEvent && (
+            <div className="space-y-2">
+              <SIHHackathonFeatured event={sihEvent} />
+            </div>
+          )}
+
+          {/* 2. Remaining Campus Gatherings */}
+          {otherEvents.length > 0 && (
+            <div className="space-y-4 pt-1">
+              {sihEvent && (
+                <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand-600" />
+                    <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">
+                      Campus Gatherings &amp; Tournaments
+                    </h3>
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-400">
+                    {otherEvents.length} {otherEvents.length === 1 ? 'event' : 'events'}
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {otherEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 3. When SIH is not matching active filters (e.g. sports filter) */}
+          {!sihEvent && events.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {events.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState

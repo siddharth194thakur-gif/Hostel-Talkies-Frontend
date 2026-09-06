@@ -48,8 +48,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
     }
   };
 
+  const isSIH = event.title.toLowerCase().includes('smart india hackathon') || event.title.toLowerCase().includes('sih');
+
   const getEventGradient = () => {
     const titleLower = event.title.toLowerCase();
+    if (titleLower.includes('smart india hackathon') || titleLower.includes('sih')) {
+      return { gradient: 'from-violet-600 via-indigo-700 to-slate-950', icon: Flame, tag: '🔥 SIH 2026 HACKATHON' };
+    }
     if (titleLower.includes('cricket') || titleLower.includes('football') || titleLower.includes('badminton') || titleLower.includes('tournament') || titleLower.includes('league') || titleLower.includes('sport')) {
       return { gradient: 'from-amber-500 via-orange-600 to-red-600', icon: Trophy, tag: 'SPORTS LEAGUE' };
     }
@@ -157,29 +162,65 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         </div>
       </div>
 
-      {/* Footer Share Action */}
-      <div className="px-5 sm:px-6 py-3.5 border-t border-slate-150 flex items-center justify-between gap-2 text-xs bg-slate-50/50">
-        <span className="text-[11px] text-slate-400 font-medium">
-          Free Entry for Students
-        </span>
+      {/* Footer Actions */}
+      <div className="px-5 sm:px-6 py-3.5 border-t border-slate-150 flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50/50">
+        {isSIH ? (
+          <div className="flex flex-wrap items-center gap-2 w-full justify-between">
+            <div className="flex items-center gap-2">
+              <a
+                href="/sih-2026-notice.jpg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold border border-slate-200 transition"
+              >
+                <span>View Notice</span>
+              </a>
 
-        <button
-          type="button"
-          onClick={handleShare}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-brand-50 text-slate-700 hover:text-brand-600 border border-slate-200/80 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-2xs cursor-pointer"
-        >
-          {copied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-emerald-600">Copied!</span>
-            </>
-          ) : (
-            <>
-              <Share2 className="w-3.5 h-3.5 text-slate-500" />
-              <span>Share Event</span>
-            </>
-          )}
-        </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="p-1.5 text-slate-500 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition"
+                title="Share Event"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            <a
+              href="https://forms.gle/YLZTDtHaQTDESos7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-black shadow-sm transition active:scale-95 cursor-pointer ml-auto"
+            >
+              <span>Register Now</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        ) : (
+          <>
+            <span className="text-[11px] text-slate-400 font-medium">
+              Free Entry for Students
+            </span>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-brand-50 text-slate-700 hover:text-brand-600 border border-slate-200/80 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-2xs cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-600">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Share Event</span>
+                </>
+              )}
+            </button>
+          </>
+        )}
       </div>
     </article>
   );
