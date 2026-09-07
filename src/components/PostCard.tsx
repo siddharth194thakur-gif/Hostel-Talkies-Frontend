@@ -328,7 +328,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
         <div className="p-4 sm:p-5 space-y-2.5">
           <div className="flex flex-wrap items-center gap-1.5">
             {getPostTypeBadge()}
-            {post.category_name && (
+            {!isMarketplacePost && post.category_name && (
               <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200/80 px-2 py-0.5 rounded-lg">
                 {post.category_name}
               </span>
@@ -338,11 +338,16 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
                 {post.condition.replace('_', ' ')}
               </span>
             )}
+            {isMarketplacePost && post.status && post.status !== 'available' && (
+              <span className="text-[10px] font-bold text-amber-700 uppercase bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-lg">
+                {post.status}
+              </span>
+            )}
           </div>
 
           <Link to={`/posts/${post.id}`} className="block group-hover:text-brand-600 transition-colors">
             <h3 className="text-sm sm:text-base font-extrabold text-slate-900 line-clamp-1 leading-snug">
-              {post.title}
+              {isMarketplacePost ? (post.category_name || post.title) : post.title}
             </h3>
           </Link>
 
@@ -359,10 +364,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
                 </span>
               ) : post.price && parseFloat(post.price) > 0 ? (
                 <span className="text-base font-black text-brand-700 tracking-tight">₹{post.price}</span>
-              ) : post.location ? (
+              ) : !isMarketplacePost && post.location ? (
                 <span className="text-xs text-slate-600 font-semibold truncate max-w-[170px]">📍 {post.location}</span>
               ) : (
-                <span className="text-xs text-slate-400 font-medium">Campus Community</span>
+                <span className="text-xs text-slate-400 font-medium">{isMarketplacePost ? 'Campus Deal' : 'Campus Community'}</span>
               )}
             </div>
 

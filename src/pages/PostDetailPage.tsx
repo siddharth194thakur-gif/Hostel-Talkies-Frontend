@@ -13,7 +13,6 @@ import {
   Handshake,
   Send,
   ArrowLeft,
-  ShieldAlert,
   User as UserIcon,
   Tag,
   Clock,
@@ -260,7 +259,7 @@ export const PostDetailPage: React.FC = () => {
                   <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{post.hostel_name || 'Campus Wide'}</span>
                   {post.block_name && <span>• {post.block_name}</span>}
-                  {post.location && <span>• Handover: {post.location}</span>}
+                  {!isMarketplacePost && post.location && <span>• Handover: {post.location}</span>}
                 </div>
               </div>
 
@@ -315,7 +314,7 @@ export const PostDetailPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               {getPostTypeBadge()}
-              {post.category_name && (
+              {!isMarketplacePost && post.category_name && (
                 <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
                   {post.category_name}
                 </span>
@@ -333,7 +332,7 @@ export const PostDetailPage: React.FC = () => {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
-              {post.title}
+              {isMarketplacePost ? (post.category_name || post.title) : post.title}
             </h1>
 
             <div className="flex items-center gap-3 text-slate-400 text-xs">
@@ -357,7 +356,7 @@ export const PostDetailPage: React.FC = () => {
                 <span className="text-2xl sm:text-3xl font-extrabold text-brand-600 tracking-tight">₹{post.price}</span>
                 <span className="block text-[10px] text-slate-400 font-medium">Negotiable directly</span>
               </div>
-            ) : post.location ? (
+            ) : !isMarketplacePost && post.location ? (
               <span className="text-xs font-medium text-slate-500">📍 {post.location}</span>
             ) : null}
           </div>
@@ -502,37 +501,8 @@ export const PostDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Comments Section / Safe Chat Notice for Marketplace */}
-      {isMarketplacePost ? (
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 bg-brand-50 text-brand-700 rounded-2xl border border-brand-100 shrink-0">
-                <ShieldAlert className="w-6 h-6 text-brand-600" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-                  Private Communication &amp; Safe Campus Deals
-                </h3>
-                <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
-                  To ensure student safety and protect resident privacy, public comments are disabled on marketplace listings. Interested students connect securely with the owner via private 1-on-1 chat.
-                </p>
-              </div>
-            </div>
-
-            {!isAuthor && (
-              <button
-                onClick={handleStartChat}
-                disabled={isStartingChat}
-                className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xs transition active:scale-95 text-xs cursor-pointer disabled:opacity-50"
-              >
-                <Handshake className="w-4 h-4" />
-                <span>{isStartingChat ? 'Connecting...' : "I'm Interested"}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
+      {/* Comments Section */}
+      {!isMarketplacePost && (
         <div id="comments" className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-brand-600" />

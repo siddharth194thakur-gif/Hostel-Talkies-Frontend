@@ -33,6 +33,7 @@ export const CreatePostPage: React.FC = () => {
   const [categoryId, setCategoryId] = useState('');
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('good');
+  const [statusField, setStatusField] = useState('available');
   const [locationField, setLocationField] = useState('');
   const [eventDate, setEventDate] = useState('');
 
@@ -87,9 +88,8 @@ export const CreatePostPage: React.FC = () => {
     setIsSubmitting(true);
     setError('');
 
-    // Marketplace validation
     if (isMarketplacePost && !categoryId) {
-      setError('Please select an approved category from the dropdown.');
+      setError('Please select a category from the dropdown.');
       setIsSubmitting(false);
       return;
     }
@@ -102,25 +102,32 @@ export const CreatePostPage: React.FC = () => {
 
     const formData = new FormData();
     formData.append('post_type', postType);
-    formData.append('title', title.trim());
-    formData.append('description', description.trim());
 
-    if (categoryId) {
+    if (isMarketplacePost) {
+      const selectedCat = categories.find((c) => String(c.id) === String(categoryId));
+      formData.append('title', selectedCat?.name || 'Marketplace Item');
       formData.append('category', categoryId);
-    }
-    
-    if (postType === 'buy_sell' && price) {
-      formData.append('price', price);
-    } else if (postType === 'giveaway') {
-      formData.append('price', '0.00');
-    }
-
-    if (condition) formData.append('condition', condition);
-    if (locationField.trim()) formData.append('location', locationField.trim());
-    if (eventDate) formData.append('event_date', eventDate);
-
-    // Only non-marketplace posts can upload public images
-    if (!isMarketplacePost) {
+      if (description.trim()) {
+        formData.append('description', description.trim());
+      }
+      if (postType === 'buy_sell' && price) {
+        formData.append('price', price);
+      } else if (postType === 'giveaway') {
+        formData.append('price', '0.00');
+      }
+      if (condition) formData.append('condition', condition);
+      if (statusField) formData.append('status', statusField);
+    } else {
+      if (!title.trim()) {
+        setError('Please enter a post title.');
+        setIsSubmitting(false);
+        return;
+      }
+      formData.append('title', title.trim());
+      formData.append('description', description.trim());
+      if (categoryId) formData.append('category', categoryId);
+      if (locationField.trim()) formData.append('location', locationField.trim());
+      if (eventDate) formData.append('event_date', eventDate);
       images.forEach((img) => {
         formData.append('uploaded_images', img);
       });
@@ -210,190 +217,205 @@ export const CreatePostPage: React.FC = () => {
 
       {/* Form Details */}
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-subtle space-y-5">
-        {/* Title */}
-        <div>
-          <label className="block font-semibold text-slate-700 mb-1.5">
-            {isMarketplacePost ? 'Item Title *' : 'Post Title *'}
-          </label>
-          <input
-            type="text"
-            required
-            maxLength={200}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={
-              postType === 'buy_sell'
-                ? 'e.g. Hero Sprint 21-Speed Bicycle with Helmet'
-                : postType === 'lost'
-                ? 'e.g. Lost Blue Boat Rockerz 450 in Central Library'
-                : postType === 'giveaway'
-                ? 'e.g. Wooden Study Desk available for free pick-up'
-                : postType === 'borrow'
-                ? 'e.g. Scientific Calculator Casio fx-991EX needed for exam'
-                : 'e.g. Roommate needed for Aryabhata Block A1'
-            }
-            className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium placeholder:text-slate-400"
-          />
-        </div>
+        {/* Marketplace Form Fields */}
+        {isMarketplacePost ? (
+          <div className="space-y-4">
+            {/* Category & Price */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1.5">Category *</label>
+                <select
+                  value={categoryId}
+                  required
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium"
+                >
+                  <option value="">-- Select Category --</option>
+                  {relevantCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Category & Price / Location */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block font-semibold text-slate-700 mb-1.5">
-              Category {isMarketplacePost ? '*' : '(Optional)'}
-            </label>
-            <select
-              value={categoryId}
-              required={isMarketplacePost}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
-            >
-              <option value="">-- Choose Approved Category --</option>
-              {relevantCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {postType === 'buy_sell' ? (
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1.5">Price (₹) *</label>
-              <input
-                type="number"
-                required
-                min="0"
-                step="1"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="₹ e.g. 1500"
-                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-bold"
-              />
+              {postType === 'buy_sell' ? (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1.5">Price (₹) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="1"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="₹ e.g. 2500"
+                    className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-bold"
+                  />
+                </div>
+              ) : postType === 'giveaway' ? (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1.5">Price</label>
+                  <div className="px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-extrabold text-xs">
+                    🎁 FREE GIVEAWAY
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1.5">Deal Type</label>
+                  <div className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-semibold text-xs">
+                    Exchange / Barter
+                  </div>
+                </div>
+              )}
             </div>
-          ) : postType === 'giveaway' ? (
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1.5">Price</label>
-              <div className="px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-extrabold text-xs">
-                FREE GIVEAWAY
+
+            {/* Condition & Availability */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1.5">Condition *</label>
+                <select
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+                >
+                  <option value="new">Brand New</option>
+                  <option value="like_new">Like New</option>
+                  <option value="good">Good Condition</option>
+                  <option value="used">Used / Fair</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1.5">Availability *</label>
+                <select
+                  value={statusField}
+                  onChange={(e) => setStatusField(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium"
+                >
+                  <option value="available">Available</option>
+                  <option value="sold">Sold / Taken</option>
+                  <option value="closed">Closed</option>
+                </select>
               </div>
             </div>
-          ) : (
+
+            {/* Short Description */}
             <div>
-              <label className="block font-semibold text-slate-700 mb-1.5">Location / Hostel Landmark</label>
-              <input
-                type="text"
-                value={locationField}
-                onChange={(e) => setLocationField(e.target.value)}
-                placeholder="e.g. Mess 2, Block A Ground Floor"
-                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs"
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block font-semibold text-slate-700">Short Description (Optional)</label>
+                <span className={`text-[11px] ${description.length > 1000 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
+                  {description.length} / 1000
+                </span>
+              </div>
+              <textarea
+                rows={3}
+                maxLength={1000}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add brief details about the item (e.g. model, size, accessories included)..."
+                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
               />
-            </div>
-          )}
-        </div>
-
-        {/* Condition & Handover Spot (For marketplace & physical items) */}
-        {isMarketplacePost && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1.5">Item Condition *</label>
-              <select
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs"
-              >
-                <option value="new">Brand New (Unused)</option>
-                <option value="like_new">Like New (Barely used, mint condition)</option>
-                <option value="good">Good (Fully functional, minor wear)</option>
-                <option value="used">Used / Fair</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1.5">Pick-up / Handover Spot</label>
-              <input
-                type="text"
-                value={locationField}
-                onChange={(e) => setLocationField(e.target.value)}
-                placeholder="e.g. Near Hostel Common Room / Gate"
-                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Description */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block font-semibold text-slate-700">Description *</label>
-            <span className={`text-[11px] ${description.length > 1000 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
-              {description.length} / 1000 characters
-            </span>
-          </div>
-          <textarea
-            rows={4}
-            required
-            maxLength={1000}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={
-              isMarketplacePost
-                ? 'Describe item details, condition, purchase age, or reason for selling/giving away...'
-                : 'Provide details about your query, lost item, or announcement...'
-            }
-            className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
-          />
-          <p className="text-[10px] text-slate-400 mt-1">
-            🔒 To maintain privacy, do not publish private phone numbers, bank details, or passwords publicly.
-          </p>
-        </div>
-
-        {/* Photos Section: Safety Notice for Marketplace / Upload for others */}
-        {isMarketplacePost ? (
-          <div className="p-4 bg-slate-50/80 border border-slate-200/90 rounded-2xl flex items-start gap-3.5 animate-in fade-in">
-            <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-xl shrink-0 mt-0.5 border border-emerald-200/80">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <span>Public Photos Disabled for Marketplace Safety</span>
-              </h4>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Public photo uploads are disabled for marketplace items to prevent spam and protect hostel resident privacy. Interested students will contact you via the private <strong>&ldquo;I&rsquo;m Interested&rdquo;</strong> button, where you can securely exchange photos in 1-on-1 private chat.
-              </p>
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            <label className="block font-semibold text-slate-700">Upload Photos (Optional)</label>
-            
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-              {imagePreviews.map((preview, index) => (
-                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 group">
-                  <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 p-1 bg-slate-900/80 text-white rounded-full hover:bg-red-600 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
+          /* Non-Marketplace Form Fields (Lost, Found, Roommate, General) */
+          <div className="space-y-4">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1.5">Post Title *</label>
+              <input
+                type="text"
+                required
+                maxLength={200}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={
+                  postType === 'lost'
+                    ? 'e.g. Lost Blue Boat Rockerz 450 in Central Library'
+                    : 'e.g. Roommate needed for Aryabhata Block A1'
+                }
+                className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium placeholder:text-slate-400"
+              />
+            </div>
 
-              {images.length < 5 && (
-                <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 hover:border-brand-400 bg-slate-50 hover:bg-brand-50/40 flex flex-col items-center justify-center cursor-pointer transition text-slate-400 hover:text-brand-600">
-                  <ImageIcon className="w-5 h-5 mb-1" />
-                  <span className="text-[10px] font-semibold">Add Photo</span>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1.5">Category (Optional)</label>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+                >
+                  <option value="">-- Choose Category --</option>
+                  {relevantCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1.5">Hostel Landmark</label>
+                <input
+                  type="text"
+                  value={locationField}
+                  onChange={(e) => setLocationField(e.target.value)}
+                  placeholder="e.g. Mess 2, Block A Ground Floor"
+                  className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block font-semibold text-slate-700">Description *</label>
+                <span className={`text-[11px] ${description.length > 1000 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
+                  {description.length} / 1000
+                </span>
+              </div>
+              <textarea
+                rows={4}
+                required
+                maxLength={1000}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Provide details about your query, lost item, or announcement..."
+                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="block font-semibold text-slate-700">Upload Photos (Optional)</label>
+              
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 group">
+                    <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 p-1 bg-slate-900/80 text-white rounded-full hover:bg-red-600 transition"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+
+                {images.length < 5 && (
+                  <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 hover:border-brand-400 bg-slate-50 hover:bg-brand-50/40 flex flex-col items-center justify-center cursor-pointer transition text-slate-400 hover:text-brand-600">
+                    <ImageIcon className="w-5 h-5 mb-1" />
+                    <span className="text-[10px] font-semibold">Add Photo</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
             </div>
           </div>
         )}
