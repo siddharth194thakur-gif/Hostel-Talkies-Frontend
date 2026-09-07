@@ -48,6 +48,11 @@ export const PostDetailPage: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStartingChat, setIsStartingChat] = useState(false);
+
+  const isMarketplacePost = post
+    ? ['buy_sell', 'giveaway', 'exchange', 'borrow', 'lend'].includes(post.post_type)
+    : false;
 
   const fetchPost = async () => {
     try {
@@ -199,15 +204,18 @@ export const PostDetailPage: React.FC = () => {
       navigate('/login');
       return;
     }
+    setIsStartingChat(true);
     try {
       const res = await api.post('/messages/start/', {
         recipient_id: post.author,
         post_id: post.id,
-        message: `Hi! I saw your post "${post.title}". Is it still available?`,
+        message: `Hi! I'm interested in your listing "${post.title}". Is it still available?`,
       });
       navigate(`/messages/${res.data.id}`);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsStartingChat(false);
     }
   };
 
@@ -226,8 +234,55 @@ export const PostDetailPage: React.FC = () => {
 
       {/* Main Post Card */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden space-y-6 p-6 sm:p-8">
-        {/* Images gallery */}
-        {post.images && post.images.length > 0 && (
+        {/* Structured Safe Hero Banner for Marketplace / Media Gallery for others */}
+        {isMarketplacePost ? (
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-40 h-40 bg-brand-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 bg-white/10 backdrop-blur-xs text-[11px] font-bold rounded-xl border border-white/15 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-brand-300" />
+                    <span>{post.category_name || 'Marketplace Item'}</span>
+                  </span>
+                  {post.condition && post.condition !== 'na' && (
+                    <span className="px-3 py-1 bg-brand-500/20 text-brand-300 border border-brand-400/30 text-[11px] font-semibold rounded-xl uppercase tracking-wider">
+                      Condition: {post.condition.replace('_', ' ')}
+                    </span>
+                  )}
+                  {post.status && post.status !== 'available' && (
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[11px] font-bold rounded-xl uppercase tracking-wider">
+                      {post.status.toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-300 pt-1">
+                  <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span>{post.hostel_name || 'Campus Wide'}</span>
+                  {post.block_name && <span>• {post.block_name}</span>}
+                  {post.location && <span>• Handover: {post.location}</span>}
+                </div>
+              </div>
+
+              <div className="shrink-0">
+                {post.post_type === 'giveaway' ? (
+                  <span className="px-4 py-2 bg-emerald-500 text-white text-base font-black uppercase tracking-wider rounded-2xl shadow-sm inline-block">
+                    🎁 FREE GIVEAWAY
+                  </span>
+                ) : post.price && parseFloat(post.price) > 0 ? (
+                  <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 text-right">
+                    <span className="text-2xl sm:text-3xl font-black text-emerald-300 tracking-tight">₹{post.price}</span>
+                    <span className="block text-[10px] text-slate-300 font-medium">Campus Negotiable</span>
+                  </div>
+                ) : (
+                  <span className="px-4 py-2 bg-white/15 text-white text-xs font-bold uppercase rounded-2xl border border-white/20 inline-block">
+                    Exchange / Barter
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : post.images && post.images.length > 0 ? (
           <div className="space-y-3">
             <div className="aspect-video bg-slate-900/5 rounded-2xl overflow-hidden relative border border-slate-100 flex items-center justify-center">
               <img
@@ -253,7 +308,7 @@ export const PostDetailPage: React.FC = () => {
               </div>
             )}
           </div>
-        )}
+        ) : null}
 
         {/* Post Metadata & Details */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pt-2">
@@ -371,10 +426,17 @@ export const PostDetailPage: React.FC = () => {
 
               <button
                 onClick={handleStartChat}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm hover:shadow-badge transition active:scale-95 text-xs"
+                disabled={isStartingChat}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm hover:shadow-badge transition active:scale-95 text-xs cursor-pointer disabled:opacity-50"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Chat with Resident</span>
+                {isMarketplacePost ? <Handshake className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                <span>
+                  {isStartingChat
+                    ? 'Connecting...'
+                    : isMarketplacePost
+                    ? "I'm Interested (Chat Privately)"
+                    : 'Chat with Resident'}
+                </span>
               </button>
             </div>
           )}
@@ -440,77 +502,108 @@ export const PostDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Comments Section */}
-      <div id="comments" className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center gap-2">
-          <MessageCircle className="w-5 h-5 text-brand-600" />
-          <h3 className="font-bold text-slate-900 text-base">
-            Community Comments ({post.comments?.length || 0})
-          </h3>
+      {/* Comments Section / Safe Chat Notice for Marketplace */}
+      {isMarketplacePost ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 bg-brand-50 text-brand-700 rounded-2xl border border-brand-100 shrink-0">
+                <ShieldAlert className="w-6 h-6 text-brand-600" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                  Private Communication &amp; Safe Campus Deals
+                </h3>
+                <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
+                  To ensure student safety and protect resident privacy, public comments are disabled on marketplace listings. Interested students connect securely with the owner via private 1-on-1 chat.
+                </p>
+              </div>
+            </div>
+
+            {!isAuthor && (
+              <button
+                onClick={handleStartChat}
+                disabled={isStartingChat}
+                className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xs transition active:scale-95 text-xs cursor-pointer disabled:opacity-50"
+              >
+                <Handshake className="w-4 h-4" />
+                <span>{isStartingChat ? 'Connecting...' : "I'm Interested"}</span>
+              </button>
+            )}
+          </div>
         </div>
+      ) : (
+        <div id="comments" className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-brand-600" />
+            <h3 className="font-bold text-slate-900 text-base">
+              Community Comments ({post.comments?.length || 0})
+            </h3>
+          </div>
 
-        {/* Comment Input */}
-        <form onSubmit={handleAddComment} className="flex items-center gap-2">
-          <input
-            type="text"
-            required
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Write a public question or comment..."
-            className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-900 focus:bg-white focus:border-brand-500 outline-none"
-          />
-          <button
-            type="submit"
-            disabled={!commentText.trim() || isSubmittingComment}
-            className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-full transition active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>Post</span>
-          </button>
-        </form>
+          {/* Comment Input */}
+          <form onSubmit={handleAddComment} className="flex items-center gap-2">
+            <input
+              type="text"
+              required
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a public question or comment..."
+              className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-900 focus:bg-white focus:border-brand-500 outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!commentText.trim() || isSubmittingComment}
+              className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-full transition active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Post</span>
+            </button>
+          </form>
 
-        {/* Comments List */}
-        <div className="space-y-3 divide-y divide-slate-100">
-          {post.comments && post.comments.length > 0 ? (
-            post.comments.map((comment) => {
-              const isCommentAuthor = user?.id === comment.author;
-              return (
-                <div key={comment.id} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
-                      {comment.author_detail?.full_name?.[0] || 'U'}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-slate-900 text-xs">
-                          {comment.author_detail?.full_name || comment.author_detail?.username}
-                        </span>
-                        <GenderIcon gender={comment.author_detail?.profile?.gender} />
-                        <span className="text-[10px] text-slate-400">
-                          • {new Date(comment.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                        </span>
+          {/* Comments List */}
+          <div className="space-y-3 divide-y divide-slate-100">
+            {post.comments && post.comments.length > 0 ? (
+              post.comments.map((comment) => {
+                const isCommentAuthor = user?.id === comment.author;
+                return (
+                  <div key={comment.id} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                        {comment.author_detail?.full_name?.[0] || 'U'}
                       </div>
-                      <p className="text-xs text-slate-700 mt-1 leading-relaxed">{comment.content}</p>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-900 text-xs">
+                            {comment.author_detail?.full_name || comment.author_detail?.username}
+                          </span>
+                          <GenderIcon gender={comment.author_detail?.profile?.gender} />
+                          <span className="text-[10px] text-slate-400">
+                            • {new Date(comment.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-700 mt-1 leading-relaxed">{comment.content}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  {(isCommentAuthor || isAdmin) && (
-                    <button
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="p-1 text-slate-300 hover:text-rose-600 transition"
-                      title="Delete comment"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-center text-xs text-slate-400 py-4">No comments yet. Be the first to comment!</p>
-          )}
+                    {(isCommentAuthor || isAdmin) && (
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="p-1 text-slate-300 hover:text-rose-600 transition"
+                        title="Delete comment"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-center text-xs text-slate-400 py-4">No comments yet. Be the first to comment!</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Modals */}
       {showReportModal && (

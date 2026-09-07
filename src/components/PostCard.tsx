@@ -14,6 +14,7 @@ import {
   ArrowRight,
   Handshake,
   HelpCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import { Post } from '../types';
 import api, { getMediaUrl } from '../api/client';
@@ -40,8 +41,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const [isStartingChat, setIsStartingChat] = useState(false);
+
   const isAuthor = user?.id === post.author;
   const isAdmin = user?.is_staff || user?.is_hostel_admin;
+  const isMarketplacePost = ['buy_sell', 'giveaway', 'exchange', 'borrow', 'lend'].includes(post.post_type);
 
   // Close menu on click outside
   useEffect(() => {
@@ -54,6 +58,29 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showMenu]);
+
+  const handleInterestedClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setIsStartingChat(true);
+    try {
+      const res = await api.post('/messages/start/', {
+        recipient_id: post.author,
+        post_id: post.id,
+        message: `Hi! I'm interested in your listing "${post.title}". Is it still available?`,
+      });
+      navigate(`/messages/${res.data.id}`);
+    } catch (err: any) {
+      console.error('Failed to start chat', err);
+      navigate(`/posts/${post.id}`);
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   const handleToggleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -219,8 +246,49 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
           </div>
         </div>
 
-        {/* Post Image Carousel / Banner if present */}
-        {post.images && post.images.length > 0 ? (
+        {/* Post Banner: Structured safe card for marketplace / Media for others */}
+        {isMarketplacePost ? (
+          <Link
+            to={`/posts/${post.id}`}
+            className="block p-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative overflow-hidden group/banner"
+          >
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-brand-500/15 rounded-full blur-xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col justify-between h-24">
+              <div className="flex items-center justify-between gap-2">
+                <span className="px-2.5 py-1 bg-white/10 backdrop-blur-xs text-[10px] font-bold rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1">
+                  <Tag className="w-3 h-3 text-brand-300" />
+                  <span>{post.category_name || 'Marketplace'}</span>
+                </span>
+                {post.post_type === 'giveaway' ? (
+                  <span className="px-2.5 py-0.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-xs">
+                    🎁 FREE
+                  </span>
+                ) : post.price && parseFloat(post.price) > 0 ? (
+                  <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-black rounded-lg">
+                    ₹{post.price}
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 bg-white/15 text-slate-200 text-[10px] font-semibold rounded-lg">
+                    Trade / Barter
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-300 pt-2 border-t border-white/10">
+                <span className="flex items-center gap-1 font-medium truncate">
+                  <Building className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>{post.hostel_name || 'Hostel Campus'}</span>
+                  {post.block_name && <span>• {post.block_name}</span>}
+                </span>
+                {post.condition && post.condition !== 'na' && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-300 bg-brand-950/60 px-2 py-0.5 rounded border border-brand-500/30 shrink-0">
+                    {post.condition.replace('_', ' ')}
+                  </span>
+                )}
+              </div>
+            </div>
+          </Link>
+        ) : post.images && post.images.length > 0 ? (
           <Link to={`/posts/${post.id}`} className="block relative aspect-video bg-slate-50 overflow-hidden">
             <img
               src={getMediaUrl(post.images[0].image)}
@@ -232,19 +300,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
                 +{post.images.length - 1} photos
               </span>
             )}
-            {/* Overlay Price / Deal Sticker */}
-            {post.post_type === 'giveaway' ? (
-              <span className="absolute top-2.5 left-2.5 px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider rounded-xl shadow-md">
-                🎁 FREE GIVEAWAY
-              </span>
-            ) : post.price && parseFloat(post.price) > 0 ? (
-              <span className="absolute top-2.5 left-2.5 px-3 py-1 bg-slate-950/85 backdrop-blur-md text-white text-xs font-black rounded-xl shadow-md border border-white/20">
-                ₹{post.price}
-              </span>
-            ) : null}
           </Link>
         ) : (
-          /* High-End Marketplace Fallback Banner for posts without photos */
+          /* Fallback Banner for non-marketplace posts without photos */
           <Link
             to={`/posts/${post.id}`}
             className="block h-28 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 p-4 relative overflow-hidden text-white"
@@ -255,21 +313,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
             </span>
 
             <div className="relative z-10 h-full flex flex-col justify-between">
-              <div>
-                {post.post_type === 'giveaway' ? (
-                  <span className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider rounded-xl shadow-xs">
-                    🎁 FREE GIVEAWAY
-                  </span>
-                ) : post.price && parseFloat(post.price) > 0 ? (
-                  <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-black rounded-xl shadow-xs border border-white/30">
-                    ₹{post.price}
-                  </span>
-                ) : (
-                  <span className="px-2.5 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase rounded-xl border border-white/20">
-                    {post.category_name || 'Item'}
-                  </span>
-                )}
-              </div>
+              <span className="px-2.5 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase rounded-xl border border-white/20 w-fit">
+                {post.category_name || 'Community'}
+              </span>
 
               <span className="text-[11px] text-white/90 font-medium truncate">
                 {post.hostel_name ? `🏛️ ${post.hostel_name}` : 'Campus Listing'}
@@ -340,13 +386,15 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
             <span>{likesCount}</span>
           </button>
 
-          <Link
-            to={`/posts/${post.id}#comments`}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-brand-600 transition-all hover:scale-105"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>{post.comments_count || 0}</span>
-          </Link>
+          {!isMarketplacePost && (
+            <Link
+              to={`/posts/${post.id}#comments`}
+              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-brand-600 transition-all hover:scale-105"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>{post.comments_count || 0}</span>
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -360,13 +408,34 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
             <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-brand-600' : ''}`} />
           </button>
 
-          <Link
-            to={`/posts/${post.id}`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition text-xs btn-3d-brand cursor-pointer shadow-xs"
-          >
-            <span>View Deal</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          {isMarketplacePost ? (
+            isAuthor ? (
+              <Link
+                to={`/posts/${post.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition text-xs cursor-pointer border border-slate-200/80"
+              >
+                <span>Your Listing</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={handleInterestedClick}
+                disabled={isStartingChat}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition text-xs btn-3d-brand cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <Handshake className="w-3.5 h-3.5" />
+                <span>{isStartingChat ? 'Connecting...' : "I'm Interested"}</span>
+              </button>
+            )
+          ) : (
+            <Link
+              to={`/posts/${post.id}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition text-xs btn-3d-brand cursor-pointer shadow-xs"
+            >
+              <span>View Deal</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          )}
         </div>
       </div>
 

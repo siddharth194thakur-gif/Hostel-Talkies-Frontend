@@ -231,7 +231,6 @@ export const ExplorePage: React.FC = () => {
             <option value="roommate">Roommate Search</option>
             <option value="study">Study Talk</option>
             <option value="general">General</option>
-            <option value="others">Others</option>
           </select>
 
           {/* Category Dropdown */}
