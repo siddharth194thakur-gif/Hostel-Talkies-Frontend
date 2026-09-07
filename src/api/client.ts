@@ -36,6 +36,7 @@ export const getMediaUrl = (url: string | null | undefined): string | undefined 
 
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
+  timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
   },
