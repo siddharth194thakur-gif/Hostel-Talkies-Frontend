@@ -280,7 +280,7 @@ const resourcesCache = new Map<string, StudyResource[]>();
 
 export const StudyResourcesPage: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = Boolean(user?.is_staff || user?.is_superuser || user?.is_hostel_admin);
+  const isAdmin = Boolean(user && (user.is_staff || user.is_superuser));
 
   // Meta / hierarchy (instant load if already in memory)
   const [meta, setMeta]               = useState<MetaResponse | null>(() => cachedMeta);
