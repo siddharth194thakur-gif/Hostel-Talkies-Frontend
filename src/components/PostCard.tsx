@@ -437,7 +437,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated, onPostD
               to={`/posts/${post.id}`}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition text-xs btn-3d-brand cursor-pointer shadow-xs"
             >
-              <span>View Deal</span>
+              <span>{isMarketplacePost ? 'View Deal' : 'View Details'}</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </Link>
           )}
