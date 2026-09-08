@@ -5,7 +5,6 @@ import {
   Upload,
   FileText,
   CheckCircle2,
-  ShieldCheck,
   BookOpen,
   Layers,
   X,
@@ -643,13 +642,9 @@ export const StudyResourcesPage: React.FC = () => {
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-brand-500/20 text-brand-300 rounded-full border border-brand-400/30 flex items-center gap-1.5 shadow-2xs">
                 <GraduationCap className="w-3.5 h-3.5 text-brand-400" />
-                VBSPU Study Vault &amp; PYQ Hub
-              </span>
-              <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/30 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                120 VbspuEDU Archive Preserved
+                HOSTELTALKIES • STUDY RESOURCES
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
@@ -877,7 +872,7 @@ export const StudyResourcesPage: React.FC = () => {
                     key={sem}
                     label={sem}
                     sub={subText}
-                    badge={isPyqMode ? 'PYQ Hub' : undefined}
+                    badge={isPyqMode ? 'PYQs' : undefined}
                     icon={Calendar}
                     iconBg={isPyqMode ? 'from-purple-600 to-indigo-700' : 'from-brand-500 to-indigo-600'}
                     onClick={() => { setSelSemester(sem); setLevel('branch'); }}
@@ -983,7 +978,7 @@ export const StudyResourcesPage: React.FC = () => {
                 const units = node?.units ?? [];
                 const subDesc = units.length > 0
                   ? `${units.length} Unit${units.length !== 1 ? 's' : ''} (${units.join(', ')})`
-                  : 'Available in Vault';
+                  : 'Available Resources';
 
                 return (
                   <SelectTile
