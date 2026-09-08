@@ -63,6 +63,7 @@ export const CreatePostPage: React.FC = () => {
   const [marketplaceStatus, setMarketplaceStatus] = useState('available');
 
   // 2. Roommate State
+  const [roommateCatId, setRoommateCatId] = useState('');
   const [roommateLookingFor, setRoommateLookingFor] = useState<'roommate_needed' | 'seeking_room'>('roommate_needed');
   const [roommateAccommodation, setRoommateAccommodation] = useState<'double' | 'single' | 'triple' | 'any'>('double');
   const [roommateLocationPref, setRoommateLocationPref] = useState('Same Hostel as me');
@@ -88,19 +89,34 @@ export const CreatePostPage: React.FC = () => {
   const [generalTitle, setGeneralTitle] = useState('');
   const [generalContent, setGeneralContent] = useState('');
 
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
   const isMarketplacePost = ['buy_sell', 'giveaway', 'exchange', 'borrow'].includes(postType);
 
+  // Dynamic fetch whenever postType changes so only relevant categories load
   useEffect(() => {
+    let isMounted = true;
     const fetchCategories = async () => {
+      setIsLoadingCategories(true);
       try {
-        const res = await api.get<{ results: Category[] } | Category[]>('/posts/categories/');
-        setCategories(Array.isArray(res.data) ? res.data : res.data.results || []);
+        const res = await api.get<{ results: Category[] } | Category[]>(`/posts/categories/?post_type=${postType}`);
+        if (isMounted) {
+          const list = Array.isArray(res.data) ? res.data : (res.data as any)?.results || [];
+          setCategories(list);
+        }
       } catch (err) {
         console.error('Failed to fetch categories:', err);
+      } finally {
+        if (isMounted) {
+          setIsLoadingCategories(false);
+        }
       }
     };
     fetchCategories();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [postType]);
 
   // Category switching with clean state purge
   const handlePostTypeChange = (newType: PostType) => {
@@ -113,6 +129,7 @@ export const CreatePostPage: React.FC = () => {
     setCondition('good');
     setMarketplaceStatus('available');
 
+    setRoommateCatId('');
     setRoommateLookingFor('roommate_needed');
     setRoommateAccommodation('double');
     setRoommateLocationPref('Same Hostel as me');
@@ -155,8 +172,20 @@ export const CreatePostPage: React.FC = () => {
     if (postType === 'general') {
       return c.post_type === 'general';
     }
-    return false;
+    return true;
   });
+
+  // Auto-select category if there is only one relevant category available
+  useEffect(() => {
+    if (relevantCategories.length === 1) {
+      const onlyCatId = String(relevantCategories[0].id);
+      if (isMarketplacePost && !marketplaceCatId) setMarketplaceCatId(onlyCatId);
+      if (postType === 'roommate' && !roommateCatId) setRoommateCatId(onlyCatId);
+      if (postType === 'lost' && !lostCategory) setLostCategory(onlyCatId);
+      if (postType === 'found' && !foundCategory) setFoundCategory(onlyCatId);
+      if (postType === 'general' && !generalCatId) setGeneralCatId(onlyCatId);
+    }
+  }, [relevantCategories, postType, isMarketplacePost, marketplaceCatId, roommateCatId, lostCategory, foundCategory, generalCatId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,17 +219,26 @@ export const CreatePostPage: React.FC = () => {
 
       // ── Roommate Submission ───────────────────────────────────────────────
       else if (postType === 'roommate') {
+        let catIdToUse = roommateCatId;
+        if (!catIdToUse) {
+          const roommateCat = categories.find((c) => c.post_type === 'roommate');
+          if (roommateCat) {
+            catIdToUse = String(roommateCat.id);
+          }
+        }
+        if (!catIdToUse) {
+          setError('Please select a category for your roommate requirement.');
+          setIsSubmitting(false);
+          return;
+        }
+
         const lookingLabel = roommateLookingFor === 'roommate_needed' ? 'Roommate Needed' : 'Seeking Accommodation';
         const accomLabel =
           roommateAccommodation === 'single' ? 'Single Room' :
           roommateAccommodation === 'double' ? 'Double Sharing' :
           roommateAccommodation === 'triple' ? 'Triple Sharing' : 'Any Sharing';
 
-        const roommateCat = categories.find((c) => c.post_type === 'roommate' || c.slug.includes('roommate'));
-        if (roommateCat) {
-          payload.category = roommateCat.id;
-        }
-
+        payload.category = parseInt(catIdToUse);
         payload.title = `${lookingLabel} - ${accomLabel}`;
         payload.condition = 'na';
         payload.status = 'available';
@@ -219,6 +257,11 @@ export const CreatePostPage: React.FC = () => {
 
       // ── Lost Item Submission ──────────────────────────────────────────────
       else if (postType === 'lost') {
+        if (!lostCategory) {
+          setError('Please select an item category.');
+          setIsSubmitting(false);
+          return;
+        }
         if (!lostLocation) {
           setError('Please select the campus location where the item was lost.');
           setIsSubmitting(false);
@@ -228,8 +271,8 @@ export const CreatePostPage: React.FC = () => {
         const selectedCat = categories.find((c) => String(c.id) === String(lostCategory));
         const itemTitle = lostItemName.trim() || (selectedCat ? selectedCat.name : 'Lost Item');
 
+        payload.category = parseInt(lostCategory);
         payload.title = `Lost: ${itemTitle}`;
-        if (lostCategory) payload.category = parseInt(lostCategory);
         payload.location = lostLocation;
         payload.event_date = lostDate;
         payload.status = lostStatus;
@@ -239,6 +282,11 @@ export const CreatePostPage: React.FC = () => {
 
       // ── Found Item Submission ─────────────────────────────────────────────
       else if (postType === 'found') {
+        if (!foundCategory) {
+          setError('Please select an item category.');
+          setIsSubmitting(false);
+          return;
+        }
         if (!foundLocation) {
           setError('Please select the campus location where the item was found.');
           setIsSubmitting(false);
@@ -248,8 +296,8 @@ export const CreatePostPage: React.FC = () => {
         const selectedCat = categories.find((c) => String(c.id) === String(foundCategory));
         const itemTitle = foundItemName.trim() || (selectedCat ? selectedCat.name : 'Found Item');
 
+        payload.category = parseInt(foundCategory);
         payload.title = `Found: ${itemTitle}`;
-        if (foundCategory) payload.category = parseInt(foundCategory);
         payload.location = foundLocation;
         payload.event_date = foundDate;
         payload.status = foundStatus;
@@ -365,10 +413,11 @@ export const CreatePostPage: React.FC = () => {
                 <select
                   value={marketplaceCatId}
                   required
+                  disabled={isLoadingCategories}
                   onChange={(e) => setMarketplaceCatId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium disabled:opacity-50"
                 >
-                  <option value="">-- Select Category --</option>
+                  <option value="">{isLoadingCategories ? '-- Loading Categories... --' : '-- Select Category --'}</option>
                   {relevantCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -445,6 +494,25 @@ export const CreatePostPage: React.FC = () => {
         {/* ════════════════════════════════════════════════════════════════════ */}
         {postType === 'roommate' && (
           <div className="space-y-5 animate-in fade-in duration-150">
+            {/* Category selection */}
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1.5">Category *</label>
+              <select
+                value={roommateCatId}
+                required
+                disabled={isLoadingCategories}
+                onChange={(e) => setRoommateCatId(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium disabled:opacity-50"
+              >
+                <option value="">{isLoadingCategories ? '-- Loading Categories... --' : '-- Select Category --'}</option>
+                {relevantCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Looking For */}
             <div>
               <label className="block font-semibold text-slate-700 mb-2">Looking For *</label>
@@ -560,13 +628,15 @@ export const CreatePostPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1.5">Item Category</label>
+                <label className="block font-semibold text-slate-700 mb-1.5">Item Category *</label>
                 <select
                   value={lostCategory}
+                  required
+                  disabled={isLoadingCategories}
                   onChange={(e) => setLostCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium disabled:opacity-50"
                 >
-                  <option value="">-- Select Category --</option>
+                  <option value="">{isLoadingCategories ? '-- Loading Categories... --' : '-- Select Category --'}</option>
                   {relevantCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -646,13 +716,15 @@ export const CreatePostPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1.5">Item Category</label>
+                <label className="block font-semibold text-slate-700 mb-1.5">Item Category *</label>
                 <select
                   value={foundCategory}
+                  required
+                  disabled={isLoadingCategories}
                   onChange={(e) => setFoundCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer font-medium disabled:opacity-50"
                 >
-                  <option value="">-- Select Category --</option>
+                  <option value="">{isLoadingCategories ? '-- Loading Categories... --' : '-- Select Category --'}</option>
                   {relevantCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -737,10 +809,11 @@ export const CreatePostPage: React.FC = () => {
                 <label className="block font-semibold text-slate-700 mb-1.5">Topic / Category</label>
                 <select
                   value={generalCatId}
+                  disabled={isLoadingCategories}
                   onChange={(e) => setGeneralCatId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-800 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs cursor-pointer disabled:opacity-50"
                 >
-                  <option value="">-- Select Topic --</option>
+                  <option value="">{isLoadingCategories ? '-- Loading Categories... --' : '-- Select Topic --'}</option>
                   {relevantCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
