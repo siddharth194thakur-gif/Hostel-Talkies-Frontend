@@ -114,12 +114,23 @@ export const RegisterPage: React.FC = () => {
   // Fetch available Hostels dynamically from database on mount
   const [hostelsError, setHostelsError] = useState('');
 
-  const fetchHostels = async () => {
+  const fetchHostels = async (isRetry = false) => {
     setIsLoadingHostels(true);
     setHostelsError('');
+
+    // Safety watchdog: ensure loading state never stays stuck beyond 10 seconds
+    const watchdog = setTimeout(() => {
+      setIsLoadingHostels(false);
+      setHostelsError('Unable to load hostels.');
+    }, 10000);
+
     try {
       console.info('[RegisterPage] Fetching hostels from:', api.defaults.baseURL + '/hostels/');
-      const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
+      // Explicitly omit Authorization header so stale tokens never block public hostel fetching
+      const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/', {
+        headers: { Authorization: '' },
+      });
+      clearTimeout(watchdog);
       const data = res.data as any;
       const list: Hostel[] = Array.isArray(data)
         ? data
@@ -127,10 +138,18 @@ export const RegisterPage: React.FC = () => {
         ? data.results
         : [];
       setHostels(list);
+      if (list.length === 0) {
+        setHostelsError('Unable to load hostels.');
+      }
     } catch (err: any) {
+      clearTimeout(watchdog);
       console.error('[RegisterPage] Hostel fetch failed:', err?.config?.url, err?.message, err?.response?.status);
-      const msg = err?.response?.data?.detail || err?.message || 'Unable to load hostels';
-      setHostelsError(`${msg}. Please check your connection or click Retry.`);
+      if (!isRetry) {
+        // Automatic retry after 1.5s in case of Render cold sleep
+        setTimeout(() => fetchHostels(true), 1500);
+        return;
+      }
+      setHostelsError('Unable to load hostels.');
       setHostels([]);
     } finally {
       setIsLoadingHostels(false);
@@ -358,31 +377,18 @@ export const RegisterPage: React.FC = () => {
                     <label className="block font-semibold text-slate-700">
                       Hostel <span className="text-rose-500 font-bold">*</span>
                     </label>
-                    {(hostelsError || (hostels.length === 0 && !isLoadingHostels)) && (
-                      <button
-                        type="button"
-                        onClick={() => fetchHostels()}
-                        disabled={isLoadingHostels}
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:text-brand-700 disabled:opacity-50 transition active:scale-95"
-                      >
-                        <RotateCw className={`w-3 h-3 ${isLoadingHostels ? 'animate-spin' : ''}`} />
-                        <span>{isLoadingHostels ? 'Retrying...' : 'Retry Loading'}</span>
-                      </button>
-                    )}
                   </div>
                   <select
                     required
                     value={selectedHostel}
                     onChange={(e) => setSelectedHostel(e.target.value)}
-                    disabled={isLoadingHostels}
-                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-60 disabled:bg-slate-50"
+                    disabled={isLoadingHostels && hostels.length === 0}
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-60 disabled:bg-slate-50 cursor-pointer"
                   >
                     <option value="">
-                      {isLoadingHostels
+                      {isLoadingHostels && hostels.length === 0
                         ? 'Loading available hostels...'
-                        : hostels.length === 0 && !isLoadingHostels
-                        ? 'No Hostels Found (Click Retry)'
-                        : 'Select Hostel'}
+                        : 'Select a hostel'}
                     </option>
                     {hostels.map((h) => (
                       <option key={h.id} value={h.id}>
@@ -391,17 +397,19 @@ export const RegisterPage: React.FC = () => {
                     ))}
                   </select>
                   {hostelsError && (
-                    <div className="flex items-center justify-between mt-1.5 p-2 bg-rose-50 border border-rose-100 rounded-xl">
-                      <p className="text-[11px] text-rose-600 font-medium leading-tight">
-                        {hostelsError}
-                      </p>
+                    <div className="flex items-center justify-between mt-2 p-2.5 bg-rose-50 border border-rose-200 rounded-xl">
+                      <div className="flex items-center gap-2 text-rose-700 font-medium text-xs">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                        <span>Unable to load hostels.</span>
+                      </div>
                       <button
                         type="button"
-                        onClick={() => fetchHostels()}
+                        onClick={() => fetchHostels(true)}
                         disabled={isLoadingHostels}
-                        className="px-2 py-1 bg-white text-rose-700 text-[10px] font-bold rounded-lg border border-rose-200 shadow-2xs hover:bg-rose-100 transition shrink-0 ml-2"
+                        className="px-3 py-1 bg-white hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-lg border border-rose-300 shadow-2xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
                       >
-                        Retry
+                        <RotateCw className={`w-3.5 h-3.5 ${isLoadingHostels ? 'animate-spin' : ''}`} />
+                        <span>{isLoadingHostels ? 'Retrying...' : 'Retry'}</span>
                       </button>
                     </div>
                   )}

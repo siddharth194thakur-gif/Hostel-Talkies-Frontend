@@ -5,7 +5,7 @@ const getActiveApiUrl = () => {
   if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
     let clean = envUrl.trim().replace(/\/+$/, '').replace(/\/api\/?$/, '');
     // Fix stale Render service name if missing -1
-    if (clean === 'https://hostel-talkies-backend.onrender.com') {
+    if (clean.includes('hostel-talkies-backend.onrender.com') && !clean.includes('hostel-talkies-backend-1')) {
       return 'https://hostel-talkies-backend-1.onrender.com';
     }
     return clean;
@@ -36,7 +36,7 @@ export const getMediaUrl = (url: string | null | undefined): string | undefined 
 
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
-  timeout: 20000,
+  timeout: 35000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -44,6 +44,23 @@ export const api = axios.create({
 
 
 api.interceptors.request.use((config) => {
+  const isAuthPage = typeof window !== 'undefined' && (
+    window.location.pathname === '/register' ||
+    window.location.pathname === '/login'
+  );
+  const isPublicAuthEndpoint =
+    config.url?.includes('/auth/login/') ||
+    config.url?.includes('/auth/register/') ||
+    config.url?.includes('/auth/token/refresh/');
+
+  // Never attach an Authorization header on public registration or to public endpoints
+  if (isAuthPage && (isPublicAuthEndpoint || config.url?.includes('/hostels/'))) {
+    if (config.headers) {
+      delete config.headers.Authorization;
+    }
+    return config;
+  }
+
   const token = localStorage.getItem('access_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -80,9 +97,25 @@ api.interceptors.response.use(
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
+          if (originalRequest.headers) {
+            delete originalRequest.headers.Authorization;
+          }
+          // If request was to a public endpoint, retry unauthenticated
+          if (originalRequest.url?.includes('/hostels/')) {
+            return api(originalRequest);
+          }
           if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
             window.location.href = '/login?session_expired=1';
           }
+        }
+      } else {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        if (originalRequest.headers) {
+          delete originalRequest.headers.Authorization;
+        }
+        if (originalRequest.url?.includes('/hostels/')) {
+          return api(originalRequest);
         }
       }
     }
