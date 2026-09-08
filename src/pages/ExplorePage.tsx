@@ -99,6 +99,49 @@ export const ExplorePage: React.FC = () => {
     { label: 'Discussions', value: 'general', icon: MessageSquare },
   ];
 
+  const filteredCategories = categories.filter((c) => {
+    if (!selectedType) return true;
+    if (['buy_sell', 'giveaway', 'exchange', 'borrow', 'lend'].includes(selectedType)) {
+      return c.post_type === 'marketplace';
+    }
+    if (['lost', 'found'].includes(selectedType)) {
+      return c.post_type === 'lost_found';
+    }
+    if (selectedType === 'roommate') {
+      return c.post_type === 'roommate';
+    }
+    if (selectedType === 'general') {
+      return c.post_type === 'general';
+    }
+    if (selectedType === 'study') {
+      return c.post_type === 'study';
+    }
+    return c.post_type === selectedType;
+  });
+
+  const handleTypeChange = (typeVal: string) => {
+    setSelectedType(typeVal);
+    // If selected category does not belong to new type, reset it
+    if (selectedCategory) {
+      const cat = categories.find((c) => String(c.id) === String(selectedCategory));
+      if (cat && typeVal) {
+        let matches = true;
+        if (['buy_sell', 'giveaway', 'exchange', 'borrow', 'lend'].includes(typeVal)) {
+          matches = cat.post_type === 'marketplace';
+        } else if (['lost', 'found'].includes(typeVal)) {
+          matches = cat.post_type === 'lost_found';
+        } else if (typeVal === 'roommate') {
+          matches = cat.post_type === 'roommate';
+        } else if (typeVal === 'general') {
+          matches = cat.post_type === 'general';
+        }
+        if (!matches) {
+          setSelectedCategory('');
+        }
+      }
+    }
+  };
+
   const activeFiltersCount = [
     selectedType,
     selectedCategory,
@@ -167,7 +210,7 @@ export const ExplorePage: React.FC = () => {
             <button
               key={pill.value}
               type="button"
-              onClick={() => setSelectedType(pill.value)}
+              onClick={() => handleTypeChange(pill.value)}
               className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-bold transition-all shrink-0 cursor-pointer ${
                 isActive
                   ? 'bg-brand-600 text-white shadow-md shadow-brand-500/25 scale-[1.02]'
@@ -217,7 +260,7 @@ export const ExplorePage: React.FC = () => {
           {/* Post Type Dropdown */}
           <select
             value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
+            onChange={(e) => handleTypeChange(e.target.value)}
             className="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-800 focus:bg-white focus:border-brand-500 outline-none text-xs font-semibold transition cursor-pointer"
           >
             <option value="">All Post Types</option>
@@ -240,7 +283,7 @@ export const ExplorePage: React.FC = () => {
             className="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-800 focus:bg-white focus:border-brand-500 outline-none text-xs font-semibold transition cursor-pointer"
           >
             <option value="">All Categories</option>
-            {categories.map((c) => (
+            {filteredCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

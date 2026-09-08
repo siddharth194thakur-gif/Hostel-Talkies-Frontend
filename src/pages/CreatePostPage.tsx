@@ -30,6 +30,19 @@ const LIFESTYLE_OPTIONS = [
   'Sports / Fitness',
 ];
 
+export const CAMPUS_LOCATIONS = [
+  'Central Library',
+  'Academic Block / Lecture Hall',
+  'Hostel Mess 1',
+  'Hostel Mess 2',
+  'Sports Complex / Ground',
+  'Hostel Common Room',
+  'Campus Canteen / Cafeteria',
+  'Main Security Gate',
+  'Hostel Corridor / Floor',
+  'Other Campus Area',
+];
+
 export const CreatePostPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,14 +61,12 @@ export const CreatePostPage: React.FC = () => {
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState('good');
   const [marketplaceStatus, setMarketplaceStatus] = useState('available');
-  const [marketplaceDesc, setMarketplaceDesc] = useState('');
 
   // 2. Roommate State
   const [roommateLookingFor, setRoommateLookingFor] = useState<'roommate_needed' | 'seeking_room'>('roommate_needed');
   const [roommateAccommodation, setRoommateAccommodation] = useState<'double' | 'single' | 'triple' | 'any'>('double');
   const [roommateLocationPref, setRoommateLocationPref] = useState('Same Hostel as me');
   const [roommateLifestyles, setRoommateLifestyles] = useState<string[]>([]);
-  const [roommateNotes, setRoommateNotes] = useState('');
 
   // 3. Lost Item State
   const [lostCategory, setLostCategory] = useState('');
@@ -63,7 +74,6 @@ export const CreatePostPage: React.FC = () => {
   const [lostLocation, setLostLocation] = useState('');
   const [lostDate, setLostDate] = useState(new Date().toISOString().split('T')[0]);
   const [lostStatus, setLostStatus] = useState<'available' | 'closed'>('available');
-  const [lostDetails, setLostDetails] = useState('');
 
   // 4. Found Item State
   const [foundCategory, setFoundCategory] = useState('');
@@ -72,7 +82,6 @@ export const CreatePostPage: React.FC = () => {
   const [foundDate, setFoundDate] = useState(new Date().toISOString().split('T')[0]);
   const [foundHandover, setFoundHandover] = useState('Deposited with Hostel Caretaker / Warden Office');
   const [foundStatus, setFoundStatus] = useState<'available' | 'closed'>('available');
-  const [foundDetails, setFoundDetails] = useState('');
 
   // 5. General Talkies State
   const [generalCatId, setGeneralCatId] = useState('');
@@ -103,20 +112,17 @@ export const CreatePostPage: React.FC = () => {
     setPrice('');
     setCondition('good');
     setMarketplaceStatus('available');
-    setMarketplaceDesc('');
 
     setRoommateLookingFor('roommate_needed');
     setRoommateAccommodation('double');
     setRoommateLocationPref('Same Hostel as me');
     setRoommateLifestyles([]);
-    setRoommateNotes('');
 
     setLostCategory('');
     setLostItemName('');
     setLostLocation('');
     setLostDate(new Date().toISOString().split('T')[0]);
     setLostStatus('available');
-    setLostDetails('');
 
     setFoundCategory('');
     setFoundItemName('');
@@ -124,7 +130,6 @@ export const CreatePostPage: React.FC = () => {
     setFoundDate(new Date().toISOString().split('T')[0]);
     setFoundHandover('Deposited with Hostel Caretaker / Warden Office');
     setFoundStatus('available');
-    setFoundDetails('');
 
     setGeneralCatId('');
     setGeneralTitle('');
@@ -139,18 +144,18 @@ export const CreatePostPage: React.FC = () => {
 
   const relevantCategories = categories.filter((c) => {
     if (isMarketplacePost) {
-      return c.post_type === 'marketplace' || c.post_type === 'all';
+      return c.post_type === 'marketplace';
     }
     if (postType === 'lost' || postType === 'found') {
-      return c.post_type === 'lost_found' || c.post_type === 'all' || c.post_type === 'marketplace';
+      return c.post_type === 'lost_found';
     }
     if (postType === 'roommate') {
-      return c.post_type === 'roommate' || c.post_type === 'all';
+      return c.post_type === 'roommate';
     }
     if (postType === 'general') {
-      return c.post_type === 'general' || c.post_type === 'all';
+      return c.post_type === 'general';
     }
-    return true;
+    return false;
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -179,9 +184,8 @@ export const CreatePostPage: React.FC = () => {
         payload.price = postType === 'buy_sell' ? price : '0.00';
         payload.condition = condition;
         payload.status = marketplaceStatus;
-        if (marketplaceDesc.trim()) {
-          payload.description = marketplaceDesc.trim();
-        }
+        payload.location = '';
+        payload.description = `Category: ${selectedCat?.name || 'Marketplace Item'} | Condition: ${condition.replace('_', ' ')} | Availability: ${marketplaceStatus}`;
       }
 
       // ── Roommate Submission ───────────────────────────────────────────────
@@ -200,6 +204,7 @@ export const CreatePostPage: React.FC = () => {
         payload.title = `${lookingLabel} - ${accomLabel}`;
         payload.condition = 'na';
         payload.status = 'available';
+        payload.location = '';
 
         const descLines = [
           `Looking For: ${lookingLabel}`,
@@ -209,61 +214,47 @@ export const CreatePostPage: React.FC = () => {
         if (roommateLifestyles.length > 0) {
           descLines.push(`Lifestyle Preferences: ${roommateLifestyles.join(', ')}`);
         }
-        if (roommateNotes.trim()) {
-          descLines.push(`Notes: ${roommateNotes.trim()}`);
-        }
         payload.description = descLines.join('\n');
       }
 
       // ── Lost Item Submission ──────────────────────────────────────────────
       else if (postType === 'lost') {
-        if (!lostItemName.trim()) {
-          setError('Please enter the name of the lost item.');
-          setIsSubmitting(false);
-          return;
-        }
-        if (!lostLocation.trim()) {
-          setError('Please specify the location where the item was lost.');
+        if (!lostLocation) {
+          setError('Please select the campus location where the item was lost.');
           setIsSubmitting(false);
           return;
         }
 
-        payload.title = `Lost: ${lostItemName.trim()}`;
+        const selectedCat = categories.find((c) => String(c.id) === String(lostCategory));
+        const itemTitle = lostItemName.trim() || (selectedCat ? selectedCat.name : 'Lost Item');
+
+        payload.title = `Lost: ${itemTitle}`;
         if (lostCategory) payload.category = parseInt(lostCategory);
-        payload.location = lostLocation.trim();
+        payload.location = lostLocation;
         payload.event_date = lostDate;
         payload.status = lostStatus;
         payload.condition = 'na';
-        payload.description = lostDetails.trim() || `Lost ${lostItemName.trim()} near ${lostLocation.trim()}.`;
+        payload.description = `Lost ${itemTitle} near ${lostLocation}. Connect via private chat to verify ownership.`;
       }
 
       // ── Found Item Submission ─────────────────────────────────────────────
       else if (postType === 'found') {
-        if (!foundItemName.trim()) {
-          setError('Please enter the name of the found item.');
-          setIsSubmitting(false);
-          return;
-        }
-        if (!foundLocation.trim()) {
-          setError('Please specify where the item was found.');
+        if (!foundLocation) {
+          setError('Please select the campus location where the item was found.');
           setIsSubmitting(false);
           return;
         }
 
-        payload.title = `Found: ${foundItemName.trim()}`;
+        const selectedCat = categories.find((c) => String(c.id) === String(foundCategory));
+        const itemTitle = foundItemName.trim() || (selectedCat ? selectedCat.name : 'Found Item');
+
+        payload.title = `Found: ${itemTitle}`;
         if (foundCategory) payload.category = parseInt(foundCategory);
-        payload.location = foundLocation.trim();
+        payload.location = foundLocation;
         payload.event_date = foundDate;
         payload.status = foundStatus;
         payload.condition = 'na';
-
-        const descLines = [
-          `Safe Handover / Claim Location: ${foundHandover}`,
-        ];
-        if (foundDetails.trim()) {
-          descLines.push(`Details: ${foundDetails.trim()}`);
-        }
-        payload.description = descLines.join('\n');
+        payload.description = `Found ${itemTitle} at ${foundLocation}.\nSafe Handover Location: ${foundHandover}.\nConnect via private chat to claim and verify ownership.`;
       }
 
       // ── General Talkies Submission ────────────────────────────────────────
@@ -446,24 +437,6 @@ export const CreatePostPage: React.FC = () => {
                 </select>
               </div>
             </div>
-
-            {/* Short Description */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-semibold text-slate-700">Short Description</label>
-                <span className={`text-[11px] ${marketplaceDesc.length > 1000 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
-                  {marketplaceDesc.length} / 1000
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                maxLength={1000}
-                value={marketplaceDesc}
-                onChange={(e) => setMarketplaceDesc(e.target.value)}
-                placeholder="Key specifications, reason for selling, or essential details..."
-                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
-              />
-            </div>
           </div>
         )}
 
@@ -564,24 +537,6 @@ export const CreatePostPage: React.FC = () => {
                 })}
               </div>
             </div>
-
-            {/* Brief Notes */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-semibold text-slate-700">Brief Notes</label>
-                <span className={`text-[11px] ${roommateNotes.length > 300 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
-                  {roommateNotes.length} / 300
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                maxLength={300}
-                value={roommateNotes}
-                onChange={(e) => setRoommateNotes(e.target.value)}
-                placeholder="Mention branch, year, study habits, or when you are planning to move in..."
-                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
-              />
-            </div>
           </div>
         )}
 
@@ -625,16 +580,20 @@ export const CreatePostPage: React.FC = () => {
               <div className="sm:col-span-2">
                 <label className="block font-semibold text-slate-700 mb-1.5">Location Lost / Last Seen *</label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
+                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <select
                     required
-                    maxLength={100}
                     value={lostLocation}
                     onChange={(e) => setLostLocation(e.target.value)}
-                    placeholder="e.g. Central Library 2nd floor reading hall"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium"
-                  />
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium cursor-pointer"
+                  >
+                    <option value="">-- Select Campus Location --</option>
+                    {CAMPUS_LOCATIONS.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -663,23 +622,6 @@ export const CreatePostPage: React.FC = () => {
                 <option value="available">Still Missing / Searching</option>
                 <option value="closed">Found / Resolved</option>
               </select>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-semibold text-slate-700">Identifying Details</label>
-                <span className={`text-[11px] ${lostDetails.length > 300 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
-                  {lostDetails.length} / 300
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                maxLength={300}
-                value={lostDetails}
-                onChange={(e) => setLostDetails(e.target.value)}
-                placeholder="Mention distinctive scratches, stickers, or brand markings to help identify it..."
-                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
-              />
             </div>
           </div>
         )}
@@ -724,16 +666,20 @@ export const CreatePostPage: React.FC = () => {
               <div>
                 <label className="block font-semibold text-slate-700 mb-1.5">Location Found *</label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
+                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <select
                     required
-                    maxLength={100}
                     value={foundLocation}
                     onChange={(e) => setFoundLocation(e.target.value)}
-                    placeholder="e.g. Mess 1 Water Cooler area"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium"
-                  />
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none text-xs font-medium cursor-pointer"
+                  >
+                    <option value="">-- Select Campus Location --</option>
+                    {CAMPUS_LOCATIONS.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -764,23 +710,6 @@ export const CreatePostPage: React.FC = () => {
                 <option value="Deposited at Main Security Gate">Deposited at Main Security Gate</option>
                 <option value="Kept with Me (Connect via private chat to verify ownership)">Kept with Me (Connect via private chat to verify ownership)</option>
               </select>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-semibold text-slate-700">Claim Instructions</label>
-                <span className={`text-[11px] ${foundDetails.length > 300 ? 'text-red-600 font-bold' : 'text-slate-400'}`}>
-                  {foundDetails.length} / 300
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                maxLength={300}
-                value={foundDetails}
-                onChange={(e) => setFoundDetails(e.target.value)}
-                placeholder="e.g. State the room number tag or key color in private chat to verify ownership."
-                className="w-full p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200/80 rounded-2xl text-slate-900 focus:bg-white focus:border-brand-500 focus:ring-3 focus:ring-brand-50 transition-all outline-none resize-none text-xs leading-relaxed"
-              />
             </div>
           </div>
         )}
