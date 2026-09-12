@@ -13,6 +13,7 @@ const PROGRAMME_BRANCHES: Record<string, string[]> = {
     'Computer Science & Engineering',
     'Electronics & Communication Engineering',
     'Electrical Engineering',
+    'Electrical and Computer Engineering',
     'Mechanical Engineering',
     'Civil Engineering',
     'Information Technology',
