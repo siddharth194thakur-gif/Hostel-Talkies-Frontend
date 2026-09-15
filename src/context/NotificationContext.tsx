@@ -41,8 +41,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       const res = await api.get<{ results: Notification[] } | Notification[]>('/notifications/');
       const data = Array.isArray(res.data) ? res.data : res.data.results || [];
       setNotifications(data);
-    } catch (err) {
-      console.error('Failed to load notifications', err);
+    } catch (_err) {
+      // background fetch, avoid noisy console error
     }
   };
 
@@ -68,8 +68,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
+      // ignore
     }
   };
 
@@ -78,8 +78,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       await api.post('/notifications/mark_all_read/');
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
+      // ignore
     }
   };
 
