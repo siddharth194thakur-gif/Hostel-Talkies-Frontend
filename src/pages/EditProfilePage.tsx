@@ -51,11 +51,21 @@ export const EditProfilePage: React.FC = () => {
   const [isLoadingHostels, setIsLoadingHostels] = useState(false);
   const [hostelsError, setHostelsError] = useState('');
 
-  const fetchHostels = async () => {
+  const fetchHostels = async (isRetry = false) => {
     setIsLoadingHostels(true);
     setHostelsError('');
+
+    // Watchdog: 65s covers Render free-tier cold start (up to 60s spin-up time).
+    const watchdog = setTimeout(() => {
+      setIsLoadingHostels(false);
+      setHostelsError('Unable to load hostels. Please click Retry Loading.');
+    }, 65000);
+
     try {
-      const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/');
+      const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/', {
+        timeout: 62000,
+      });
+      clearTimeout(watchdog);
       const data = res.data as any;
       const list: Hostel[] = Array.isArray(data)
         ? data
@@ -63,12 +73,20 @@ export const EditProfilePage: React.FC = () => {
         ? data.results
         : [];
       setHostels(list);
+      setIsLoadingHostels(false);
+      if (list.length === 0 && !hostelsError) {
+        setHostelsError('No hostels found. Please click Retry Loading.');
+      }
     } catch (err: any) {
-      console.error('Failed to load hostels in EditProfile', err);
+      clearTimeout(watchdog);
+      if (!isRetry) {
+        // One automatic retry after 2s for Render cold-start
+        setTimeout(() => fetchHostels(true), 2000);
+        return; // Keep spinner visible during retry wait
+      }
       const msg = err?.response?.data?.detail || err?.message || 'Unable to load hostels';
-      setHostelsError(`${msg}. Please click Retry.`);
+      setHostelsError(`${msg}. Please click Retry Loading.`);
       setHostels([]);
-    } finally {
       setIsLoadingHostels(false);
     }
   };

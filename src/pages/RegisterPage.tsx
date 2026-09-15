@@ -119,17 +119,18 @@ export const RegisterPage: React.FC = () => {
     setIsLoadingHostels(true);
     setHostelsError('');
 
-    // Safety watchdog: ensure loading state never stays stuck beyond 10 seconds
+    // Watchdog: 65s covers Render free-tier cold start (up to 60s spin-up time).
+    // This is the last-resort safety net — normally the API resolves before this fires.
     const watchdog = setTimeout(() => {
       setIsLoadingHostels(false);
-      setHostelsError('Unable to load hostels.');
-    }, 10000);
+      setHostelsError('Unable to load hostels. Please click Retry.');
+    }, 65000);
 
     try {
-      console.info('[RegisterPage] Fetching hostels from:', api.defaults.baseURL + '/hostels/');
-      // Explicitly omit Authorization header so stale tokens never block public hostel fetching
+      // Explicitly omit Authorization header — public endpoint, no token needed
       const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/', {
         headers: { Authorization: '' },
+        timeout: 62000, // Slightly under watchdog so catch fires before watchdog
       });
       clearTimeout(watchdog);
       const data = res.data as any;
@@ -139,21 +140,22 @@ export const RegisterPage: React.FC = () => {
         ? data.results
         : [];
       setHostels(list);
+      setIsLoadingHostels(false);
       if (list.length === 0) {
-        setHostelsError('Unable to load hostels.');
+        setHostelsError('No hostels available in the system yet.');
       }
     } catch (err: any) {
       clearTimeout(watchdog);
-      console.error('[RegisterPage] Hostel fetch failed:', err?.config?.url, err?.message, err?.response?.status);
       if (!isRetry) {
-        // Automatic retry after 1.5s in case of Render cold sleep
-        setTimeout(() => fetchHostels(true), 1500);
-        return;
+        // One automatic retry after 2s (allows Render cold-start to stabilise).
+        // Keep spinner visible so user sees "Loading..." rather than a flash of error+retry.
+        setTimeout(() => fetchHostels(true), 2000);
+        return; // Do NOT set isLoadingHostels(false) — keep spinner during retry wait
       }
-      setHostelsError('Unable to load hostels.');
-      setHostels([]);
-    } finally {
+      // Second failure: show error and Retry button
       setIsLoadingHostels(false);
+      setHostelsError('Unable to load hostels. Please click Retry.');
+      setHostels([]);
     }
   };
 
