@@ -12,9 +12,13 @@ dist
 dist-ssr
 *.local
 
-# Environment variables
+# Environment variables & secrets
 .env
 .env.*
+*.env
+*.env.*
+*.save
+*.backup
 !.env.example
 
 # Editor directories and files
