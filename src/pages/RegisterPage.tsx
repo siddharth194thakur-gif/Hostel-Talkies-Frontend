@@ -112,25 +112,27 @@ export const RegisterPage: React.FC = () => {
     setBranch('');
   }, [programme]);
 
-  // Fetch available Hostels dynamically from database on mount
+  // Hostel Dropdown states: 'loading' | 'success' | 'empty' | 'error'
+  const [hostelsState, setHostelsState] = useState<'loading' | 'success' | 'empty' | 'error'>('loading');
   const [hostelsError, setHostelsError] = useState('');
 
-  const fetchHostels = async (isRetry = false) => {
+  const fetchHostels = async () => {
     setIsLoadingHostels(true);
+    setHostelsState('loading');
     setHostelsError('');
 
-    // Watchdog: 65s covers Render free-tier cold start (up to 60s spin-up time).
-    // This is the last-resort safety net — normally the API resolves before this fires.
+    // Safety watchdog: ensure state never hangs indefinitely
     const watchdog = setTimeout(() => {
       setIsLoadingHostels(false);
-      setHostelsError('Unable to load hostels. Please click Retry.');
-    }, 65000);
+      setHostelsState('error');
+      setHostelsError('Unable to load hostels.');
+    }, 35000);
 
     try {
       // Explicitly omit Authorization header — public endpoint, no token needed
       const res = await api.get<{ results: Hostel[] } | Hostel[]>('/hostels/', {
         headers: { Authorization: '' },
-        timeout: 62000, // Slightly under watchdog so catch fires before watchdog
+        timeout: 30000,
       });
       clearTimeout(watchdog);
       const data = res.data as any;
@@ -139,22 +141,19 @@ export const RegisterPage: React.FC = () => {
         : Array.isArray(data?.results)
         ? data.results
         : [];
+
       setHostels(list);
       setIsLoadingHostels(false);
       if (list.length === 0) {
-        setHostelsError('No hostels available in the system yet.');
+        setHostelsState('empty');
+      } else {
+        setHostelsState('success');
       }
     } catch (err: any) {
       clearTimeout(watchdog);
-      if (!isRetry) {
-        // One automatic retry after 2s (allows Render cold-start to stabilise).
-        // Keep spinner visible so user sees "Loading..." rather than a flash of error+retry.
-        setTimeout(() => fetchHostels(true), 2000);
-        return; // Do NOT set isLoadingHostels(false) — keep spinner during retry wait
-      }
-      // Second failure: show error and Retry button
       setIsLoadingHostels(false);
-      setHostelsError('Unable to load hostels. Please click Retry.');
+      setHostelsState('error');
+      setHostelsError('Unable to load hostels.');
       setHostels([]);
     }
   };
@@ -385,12 +384,16 @@ export const RegisterPage: React.FC = () => {
                     required
                     value={selectedHostel}
                     onChange={(e) => setSelectedHostel(e.target.value)}
-                    disabled={isLoadingHostels && hostels.length === 0}
+                    disabled={hostelsState === 'loading' || hostelsState === 'error' || hostelsState === 'empty'}
                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none text-xs disabled:opacity-60 disabled:bg-slate-50 cursor-pointer"
                   >
                     <option value="">
-                      {isLoadingHostels && hostels.length === 0
-                        ? 'Loading available hostels...'
+                      {hostelsState === 'loading'
+                        ? 'Loading hostels...'
+                        : hostelsState === 'empty'
+                        ? 'No hostels available.'
+                        : hostelsState === 'error'
+                        ? 'Unable to load hostels.'
                         : 'Select a hostel'}
                     </option>
                     {hostels.map((h) => (
@@ -399,7 +402,17 @@ export const RegisterPage: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {hostelsError && (
+
+                  {/* EMPTY STATE */}
+                  {hostelsState === 'empty' && (
+                    <div className="flex items-center gap-2 mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 font-medium text-xs">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-500" />
+                      <span>No hostels available.</span>
+                    </div>
+                  )}
+
+                  {/* ERROR STATE */}
+                  {hostelsState === 'error' && (
                     <div className="flex items-center justify-between mt-2 p-2.5 bg-rose-50 border border-rose-200 rounded-xl">
                       <div className="flex items-center gap-2 text-rose-700 font-medium text-xs">
                         <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
@@ -407,7 +420,7 @@ export const RegisterPage: React.FC = () => {
                       </div>
                       <button
                         type="button"
-                        onClick={() => fetchHostels(true)}
+                        onClick={() => fetchHostels()}
                         disabled={isLoadingHostels}
                         className="px-3 py-1 bg-white hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-lg border border-rose-300 shadow-2xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
                       >

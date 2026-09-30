@@ -86,11 +86,13 @@ const onRefreshFailed = () => {
 
 // ─── Request interceptor: attach Bearer token ───────────────────────────────
 api.interceptors.request.use(config => {
-  // Skip auth header for public auth endpoints
+  // Skip auth header for public auth endpoints or when Authorization is explicitly omitted
   const isPublicEndpoint =
     config.url?.includes('/auth/login/') ||
     config.url?.includes('/auth/register/') ||
-    config.url?.includes('/auth/token/refresh/');
+    config.url?.includes('/auth/token/refresh/') ||
+    config.url?.includes('/hostels/') ||
+    config.headers?.Authorization === '';
 
   if (isPublicEndpoint) {
     if (config.headers) delete config.headers.Authorization;
