@@ -52,8 +52,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const status: number | undefined = err?.response?.status;
 
       if (status === 403) {
-        // Blocked / suspended account — keep user object so UI can show the block screen
-        setUser(err.response.data.user || null);
+        // Blocked / suspended account — keep user object so UI can show the block/suspension screen
+        const data = err?.response?.data || {};
+        const cached = localStorage.getItem('user');
+        let baseUser: any = null;
+        if (cached) {
+          try { baseUser = JSON.parse(cached); } catch {}
+        }
+        if (baseUser) {
+          if (data.code === 'account_blocked' || data.is_blocked) {
+            baseUser.is_blocked = true;
+            baseUser.block_reason = data.reason || baseUser.block_reason;
+          } else if (data.code === 'account_suspended' || data.is_suspended) {
+            baseUser.is_suspended = true;
+            baseUser.suspended_until = data.suspended_until || baseUser.suspended_until;
+            baseUser.block_reason = data.reason || baseUser.block_reason;
+          }
+          setUser(baseUser);
+        } else {
+          setUser({
+            id: 0,
+            username: 'User',
+            email: '',
+            first_name: '',
+            last_name: '',
+            full_name: 'Resident',
+            is_student: true,
+            is_hostel_admin: false,
+            is_staff: false,
+            is_superuser: false,
+            is_blocked: data.code === 'account_blocked' || !!data.is_blocked,
+            is_suspended: data.code === 'account_suspended' || !!data.is_suspended,
+            suspended_until: data.suspended_until || null,
+            block_reason: data.reason || data.detail || '',
+            date_joined: new Date().toISOString(),
+          } as User);
+        }
       } else if (!status) {
         // Network error / Render cold-start / offline — do NOT destroy a valid session.
         // Try to restore from the locally cached user object instead.
@@ -93,10 +127,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (event.key === 'ht_auth_event' && event.newValue?.startsWith('logout:')) {
         // Another tab logged out
         setUser(null);
+        setIsLoading(false);
       }
       if (event.key === 'access_token' && !event.newValue) {
         // Token was removed in another tab
         setUser(null);
+        setIsLoading(false);
       }
     };
     window.addEventListener('storage', handleStorageChange);

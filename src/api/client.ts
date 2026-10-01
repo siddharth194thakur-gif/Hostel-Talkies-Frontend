@@ -69,29 +69,34 @@ const clearSession = () => {
 
 // ─── Refresh-lock: prevent concurrent refresh storms ────────────────────────
 let isRefreshing = false;
-let refreshSubscribers: Array<(token: string) => void> = [];
+let refreshSubscribers: Array<{
+  resolve: (token: string) => void;
+  reject: (err: any) => void;
+}> = [];
 
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
+const subscribeTokenRefresh = (resolve: (token: string) => void, reject: (err: any) => void) => {
+  refreshSubscribers.push({ resolve, reject });
 };
 
 const onTokenRefreshed = (newToken: string) => {
-  refreshSubscribers.forEach(cb => cb(newToken));
+  refreshSubscribers.forEach(sub => sub.resolve(newToken));
   refreshSubscribers = [];
 };
 
-const onRefreshFailed = () => {
+const onRefreshFailed = (err: any) => {
+  refreshSubscribers.forEach(sub => sub.reject(err));
   refreshSubscribers = [];
 };
 
 // ─── Request interceptor: attach Bearer token ───────────────────────────────
 api.interceptors.request.use(config => {
-  // Skip auth header for public auth endpoints or when Authorization is explicitly omitted
+  const method = config.method?.toLowerCase() || 'get';
+  // Skip auth header for public auth endpoints or public read of hostels list
   const isPublicEndpoint =
     config.url?.includes('/auth/login/') ||
     config.url?.includes('/auth/register/') ||
     config.url?.includes('/auth/token/refresh/') ||
-    config.url?.includes('/hostels/') ||
+    (config.url?.includes('/hostels/') && method === 'get' && !config.url?.includes('/admin/')) ||
     config.headers?.Authorization === '';
 
   if (isPublicEndpoint) {
@@ -144,8 +149,8 @@ api.interceptors.response.use(
 
       // If already refreshing, queue this request until refresh resolves
       if (isRefreshing) {
-        return new Promise<string>(resolve => {
-          subscribeTokenRefresh(resolve);
+        return new Promise<string>((resolve, reject) => {
+          subscribeTokenRefresh(resolve, reject);
         }).then(newToken => {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
@@ -172,9 +177,9 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
         return api(originalRequest);
 
-      } catch {
+      } catch (refreshErr) {
         isRefreshing = false;
-        onRefreshFailed();
+        onRefreshFailed(refreshErr);
 
         clearSession();
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Layouts
 import { PublicLayout } from './layouts/PublicLayout';
@@ -36,53 +37,71 @@ import { SearchResultsPage } from './pages/SearchResultsPage';
 import { AdminPage } from './pages/AdminPage';
 import { GamingHubPage } from './pages/GamingHubPage';
 
+const ProtectedAdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
+  const isStaffOrAdmin = user?.is_staff || user?.is_superuser || user?.is_hostel_admin;
+  if (!isStaffOrAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <Routes>
-          {/* Public Layout Routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/guidelines" element={<CommunityGuidelinesPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-          </Route>
+    <ErrorBoundary>
+      <AuthProvider>
+        <NotificationProvider>
+          <Routes>
+            {/* Public Layout Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/guidelines" element={<CommunityGuidelinesPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Route>
 
-          {/* Protected Student Layout Routes */}
+            {/* Protected Student Layout Routes */}
+            <Route element={<StudentLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/lost-found" element={<LostFoundPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/study" element={<StudyResourcesPage />} />
+              <Route path="/gaming" element={<GamingHubPage />} />
+              <Route path="/custom-rooms" element={<GamingHubPage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/notices" element={<NoticesPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/:conversationId" element={<MessagesPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/saved" element={<SavedPostsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<EditProfilePage />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route path="/create-post" element={<CreatePostPage />} />
+              <Route path="/posts/:id" element={<PostDetailPage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+            </Route>
 
-          <Route element={<StudentLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/explore" element={<ExplorePage />} />
-            <Route path="/marketplace" element={<MarketplacePage />} />
-            <Route path="/lost-found" element={<LostFoundPage />} />
-            <Route path="/services" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/study" element={<StudyResourcesPage />} />
-            <Route path="/gaming" element={<GamingHubPage />} />
-            <Route path="/custom-rooms" element={<GamingHubPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/notices" element={<NoticesPage />} />
-            <Route path="/messages" element={<MessagesPage />} />
-            <Route path="/messages/:conversationId" element={<MessagesPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/saved" element={<SavedPostsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/:userId" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={<EditProfilePage />} />
-            <Route path="/create-post" element={<CreatePostPage />} />
-            <Route path="/posts/:id" element={<PostDetailPage />} />
-            <Route path="/search" element={<SearchResultsPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-          </Route>
-
-          {/* Catch-all route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </NotificationProvider>
-    </AuthProvider>
+            {/* Catch-all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </NotificationProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

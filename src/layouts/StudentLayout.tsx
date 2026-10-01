@@ -52,6 +52,36 @@ export const StudentLayout: React.FC = () => {
     );
   }
 
+  // If user account is temporarily suspended
+  if (user?.is_suspended) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-xl border border-amber-100">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Account Temporarily Suspended</h2>
+          <p className="text-sm text-slate-600">
+            Your account is temporarily suspended from taking actions on HostelTalkies.
+          </p>
+          {user.suspended_until && (
+            <div className="p-3 bg-amber-50 border border-amber-200 text-xs text-amber-900 rounded-xl text-center font-medium">
+              Suspended until: {new Date(user.suspended_until).toLocaleString()}
+            </div>
+          )}
+          {user.block_reason && (
+            <div className="p-3 bg-slate-50 border border-slate-200 text-xs text-slate-700 rounded-xl text-left">
+              <strong>Reason:</strong> {user.block_reason}
+            </div>
+          )}
+          <p className="text-xs text-slate-400">
+            Once your suspension period completes, access will automatically be restored.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex flex-col bg-slate-50 ${isMessagesPage ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       {/* On mobile in messages page, hide global navbar so chat is 100% full screen */}
